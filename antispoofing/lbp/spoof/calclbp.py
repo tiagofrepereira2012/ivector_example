@@ -202,3 +202,53 @@ def lbphist_facenorm(frame, lbptype, bbx, sz, elbptype='regular', radius=1, neig
     return finalhist, vf # the last argument is 1 if the frame was valid and 0 otherwise
   return  numpy.array(numbl * numbl * lbphistlength[lbptype] * [0]), 0 # return empty histogram if there is no valid bounding box (example: detected face in the frame)
 
+
+""""
+" Convert a sequence of RGB Frames to a sequence of Gray scale frames and do the face normalization over a given bounding box (bbx) in an image (around the detected face for example).
+
+Keyword Parameters:
+  rgbFrameSequence
+    The sequence of frames in the RGB
+  
+  locations
+    The face locations
+  sz
+   The size of the rescaled face bounding box
+
+  bbxsize
+    Considers as invalid all the bounding boxes with size smaller then this value
+
+"""
+def rgbVideo2grayVideo_facenorm(rgbFrameSequence,locations,sz,bbxsize_filter=0):
+  grayFaceNormFrameSequence = numpy.empty(shape=(0,sz,sz))
+  
+  for k in range(0, rgbFrameSequence.shape[0]):
+    bbx = locations[k]
+    if bbx and bbx.is_valid() and bbx.height > bbxsize_filter:
+      frame = bob.ip.rgb_to_gray(rgbFrameSequence[k,:,:,:])
+      cutframe = frame[bbx.y:(bbx.y+bbx.height),bbx.x:(bbx.x+bbx.width)] # cutting the box region
+      tempbbx = numpy.ndarray((sz, sz), 'float64')
+      normbbx = numpy.ndarray((sz, sz), 'uint8')
+      bob.ip.scale(cutframe, tempbbx) # normalization
+      tempbbx_ = tempbbx + 0.5 #TODO: UNDERSTAND THIS
+      tempbbx_ = numpy.floor(tempbbx_)
+      normbbx = numpy.cast['uint8'](tempbbx_)
+      
+      #Preparing the data to append.
+      #TODO: Maybe a there is a better solution
+      grayFaceNormFrame = numpy.empty(shape=(1,sz,sz))
+      grayFaceNormFrame[0] = normbbx
+      grayFaceNormFrameSequence = numpy.append(grayFaceNormFrameSequence,grayFaceNormFrame,axis=0)
+
+  return grayFaceNormFrameSequence
+
+
+"""
+" Calculate the LBPTop histograms
+"""
+def lbptophist(grayFaceNormFrameSequence,nXY,nXT,nYT,rXY,rXT,rYT,cXY,cXT,cYT):
+  
+  #Creating the LBP operators for each plane  
+  lbp_XY = bob.ip.LBP4R(radius=1.0, circular=False, uniform=False, rotation_invariant=False)
+
+
