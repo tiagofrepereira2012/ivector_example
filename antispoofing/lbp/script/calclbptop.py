@@ -96,11 +96,12 @@ def main():
     #numvf = 0 # number of valid frames in the video (will be smaller then the total number of frames if a face is not detected or a very small face is detected in a frame when face lbp are calculated   
     
     #Get the gray and normalized face frames
-    grayFaceFrameSequence = spoof.rgbVideo2grayVideo_facenorm(vin,locations,sz,bbxsize_filter=args.facesize_filter)
+    grayFaceNormFrameSequence = spoof.rgbVideo2grayVideo_facenorm(vin,locations,sz,bbxsize_filter=args.facesize_filter)
 
-    
+    XY,XT,YT = spoof.lbptophist(grayFaceNormFrameSequence,args.nXY,args.nXT,args.nYT,args.rXY,args.rXT,args.rYT,args.cXY,args.cXT,args.cYT,args.lbptype)
 
-    print(grayFaceFrameSequence.shape)
+    print(XT)
+
     exit()
 
 
