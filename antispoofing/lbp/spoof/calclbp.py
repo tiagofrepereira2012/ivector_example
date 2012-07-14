@@ -246,9 +246,69 @@ def rgbVideo2grayVideo_facenorm(rgbFrameSequence,locations,sz,bbxsize_filter=0):
 """
 " Calculate the LBPTop histograms
 """
-def lbptophist(grayFaceNormFrameSequence,nXY,nXT,nYT,rXY,rXT,rYT,cXY,cXT,cYT):
+def lbptophist(grayFaceNormFrameSequence,nXY,nXT,nYT,rXY,rXT,rYT,cXY,cXT,cYT,lbptype):
   
-  #Creating the LBP operators for each plane  
-  lbp_XY = bob.ip.LBP4R(radius=1.0, circular=False, uniform=False, rotation_invariant=False)
+  if(lbptype=='uniform'):
+    uniform = True
+  else:
+    uniform = False
+
+  timeLength = grayFaceNormFrameSequence.shape[0]
+  width   = grayFaceNormFrameSequence.shape[1]
+  height  = grayFaceNormFrameSequence.shape[2]
 
 
+  #Creating the LBP operators for each plane
+  lbp_XY = 0
+  lbp_XT = 0
+  lbp_YT = 0
+  #XY
+  if(nXY==4):
+    lbp_XY = bob.ip.LBP4R(radius=rXY, circular=cXY, uniform=uniform, rotation_invariant=False)
+  elif(nXY==8):
+    lbp_XY = bob.ip.LBP8R(radius=rXY, circular=cXY, uniform=uniform, rotation_invariant=False)
+  elif(nXY==16):
+    lbp_XY = bob.ip.LBP16R(radius=rXY, circular=cXY, uniform=uniform, rotation_invariant=False)
+
+
+  #XT
+  if(nXT==4):
+    lbp_XT = bob.ip.LBP4R(radius=rXT, circular=cXT, uniform=uniform, rotation_invariant=False)
+  elif(nXT==8):
+    lbp_XT = bob.ip.LBP8R(radius=rXT, circular=cXT, uniform=uniform, rotation_invariant=False)
+  elif(nXT==16):
+    lbp_XT = bob.ip.LBP16R(radius=rXT, circular=cXT, uniform=uniform, rotation_invariant=False)
+
+
+  #YT
+  if(nYT==4):
+    lbp_YT = bob.ip.LBP4R(radius=rYT, circular=cYT, uniform=uniform, rotation_invariant=False)
+  elif(nYT==8):
+    lbp_YT = bob.ip.LBP8R(radius=rYT, circular=cYT, uniform=uniform, rotation_invariant=False)
+  elif(nYT==16):
+    lbp_YT = bob.ip.LBP16R(radius=rYT, circular=cYT, uniform=uniform, rotation_invariant=False)
+
+
+  #Creating the LBPTop object
+  lbpTop = bob.ip.LBPTop(lbp_XY,lbp_XT,lbp_YT)
+
+
+  #Alocating the LBPTop Images
+  xy_width  = width-(lbp_XY.radius*2)
+  xy_height = height-(lbp_XY.radius*2)
+
+  xt_width  = timeLength-(lbp_XT.radius*2)
+  xt_height = width-(lbp_XT.radius*2)
+
+  yt_width  = timeLength-(lbp_YT.radius*2)
+  yt_height = height-(lbp_YT.radius*2)
+
+  XY = numpy.empty(shape=(xy_width,xy_height),dtype='uint16')
+  XT = numpy.empty(shape=(xt_width,xt_height),dtype='uint16')
+  YT = numpy.empty(shape=(yt_width,yt_height),dtype='uint16')
+
+  #Calculanting the LBPTop Images
+  lbpTop(grayFaceNormFrameSequence,XY,XT,YT)
+
+  return XY,XT,YT
+ 
