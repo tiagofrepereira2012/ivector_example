@@ -88,6 +88,7 @@ def main():
 
     sys.stdout.write("Processing file %s (%d frames) [%d/%d] " % (filename,
       input.number_of_frames, counter, len(process)))
+    sys.stdout.flush()
 
     # start the work here...
     vin = input.load() # load the video
@@ -114,16 +115,17 @@ def main():
 
     histXY,histXT,histYT = spoof.lbptophist(grayFaceNormFrameSequence,nXY,nXT,nYT,rXY,rXT,rYT,cXY,cXT,cYT,lbptype)
 
-    exit()
-
+    histData = numpy.zeros(shape=(3,histXY.shape[0]),dtype='float64')
+    histData[0] = histXY
+    histData[1] = histXT
+    histData[2] = histYT
 
     
     sys.stdout.write('\n')
     sys.stdout.flush()
 
     # saves the output
-    #arr = numpy.array(data, dtype='float64')
-    #db.save_one(key, arr.reshape([1,arr.size]), directory=args.directory, extension='.hdf5')
+    db.save_one(key, histData, directory=args.directory, extension='.hdf5')
 
   return 0
 
