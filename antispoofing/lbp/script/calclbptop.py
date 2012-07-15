@@ -112,9 +112,7 @@ def main():
 
     lbptype =args.lbptype
 
-    XY,XT,YT = spoof.lbptophist(grayFaceNormFrameSequence,nXY,nXT,nYT,rXY,rXT,rYT,cXY,cXT,cYT,lbptype)
-
-    print(XT)
+    histXY,histXT,histYT = spoof.lbptophist(grayFaceNormFrameSequence,nXY,nXT,nYT,rXY,rXT,rYT,cXY,cXT,cYT,lbptype)
 
     exit()
 
