@@ -310,5 +310,14 @@ def lbptophist(grayFaceNormFrameSequence,nXY,nXT,nYT,rXY,rXT,rYT,cXY,cXT,cYT,lbp
   #Calculanting the LBPTop Images
   lbpTop(grayFaceNormFrameSequence,XY,XT,YT)
 
-  return XY,XT,YT
- 
+  #Calculating the histograms
+  histXY = bob.ip.histogram(XY, 0, lbp_XY.max_label-1, lbp_XY.max_label)
+  histXT = bob.ip.histogram(XT, 0, lbp_XT.max_label-1, lbp_XT.max_label)
+  histYT = bob.ip.histogram(YT, 0, lbp_YT.max_label-1, lbp_YT.max_label)
+
+  #histogram normalization
+  histXY = histXY / sum(histXY)
+  histXT = histXT / sum(histXT)
+  histYT = histYT / sum(histYT)
+
+  return histXY,histXT,histYT
