@@ -74,6 +74,7 @@ def main():
   faceloc_dir = os.path.join(args.inputdir, 'face-locations')
 
   counter = 0
+
   # process each video
   for key, filename in process.items():
     counter += 1
@@ -115,17 +116,17 @@ def main():
 
     histXY,histXT,histYT = spoof.lbptophist(grayFaceNormFrameSequence,nXY,nXT,nYT,rXY,rXT,rYT,cXY,cXT,cYT,lbptype)
 
-    histData = numpy.zeros(shape=(3,histXY.shape[0]),dtype='float64')
+    histData = numpy.zeros(shape=(3,histXY.shape[0],histXY.shape[1]),dtype='float64')
     histData[0] = histXY
     histData[1] = histXT
     histData[2] = histYT
 
-    
     sys.stdout.write('\n')
     sys.stdout.flush()
 
     # saves the output
     db.save_one(key, histData, directory=args.directory, extension='.hdf5')
+
 
   return 0
 
