@@ -245,6 +245,31 @@ def rgbVideo2grayVideo_facenorm(rgbFrameSequence,locations,sz,bbxsize_filter=0):
 
 """
 " Calculate the LBPTop histograms
+"
+" Keyword parameters
+"
+"  grayFaceNormFrameSequence
+"     The sequence of FACE frames in grayscale
+"   nXY
+"     Number of points around the center pixel in the XY direction
+"   nXT
+"     Number of points around the center pixel in the XT direction
+"   nYT
+"     Number of points around the center pixel in the YT direction
+"   rXY
+"     The radius of the circle on which the points are taken (for circular LBP) in the XY plane
+"   rXT
+"     The radius of the circle on which the points are taken (for circular LBP) in the XT plane
+"   rYT
+"     The radius of the circle on which the points are taken (for circular LBP) in the YT plane
+"   cXY
+"     True if circular LBP is needed in the XY plane, False otherwise
+"   cXT
+"     True if circular LBP is needed in the XT plane, False otherwise
+"   cYT
+"     True if circular LBP is needed in the YT plane, False otherwise
+"   lbptype
+"     The type of the LBP operator (regular, uniform or riu2)
 """
 def lbptophist(grayFaceNormFrameSequence,nXY,nXT,nYT,rXY,rXT,rYT,cXY,cXT,cYT,lbptype):
   
@@ -297,27 +322,42 @@ def lbptophist(grayFaceNormFrameSequence,nXY,nXT,nYT,rXY,rXT,rYT,cXY,cXT,cYT,lbp
   xy_width  = width-(lbp_XY.radius*2)
   xy_height = height-(lbp_XY.radius*2)
 
-  xt_width  = timeLength-(lbp_XT.radius*2)
-  xt_height = width-(lbp_XT.radius*2)
+  if(lbp_XT.radius>lbp_YT.radius):
+    maxT_radius = lbp_XT.radius
+  else:
+    maxT_radius = lbp_YT.radius
+  tLength   = timeLength-(maxT_radius*2)
 
-  yt_width  = timeLength-(lbp_YT.radius*2)
-  yt_height = height-(lbp_YT.radius*2)
 
-  XY = numpy.empty(shape=(xy_width,xy_height),dtype='uint16')
-  XT = numpy.empty(shape=(xt_width,xt_height),dtype='uint16')
-  YT = numpy.empty(shape=(yt_width,yt_height),dtype='uint16')
+  XY = numpy.zeros(shape=(tLength,xy_width,xy_height),dtype='uint16')
+  XT = numpy.zeros(shape=(tLength,xy_width,xy_height),dtype='uint16')
+  YT = numpy.zeros(shape=(tLength,xy_width,xy_height),dtype='uint16')
 
   #Calculanting the LBPTop Images
   lbpTop(grayFaceNormFrameSequence,XY,XT,YT)
+  
+  ### Calculating the histograms
 
-  #Calculating the histograms
-  histXY = bob.ip.histogram(XY, 0, lbp_XY.max_label-1, lbp_XY.max_label)
-  histXT = bob.ip.histogram(XT, 0, lbp_XT.max_label-1, lbp_XT.max_label)
-  histYT = bob.ip.histogram(YT, 0, lbp_YT.max_label-1, lbp_YT.max_label)
+  #XY
+  histXY = numpy.zeros(shape=(XY.shape[0],lbp_XY.max_label))
+  for i in range(XY.shape[0]):
+    histXY[i] = bob.ip.histogram(XY[i], 0, lbp_XY.max_label-1, lbp_XY.max_label)
+    #histogram normalization
+    histXY[i] = histXY[i] / sum(histXY[i])
 
-  #histogram normalization
-  histXY = histXY / sum(histXY)
-  histXT = histXT / sum(histXT)
-  histYT = histYT / sum(histYT)
+  #XT
+  histXT = numpy.zeros(shape=(XT.shape[0],lbp_XT.max_label))
+  for i in range(XT.shape[0]):
+    histXT[i] = bob.ip.histogram(XT[i], 0, lbp_XT.max_label-1, lbp_XT.max_label)
+    #histogram normalization
+    histXT[i] = histXT[i] / sum(histXT[i])
+
+  #YT
+  histYT = numpy.zeros(shape=(YT.shape[0],lbp_YT.max_label))
+  for i in range(YT.shape[0]):
+    histYT[i] = bob.ip.histogram(YT[i], 0, lbp_YT.max_label-1, lbp_YT.max_label)
+    #histogram normalization
+    histYT[i] = histYT[i] / sum(histYT[i])
+
 
   return histXY,histXT,histYT
