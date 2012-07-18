@@ -224,6 +224,7 @@ def rgbVideo2grayVideo_facenorm(rgbFrameSequence,locations,sz,bbxsize_filter=0):
   
   for k in range(0, rgbFrameSequence.shape[0]):
     bbx = locations[k]
+    
     if bbx and bbx.is_valid() and bbx.height > bbxsize_filter:
       frame = bob.ip.rgb_to_gray(rgbFrameSequence[k,:,:,:])
       cutframe = frame[bbx.y:(bbx.y+bbx.height),bbx.x:(bbx.x+bbx.width)] # cutting the box region
@@ -242,6 +243,58 @@ def rgbVideo2grayVideo_facenorm(rgbFrameSequence,locations,sz,bbxsize_filter=0):
 
   return grayFaceNormFrameSequence
 
+
+"""
+" Select the reference bounding box for a volume. The valid bounding box is the center; if it is not exists, take the first valid, otherwise none is  returned
+
+"""
+def getReferenceBoundingBox(locations,rangeValues,bbxsize_filter):
+  
+  #First trying to get the center frame
+  center = (max(rangeValues)+min(rangeValues))/2
+  bbx = locations[center]
+
+  if bbx and bbx.is_valid() and bbx.height > bbxsize_filter:
+    return bbx
+
+  bbx = None
+  #if the center is invalid, try to get the first valid
+  for i in rangeValues:
+    if(i==center):
+      continue
+
+    if locations[i] and locations[i].is_valid() and locations[i].height > bbxsize_filter:
+      bbx = locations[i]
+      break
+
+  return bbx
+
+
+"""
+" Get a volume with normalized faces
+"""
+def getNormFacesFromRange(grayFrameSequence,rangeValues,locations,sz,bbxsize_filter=0):
+
+  #If there is no bounding boxes, this volume will no be analised  
+  bbx = getReferenceBoundingBox(locations,rangeValues,bbxsize_filter)
+  if(bbx==None):
+    return None
+
+  selectedFrames = grayFrameSequence[rangeValues]
+  nFrames = selectedFrames.shape[0]
+  selectedNormFrames = numpy.zeros(shape=(nFrames,sz,sz),dtype='uint8')
+
+  for i in range(nFrames):
+    frame = selectedFrames[i]
+    cutframe = frame[bbx.y:(bbx.y+bbx.height),bbx.x:(bbx.x+bbx.width)] # cutting the box region
+    tempbbx = numpy.ndarray((sz, sz), 'float64')
+    #normbbx = numpy.ndarray((sz, sz), 'uint8')
+    bob.ip.scale(cutframe, tempbbx) # normalization
+    tempbbx_ = tempbbx + 0.5 #TODO: UNDERSTAND THIS
+    tempbbx_ = numpy.floor(tempbbx_)
+    selectedNormFrames[i] = numpy.cast['uint8'](tempbbx_)
+    
+  return selectedNormFrames
 
 """
 " Calculate the LBPTop histograms
@@ -319,14 +372,12 @@ def lbptophist(grayFaceNormFrameSequence,nXY,nXT,nYT,rXY,rXT,rYT,cXY,cXT,cYT,lbp
 
 
   #Alocating the LBPTop Images
-  xy_width  = width-(lbp_XY.radius*2)
-  xy_height = height-(lbp_XY.radius*2)
+  max_radius = max(lbp_XY.radius,lbp_XT.radius,lbp_YT.radius)
 
-  if(lbp_XT.radius>lbp_YT.radius):
-    maxT_radius = lbp_XT.radius
-  else:
-    maxT_radius = lbp_YT.radius
-  tLength   = timeLength-(maxT_radius*2)
+  xy_width  = width-(max_radius*2)
+  xy_height = height-(max_radius*2)
+  tLength   = timeLength-(max_radius*2)
+
 
 
   XY = numpy.zeros(shape=(tLength,xy_width,xy_height),dtype='uint16')

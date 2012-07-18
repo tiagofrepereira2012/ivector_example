@@ -41,9 +41,11 @@ def main():
   parser.add_argument('-rXT', '--radiusXT', type=int, default=1, dest='rXT', help='Radius of the XT plane (defaults to "%(default)s")')
   parser.add_argument('-rYT', '--radiusYT', type=int, default=1, dest='rYT', help='Radius of the YT plane (defaults to "%(default)s")')
 
-  parser.add_argument('-cXY', '--circularXY', default=False, dest='cXY', help='Is circular neighborhood in XY plane?  (defaults to "%(default)s")')
-  parser.add_argument('-cXT', '--circularXT', default=False, dest='cXT', help='Is circular neighborhood in XT plane?  (defaults to "%(default)s")')
-  parser.add_argument('-cYT', '--circularYT', default=False, dest='cYT', help='Is circular neighborhood in YT plane?  (defaults to "%(default)s")')
+  parser.add_argument('-cXY', '--circularXY', action='store_true', default=False, dest='cXY', help='Is circular neighborhood in XY plane?  (defaults to "%(default)s")')
+  parser.add_argument('-cXT', '--circularXT', action='store_true', default=False, dest='cXT', help='Is circular neighborhood in XT plane?  (defaults to "%(default)s")')
+  parser.add_argument('-cYT', '--circularYT', action='store_true', default=False, dest='cYT', help='Is circular neighborhood in YT plane?  (defaults to "%(default)s")')
+
+  parser.add_argument('-vo', '--volume-face-detection', action='store_true', default=False, dest='volume_face_detection', help='With this option, only one face bounding box (the center frame) will be used for the volume analisys and the other frames will share the same bounding box. Otherwise the frames will use the respectives bounding boxes (defaults to "%(default)s")')
 
   parser.add_argument('--el', '--elbptype', metavar='ELBPTYPE', type=str, choices=('regular', 'transitional', 'direction_coded', 'modified'), default='regular', dest='elbptype', help='Choose the type of extended LBP features to compute (defaults to "%(default)s")')
 
@@ -97,9 +99,7 @@ def main():
     #TODO: I SHOULD USE THAT
     #numvf = 0 # number of valid frames in the video (will be smaller then the total number of frames if a face is not detected or a very small face is detected in a frame when face lbp are calculated   
     
-    #Getting the gray and normalized face frames
-    grayFaceNormFrameSequence = spoof.rgbVideo2grayVideo_facenorm(vin,locations,sz,bbxsize_filter=args.facesize_filter)
-
+    volume_face_detection = args.volume_face_detection
     nXY = args.nXY
     nXT = args.nXT
     nYT = args.nYT
@@ -113,13 +113,62 @@ def main():
     cYT = args.cYT
 
     lbptype =args.lbptype
+    
 
-    histXY,histXT,histYT = spoof.lbptophist(grayFaceNormFrameSequence,nXY,nXT,nYT,rXY,rXT,rYT,cXY,cXT,cYT,lbptype)
+    
+    if(volume_face_detection):
+      maxRadius = max(rXY,rXT,rYT) #Getting the max radius to extract the volume for analysis
+      nFrames = vin.shape[0]
+      
+      #Converting all frames to grayscale
+      grayFrames = numpy.zeros(shape=(nFrames,vin.shape[2],vin.shape[3]))
+      for i in range(nFrames):
+        grayFrames[i] = bob.ip.rgb_to_gray(vin[i,:,:,:])
 
-    histData = numpy.zeros(shape=(3,histXY.shape[0],histXY.shape[1]),dtype='float64')
-    histData[0] = histXY
-    histData[1] = histXT
-    histData[2] = histYT
+      ### STARTING the video analysis
+      #Analysing each sub-volume in the video
+      histVolumeXY = None
+      histVolumeXT = None
+      histVolumeYT = None
+      for i in range(maxRadius,nFrames-maxRadius):
+
+        #Select the volume to analyse
+        rangeValues = range(i-maxRadius,i+1+maxRadius)
+        normalizedVolume = spoof.getNormFacesFromRange(grayFrames,rangeValues,locations,sz,args.facesize_filter)
+
+        if(normalizedVolume==None):
+          print("No frames in the volume " + filename)
+          continue
+
+        histXY,histXT,histYT = spoof.lbptophist(normalizedVolume,nXY,nXT,nYT,rXY,rXT,rYT,cXY,cXT,cYT,lbptype)
+
+        if(histVolumeXY == None):
+	  histVolumeXY = histXY
+	  histVolumeXT = histXT
+	  histVolumeYT = histYT
+        else:
+          histVolumeXY= numpy.concatenate((histVolumeXY, histXY),axis=0)
+          histVolumeXT= numpy.concatenate((histVolumeXT, histXT),axis=0)
+          histVolumeYT= numpy.concatenate((histVolumeYT, histXY),axis=0)
+      
+      #Saving the results into a file 
+      histData = numpy.zeros(shape=(3,histVolumeXY.shape[0],histVolumeXY.shape[1]),dtype='float64')
+      histData[0] = histVolumeXY
+      histData[1] = histVolumeXT
+      histData[2] = histVolumeYT
+
+    else:
+      #Extract the LBPTop of each frame using independent bounding boxes
+
+      #Getting the gray and normalized face frames
+      grayFaceNormFrameSequence = spoof.rgbVideo2grayVideo_facenorm(vin,locations,sz,bbxsize_filter=args.facesize_filter)
+
+      histXY,histXT,histYT = spoof.lbptophist(grayFaceNormFrameSequence,nXY,nXT,nYT,rXY,rXT,rYT,cXY,cXT,cYT,lbptype)
+
+      histData = numpy.zeros(shape=(3,histXY.shape[0],histXY.shape[1]),dtype='float64')
+      histData[0] = histXY
+      histData[1] = histXT
+      histData[2] = histYT
 
     sys.stdout.write('\n')
     sys.stdout.flush()
@@ -129,9 +178,6 @@ def main():
 
 
   return 0
-
-
-    
 
 if __name__ == "__main__":
   main()
