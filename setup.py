@@ -22,16 +22,24 @@ setup(
     install_requires=[
         "bob",      # base signal proc./machine learning library
         "argparse", # better option parsing
+        "gridtk", # To gridfy
     ],
 
     entry_points={
       'console_scripts': [
         'calclbp.py = antispoofing.lbp.script.calclbp:main',
+        'calclbptop.py = antispoofing.lbp.script.calclbptop:main'
         'calcframelbp.py = antispoofing.lbp.script.calcframelbp:main',
         'mkhistmodel.py = antispoofing.lbp.script.mkhistmodel:main',
+        'mkhistmodel_lbptop.py = antispoofing.lbp.script.mkhistmodel_lbptop:main',
         'cmphistmodels.py = antispoofing.lbp.script.cmphistmodels:main',
+        'cmphistmodels_lbptop.py = antispoofing.lbp.script.cmphistmodels_lbptop:main',
         'ldatrain_lbp.py = antispoofing.lbp.script.ldatrain_lbp:main',
+        'ldatrain_lbptop.py = antispoofing.lbp.script.ldatrain_lbptop:main',
         'svmtrain_lbp.py = antispoofing.lbp.script.svmtrain_lbp:main',
+        'svmtrain_lbptop.py = antispoofing.lbp.script.svmtrain_lbptop:main',
+
+
         ],
       },
 
