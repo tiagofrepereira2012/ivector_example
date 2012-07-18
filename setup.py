@@ -28,7 +28,7 @@ setup(
     entry_points={
       'console_scripts': [
         'calclbp.py = antispoofing.lbp.script.calclbp:main',
-        'calclbptop.py = antispoofing.lbp.script.calclbptop:main'
+        'calclbptop.py = antispoofing.lbp.script.calclbptop:main',
         'calcframelbp.py = antispoofing.lbp.script.calcframelbp:main',
         'mkhistmodel.py = antispoofing.lbp.script.mkhistmodel:main',
         'mkhistmodel_lbptop.py = antispoofing.lbp.script.mkhistmodel_lbptop:main',
