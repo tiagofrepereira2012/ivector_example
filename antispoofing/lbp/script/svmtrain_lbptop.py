@@ -179,6 +179,8 @@ def main():
          100*test_frr, int(round(test_frr*len(test_real_plane))), len(test_real_plane),
          50*(test_far+test_frr)))
   
+    print(tbl)
+
   txt = ''.join([k+'\n' for k in tbl])
   # write the results to a file 
   tf = open(os.path.join(args.outputdir, 'SVM_perf_table.txt'), 'w')
