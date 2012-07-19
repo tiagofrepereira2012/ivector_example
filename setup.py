@@ -22,7 +22,6 @@ setup(
     install_requires=[
         "bob",      # base signal proc./machine learning library
         "argparse", # better option parsing
-        "gridtk", # To gridfy
     ],
 
     entry_points={
