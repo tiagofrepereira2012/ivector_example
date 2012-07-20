@@ -101,6 +101,8 @@ def main():
   test_attack = create_full_dataset(process_test_attack)
 
   models = ['model_hist_real_XY','model_hist_real_XT','model_hist_real_YT','model_hist_real_XT_YT','model_hist_real_XY_XT_YT']
+  lines  = ['r','b','y','g^','c']
+
   # loading the histogram models
   histmodelsfile = bob.io.HDF5File(os.path.join(args.inputmodeldir, 'histmodelsfile.hdf5'),'r')
   tf = open(os.path.join(args.outputdir, 'perf_table.txt'), 'w')
@@ -134,6 +136,14 @@ def main():
     perftable_plane, eer_thres_plane, mhter_thres_plane = perf.performance_table(sc_test_realmodel_plane, sc_devel_realmodel_plane, "CHI-2 comparison in " + models[i]+ ", RESULTS")
 
     tf.write(perftable_plane)
+    
+    #Plotting the ROC curves
+    from .. import ml
+    if(i==len(models)-1):
+      hold=False
+    else:
+      hold=True
+
 
   tf.close()
   del histmodelsfile

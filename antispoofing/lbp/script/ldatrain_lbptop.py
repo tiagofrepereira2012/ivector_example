@@ -105,6 +105,7 @@ def main():
   
 
   models = ['XY-plane','XT-Plane','YT-Plane','XT-YT-Plane','XY-XT-YT-plane']
+  lines  = ['r','b','y','g^','c']
   tbl = []
 
   for i in range(len(models)):
@@ -175,6 +176,20 @@ def main():
          50*(test_far+test_frr)))
     txt = ''.join([k+'\n' for k in tbl])
   
+
+    #Plotting the ROC curves
+    from .. import ml
+    if(i==len(models)-1):
+      hold=False
+    else:
+      hold=True
+    
+    testHTER = round(50*(test_far+test_frr),2)
+    ml.perf_lbptop.roc_lbptop(test_real_plane_out,test_attack_plane_out,models[i]+" HTER = " + str(testHTER) + "%",hold,linestyle=lines[i],filename=os.path.join(args.outputdir,"ROC_LDA.png"))
+
+
+
+
 
   txt = ''.join([k+'\n' for k in tbl])
   # write the results to a file 
