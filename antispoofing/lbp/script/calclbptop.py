@@ -37,9 +37,9 @@ def main():
   parser.add_argument('-nXT', '--neighborsXT', type=int, default=8, dest='nXT', help='Number of Neighbors in the XT plane (defaults to "%(default)s")')
   parser.add_argument('-nYT', '--neighborsYT', type=int, default=8, dest='nYT', help='Number of Neighbors in the YT plane (defaults to "%(default)s")')
 
-  parser.add_argument('-rXY', '--radiusXY', type=int, default=1, dest='rXY', help='Radius of the XY plane (defaults to "%(default)s")')
-  parser.add_argument('-rXT', '--radiusXT', type=int, default=1, dest='rXT', help='Radius of the XT plane (defaults to "%(default)s")')
-  parser.add_argument('-rYT', '--radiusYT', type=int, default=1, dest='rYT', help='Radius of the YT plane (defaults to "%(default)s")')
+  parser.add_argument('-rX', '--radiusX', type=int, default=1, dest='rX', help='Radius of the X axis (defaults to "%(default)s")')
+  parser.add_argument('-rY', '--radiusY', type=int, default=1, dest='rY', help='Radius of the Y axis (defaults to "%(default)s")')
+  parser.add_argument('-rT', '--radiusT', type=int, default=1, dest='rT', help='Radius of the T axis (defaults to "%(default)s")')
 
   parser.add_argument('-cXY', '--circularXY', action='store_true', default=False, dest='cXY', help='Is circular neighborhood in XY plane?  (defaults to "%(default)s")')
   parser.add_argument('-cXT', '--circularXT', action='store_true', default=False, dest='cXT', help='Is circular neighborhood in XT plane?  (defaults to "%(default)s")')
@@ -104,20 +104,19 @@ def main():
     nXT = args.nXT
     nYT = args.nYT
 
-    rXY = args.rXY
-    rXT = args.rXT
-    rYT = args.rYT
+    rX = args.rX
+    rY = args.rY
+    rT = args.rT
 
     cXY = args.cXY
     cXT = args.cXT
     cYT = args.cYT
 
     lbptype =args.lbptype
-    
 
     
     if(volume_face_detection):
-      maxRadius = max(rXY,rXT,rYT) #Getting the max radius to extract the volume for analysis
+      maxRadius = max(rX,rY,rT) #Getting the max radius to extract the volume for analysis
       nFrames = vin.shape[0]
       
       #Converting all frames to grayscale
@@ -140,7 +139,7 @@ def main():
           print("No frames in the volume " + filename)
           continue
 
-        histXY,histXT,histYT = spoof.lbptophist(normalizedVolume,nXY,nXT,nYT,rXY,rXT,rYT,cXY,cXT,cYT,lbptype)
+        histXY,histXT,histYT = spoof.lbptophist(normalizedVolume,nXY,nXT,nYT,rX,rY,rT,cXY,cXT,cYT,lbptype)
 
         if(histVolumeXY == None):
 	  histVolumeXY = histXY
@@ -163,7 +162,7 @@ def main():
       #Getting the gray and normalized face frames
       grayFaceNormFrameSequence = spoof.rgbVideo2grayVideo_facenorm(vin,locations,sz,bbxsize_filter=args.facesize_filter)
 
-      histXY,histXT,histYT = spoof.lbptophist(grayFaceNormFrameSequence,nXY,nXT,nYT,rXY,rXT,rYT,cXY,cXT,cYT,lbptype)
+      histXY,histXT,histYT = spoof.lbptophist(grayFaceNormFrameSequence,nXY,nXT,nYT,rX,rY,rT,cXY,cXT,cYT,lbptype)
 
       histData = numpy.zeros(shape=(3,histXY.shape[0],histXY.shape[1]),dtype='float64')
       histData[0] = histXY

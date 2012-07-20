@@ -309,12 +309,12 @@ def getNormFacesFromRange(grayFrameSequence,rangeValues,locations,sz,bbxsize_fil
 "     Number of points around the center pixel in the XT direction
 "   nYT
 "     Number of points around the center pixel in the YT direction
-"   rXY
-"     The radius of the circle on which the points are taken (for circular LBP) in the XY plane
-"   rXT
-"     The radius of the circle on which the points are taken (for circular LBP) in the XT plane
-"   rYT
-"     The radius of the circle on which the points are taken (for circular LBP) in the YT plane
+"   rX
+"     The radius of the circle on which the points are taken (for circular LBP) in the X axis
+"   rY
+"     The radius of the circle on which the points are taken (for circular LBP) in the Y axis
+"   rT
+"     The radius of the circle on which the points are taken (for circular LBP) in the T axis
 "   cXY
 "     True if circular LBP is needed in the XY plane, False otherwise
 "   cXT
@@ -324,7 +324,7 @@ def getNormFacesFromRange(grayFrameSequence,rangeValues,locations,sz,bbxsize_fil
 "   lbptype
 "     The type of the LBP operator (regular, uniform or riu2)
 """
-def lbptophist(grayFaceNormFrameSequence,nXY,nXT,nYT,rXY,rXT,rYT,cXY,cXT,cYT,lbptype):
+def lbptophist(grayFaceNormFrameSequence,nXY,nXT,nYT,rX,rY,rT,cXY,cXT,cYT,lbptype):
   
   if(lbptype=='uniform'):
     uniform = True
@@ -342,43 +342,48 @@ def lbptophist(grayFaceNormFrameSequence,nXY,nXT,nYT,rXY,rXT,rYT,cXY,cXT,cYT,lbp
   lbp_YT = 0
   #XY
   if(nXY==4):
-    lbp_XY = bob.ip.LBP4R(radius=rXY, circular=cXY, uniform=uniform, rotation_invariant=False)
+    lbp_XY = bob.ip.LBP4R(radius=rX, circular=cXY, uniform=uniform, rotation_invariant=False)
+    lbp_XY.radius2 = rY
   elif(nXY==8):
-    lbp_XY = bob.ip.LBP8R(radius=rXY, circular=cXY, uniform=uniform, rotation_invariant=False)
+    lbp_XY = bob.ip.LBP8R(radius=rX, circular=cXY, uniform=uniform, rotation_invariant=False)
+    lbp_XY.radius2 = rY
   elif(nXY==16):
-    lbp_XY = bob.ip.LBP16R(radius=rXY, circular=cXY, uniform=uniform, rotation_invariant=False)
+    lbp_XY = bob.ip.LBP16R(radius=rX, circular=cXY, uniform=uniform, rotation_invariant=False)
+    lbp_XY.radius2 = rY
 
 
   #XT
   if(nXT==4):
-    lbp_XT = bob.ip.LBP4R(radius=rXT, circular=cXT, uniform=uniform, rotation_invariant=False)
+    lbp_XT = bob.ip.LBP4R(radius=rX, circular=cXT, uniform=uniform, rotation_invariant=False)
+    lbp_XT.radius2 = rT
   elif(nXT==8):
-    lbp_XT = bob.ip.LBP8R(radius=rXT, circular=cXT, uniform=uniform, rotation_invariant=False)
+    lbp_XT = bob.ip.LBP8R(radius=rX, circular=cXT, uniform=uniform, rotation_invariant=False)
+    lbp_XT.radius2 = rT
   elif(nXT==16):
-    lbp_XT = bob.ip.LBP16R(radius=rXT, circular=cXT, uniform=uniform, rotation_invariant=False)
+    lbp_XT = bob.ip.LBP16R(radius=rX, circular=cXT, uniform=uniform, rotation_invariant=False)
+    lbp_XT.radius2 = rT
 
 
   #YT
   if(nYT==4):
-    lbp_YT = bob.ip.LBP4R(radius=rYT, circular=cYT, uniform=uniform, rotation_invariant=False)
+    lbp_YT = bob.ip.LBP4R(radius=rY, circular=cYT, uniform=uniform, rotation_invariant=False)
+    lbp_YT.radius2 = rT
   elif(nYT==8):
-    lbp_YT = bob.ip.LBP8R(radius=rYT, circular=cYT, uniform=uniform, rotation_invariant=False)
+    lbp_YT = bob.ip.LBP8R(radius=rY, circular=cYT, uniform=uniform, rotation_invariant=False)
+    lbp_YT.radius2 = rT
   elif(nYT==16):
-    lbp_YT = bob.ip.LBP16R(radius=rYT, circular=cYT, uniform=uniform, rotation_invariant=False)
-
+    lbp_YT = bob.ip.LBP16R(radius=rY, circular=cYT, uniform=uniform, rotation_invariant=False)
+    lbp_YT.radius2 = rT
 
   #Creating the LBPTop object
   lbpTop = bob.ip.LBPTop(lbp_XY,lbp_XT,lbp_YT)
 
-
   #Alocating the LBPTop Images
-  max_radius = max(lbp_XY.radius,lbp_XT.radius,lbp_YT.radius)
+  max_radius = max(lbp_XY.radius,lbp_XY.radius2,lbp_XT.radius2)
 
   xy_width  = width-(max_radius*2)
   xy_height = height-(max_radius*2)
   tLength   = timeLength-(max_radius*2)
-
-
 
   XY = numpy.zeros(shape=(tLength,xy_width,xy_height),dtype='uint16')
   XT = numpy.zeros(shape=(tLength,xy_width,xy_height),dtype='uint16')
