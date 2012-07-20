@@ -35,8 +35,13 @@ def det_lbptop(pos,neg,label,hold=False,linestyle='--',filename="DET.png"):
   bob.measure.plot.det(neg, pos, npoints=100,
       linestyle=linestyle, dashes=(6,2), alpha=0.5, label=label)
 
+
   if(not hold):
-    mpl.title("ROC Curve")
+   
+    bob.measure.plot.det_axis([1, 40, 1, 40])
+
+
+    mpl.title("DET Curve")
     mpl.xlabel('FRR (%)')
     mpl.ylabel('FAR (%)')
     mpl.grid(True, alpha=0.3)

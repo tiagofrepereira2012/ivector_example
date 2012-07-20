@@ -185,7 +185,7 @@ def main():
       hold=True
     
     testHTER = round(50*(test_far+test_frr),2)
-    ml.perf_lbptop.roc_lbptop(test_real_plane_out,test_attack_plane_out,models[i]+" HTER = " + str(testHTER) + "%",hold,linestyle=lines[i],filename=os.path.join(args.outputdir,"ROC_LDA.png"))
+    ml.perf_lbptop.det_lbptop(test_real_plane_out,test_attack_plane_out,models[i]+" HTER = " + str(testHTER) + "%",hold,linestyle=lines[i],filename=os.path.join(args.outputdir,"DET_LDA.png"))
 
 
 
