@@ -45,6 +45,9 @@ def main():
   parser.add_argument('-cXT', '--circularXT', action='store_true', default=False, dest='cXT', help='Is circular neighborhood in XT plane?  (defaults to "%(default)s")')
   parser.add_argument('-cYT', '--circularYT', action='store_true', default=False, dest='cYT', help='Is circular neighborhood in YT plane?  (defaults to "%(default)s")')
 
+  # For SGE grid processing @ Idiap
+  parser.add_argument('--grid', dest='grid', action='store_true', default=False, help=argparse.SUPPRESS)
+
   parser.add_argument('-vo', '--volume-face-detection', action='store_true', default=False, dest='volume_face_detection', help='With this option, only one face bounding box (the center frame) will be used for the volume analisys and the other frames will share the same bounding box. Otherwise the frames will use the respectives bounding boxes (defaults to "%(default)s")')
 
   parser.add_argument('--el', '--elbptype', metavar='ELBPTYPE', type=str, choices=('regular', 'transitional', 'direction_coded', 'modified'), default='regular', dest='elbptype', help='Choose the type of extended LBP features to compute (defaults to "%(default)s")')
@@ -74,15 +77,29 @@ def main():
 
   # where to find the face bounding boxes
   faceloc_dir = os.path.join(args.inputdir, 'face-locations')
-
   counter = 0
 
-  # process each video
-  for key, filename in process.items():
+
+  # finally, if we are on a grid environment, just find what I have to process.
+  if args.grid:
+    pos = int(os.environ['SGE_TASK_ID']) - 1
+    ordered_keys = sorted(process.keys())
+    if pos >= len(ordered_keys):
+      raise RuntimeError, "Grid request for job %d on a setup with %d jobs" % \
+          (pos, len(ordered_keys))
+    key = ordered_keys[pos] # gets the right key
+    process = {key: files[key]}
+
+
+  # processing each video
+  for index, key in enumerate(sorted(process.keys())):
+    filename = process[key]
+
     counter += 1
     filename = os.path.expanduser(filename)
     input = bob.io.VideoReader(filename)
     
+
     # loading the face locations
     flocfile = os.path.expanduser(db.paths([key], faceloc_dir, '.face')[0])
     locations = faceloc.read_face(flocfile)
