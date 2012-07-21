@@ -20,15 +20,29 @@ def create_full_dataset(files):
   dataset_XT_YT = None
   dataset_XY_XT_YT = None
 
+  dimXY = 0
+  dimXT = 0
+  dimYT = 0
+
   for key, filename in files.items():
     filename = os.path.expanduser(filename)
     fvs = bob.io.load(filename)
 
+
     if dataset_XY is None:
       #each individual plane
-      dataset_XY = numpy.array(fvs[0],copy=True,order='C',dtype='float')
-      dataset_XT = numpy.array(fvs[1],copy=True,order='C',dtype='float')
-      dataset_YT = numpy.array(fvs[2],copy=True,order='C',dtype='float')
+      dimXY = fvs[0][0][0]
+      dimXT = fvs[0][0][1]
+      dimYT = fvs[0][0][2]
+
+      dataset_XY = numpy.array(fvs[1],copy=True,order='C',dtype='float')
+      dataset_XT = numpy.array(fvs[2],copy=True,order='C',dtype='float')
+      dataset_YT = numpy.array(fvs[3],copy=True,order='C',dtype='float')
+
+      #Reshaping to the correct dimensions
+      dataset_XY = dataset_XY[:,0:dimXY]
+      dataset_XT = dataset_XT[:,0:dimXT]
+      dataset_YT = dataset_YT[:,0:dimYT]
 
       #combining the temporal planes
       dataset_XT_YT = numpy.array(numpy.concatenate((dataset_XT,dataset_YT),axis=1),copy=True,order='C',dtype='float')
@@ -38,20 +52,21 @@ def create_full_dataset(files):
 
     else:
       #appending each individual plane
-      dataset_XY = numpy.concatenate((dataset_XY, fvs[0]),axis=0)
-      dataset_XT = numpy.concatenate((dataset_XT, fvs[1]),axis=0)
-      dataset_YT = numpy.concatenate((dataset_YT, fvs[2]),axis=0)
+      dataset_XY = numpy.concatenate((dataset_XY, fvs[1,:,0:dimXY]),axis=0)
+      dataset_XT = numpy.concatenate((dataset_XT, fvs[2,:,0:dimXT]),axis=0)
+      dataset_YT = numpy.concatenate((dataset_YT, fvs[3,:,0:dimYT]),axis=0)
 
       #appending temporal frames
-      item_XT_YT    = numpy.concatenate((fvs[1],fvs[2]),axis=1)
+      item_XT_YT    = numpy.concatenate((fvs[2,:,0:dimXT],fvs[3,:,0:dimYT]),axis=1)
       dataset_XT_YT = numpy.concatenate((dataset_XT_YT, item_XT_YT),axis=0)
 
       #appending all frames
-      item_XY_XT_YT    = numpy.concatenate((fvs[0],fvs[1],fvs[2]),axis=1)
+      item_XY_XT_YT    = numpy.concatenate((fvs[1,:,0:dimXY],fvs[2,:,0:dimXT],fvs[3,:,0:dimYT]),axis=1)
       dataset_XY_XT_YT = numpy.concatenate((dataset_XY_XT_YT,item_XY_XT_YT),axis=0)
   
   dataset = [dataset_XY,dataset_XT,dataset_YT,dataset_XT_YT,dataset_XY_XT_YT]  
   return dataset
+
 
 def main():
 

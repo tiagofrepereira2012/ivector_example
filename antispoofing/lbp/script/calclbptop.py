@@ -165,26 +165,42 @@ def main():
         else:
           histVolumeXY= numpy.concatenate((histVolumeXY, histXY),axis=0)
           histVolumeXT= numpy.concatenate((histVolumeXT, histXT),axis=0)
-          histVolumeYT= numpy.concatenate((histVolumeYT, histXY),axis=0)
+          histVolumeYT= numpy.concatenate((histVolumeYT, histYT),axis=0)
       
-      #Saving the results into a file 
-      histData = numpy.zeros(shape=(3,histVolumeXY.shape[0],histVolumeXY.shape[1]),dtype='float64')
-      histData[0] = histVolumeXY
-      histData[1] = histVolumeXT
-      histData[2] = histVolumeYT
+      #Saving the results into a file
+      maxDim = max(histVolumeXY.shape[1],histVolumeXT.shape[1],histVolumeYT.shape[1])
+      histData = numpy.zeros(shape=(4,histVolumeXY.shape[0],maxDim),dtype='float64')
+  
+      #TODO: PROPOSE A BETTER SOLUTION TO STORE THE DIMENSIONS.
+      #dims = array([histVolumeXY.shape[1],histVolumeXT.shape[1],histVolumeYT.shape[1]])
+      dims = numpy.zeros(shape=(histVolumeXY.shape[0],maxDim))
+      dims[0][0] = histVolumeXY.shape[1]  
+      dims[0][1] = histVolumeXT.shape[1]
+      dims[0][2] = histVolumeYT.shape[1]
+      histData[0] = dims
+      histData[1,:,0:dims[0][0]] = histVolumeXY
+      histData[2,:,0:dims[0][1]] = histVolumeXT
+      histData[3,:,0:dims[0][2]] = histVolumeYT
 
     else:
       #Extract the LBPTop of each frame using independent bounding boxes
 
       #Getting the gray and normalized face frames
       grayFaceNormFrameSequence = spoof.rgbVideo2grayVideo_facenorm(vin,locations,sz,bbxsize_filter=args.facesize_filter)
-
       histXY,histXT,histYT = spoof.lbptophist(grayFaceNormFrameSequence,nXY,nXT,nYT,rX,rY,rT,cXY,cXT,cYT,lbptype)
 
-      histData = numpy.zeros(shape=(3,histXY.shape[0],histXY.shape[1]),dtype='float64')
-      histData[0] = histXY
-      histData[1] = histXT
-      histData[2] = histYT
+      #TODO: PROPOSE A BETTER SOLUTION TO STORE THE DIMENSIONS.
+      maxDim = max(histVolumeXY.shape[1],histVolumeXT.shape[1],histVolumeYT.shape[1])
+      dims = numpy.zeros(shape=(histVolumeXY.shape[0],maxDim))
+      dims[0][0] = histVolumeXY.shape[1]  
+      dims[0][1] = histVolumeXT.shape[1]
+      dims[0][2] = histVolumeYT.shape[1]
+
+      histData = numpy.zeros(shape=(4,histVolumeXY.shape[0],maxDim),dtype='float64')
+      histData[0] = dims
+      histData[1,:,0:dims[0][0]] = histXY
+      histData[2,:,0:dims[0][1]] = histXT
+      histData[3,:,0:dims[0][2]] = histYT
 
     sys.stdout.write('\n')
     sys.stdout.flush()
