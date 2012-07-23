@@ -30,7 +30,11 @@ def main():
 
   parser.add_argument('--ff', '--facesize_filter', dest="facesize_filter", default=0, type=int, help="all the frames with faces smaller then this number, will be discarded (defaults to '%(default)s')")
 
-  parser.add_argument('-l', '--lbptype', metavar='LBPTYPE', type=str, choices=('regular', 'riu2', 'uniform'), default='uniform', dest='lbptype', help='Choose the type of LBP to use (defaults to "%(default)s")')
+  parser.add_argument('-lXY', '--lbptypeXY', metavar='LBPTYPE', type=str, choices=('regular', 'riu2', 'uniform'), default='uniform', dest='lbptypeXY', help='Choose the type of LBP to use (defaults to "%(default)s")')
+
+  parser.add_argument('-lXT', '--lbptypeXT', metavar='LBPTYPE', type=str, choices=('regular', 'riu2', 'uniform'), default='uniform', dest='lbptypeXT', help='Choose the type of LBP to use (defaults to "%(default)s")')
+
+  parser.add_argument('-lYT', '--lbptypeYT', metavar='LBPTYPE', type=str, choices=('regular', 'riu2', 'uniform'), default='uniform', dest='lbptypeYT', help='Choose the type of LBP to use (defaults to "%(default)s")')
 
 
   parser.add_argument('-nXY', '--neighborsXY', type=int, default=8, dest='nXY', help='Number of Neighbors in the XY plane (defaults to "%(default)s")')
@@ -88,7 +92,7 @@ def main():
       raise RuntimeError, "Grid request for job %d on a setup with %d jobs" % \
           (pos, len(ordered_keys))
     key = ordered_keys[pos] # gets the right key
-    process = {key: files[key]}
+    process = {key: process[key]}
 
 
   # processing each video
@@ -129,7 +133,9 @@ def main():
     cXT = args.cXT
     cYT = args.cYT
 
-    lbptype =args.lbptype
+    lbptypeXY =args.lbptypeXY
+    lbptypeXT =args.lbptypeXT
+    lbptypeYT =args.lbptypeYT
 
     
     if(volume_face_detection):
@@ -156,7 +162,7 @@ def main():
           print("No frames in the volume " + filename)
           continue
 
-        histXY,histXT,histYT = spoof.lbptophist(normalizedVolume,nXY,nXT,nYT,rX,rY,rT,cXY,cXT,cYT,lbptype)
+        histXY,histXT,histYT = spoof.lbptophist(normalizedVolume,nXY,nXT,nYT,rX,rY,rT,cXY,cXT,cYT,lbptypeXY,lbptypeXT,lbptypeYT)
 
         if(histVolumeXY == None):
 	  histVolumeXY = histXY
@@ -187,7 +193,7 @@ def main():
 
       #Getting the gray and normalized face frames
       grayFaceNormFrameSequence = spoof.rgbVideo2grayVideo_facenorm(vin,locations,sz,bbxsize_filter=args.facesize_filter)
-      histXY,histXT,histYT = spoof.lbptophist(grayFaceNormFrameSequence,nXY,nXT,nYT,rX,rY,rT,cXY,cXT,cYT,lbptype)
+      histXY,histXT,histYT = spoof.lbptophist(grayFaceNormFrameSequence,nXY,nXT,nYT,rX,rY,rT,cXY,cXT,cYT,lbptypeXY,lbptypeXT,lbptypeYT)
 
       #TODO: PROPOSE A BETTER SOLUTION TO STORE THE DIMENSIONS.
       maxDim = max(histVolumeXY.shape[1],histVolumeXT.shape[1],histVolumeYT.shape[1])

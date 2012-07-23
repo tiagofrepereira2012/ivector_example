@@ -36,7 +36,6 @@ def det_lbptop(pos,neg,label,hold=False,linestyle='--',filename="DET.png"):
   import matplotlib
   matplotlib.use('Agg')
   import matplotlib.pyplot as mpl
-  mpl.use('Agg')
 
   bob.measure.plot.det(neg, pos, npoints=100,
       linestyle=linestyle, dashes=(6,2), alpha=0.5, label=label)
