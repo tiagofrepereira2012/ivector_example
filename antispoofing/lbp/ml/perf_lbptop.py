@@ -10,7 +10,10 @@ import re
 def roc_lbptop(pos,neg,label,hold=False,linestyle='--',filename="ROC.png"):
   """Plots the ROC curve using Matplotlib"""
 
+  import matplotlib
+  matplotlib.use('Agg')
   import matplotlib.pyplot as mpl
+
 
   bob.measure.plot.roc(neg, pos, npoints=100,
       linestyle=linestyle, dashes=(6,2), alpha=0.5, label=label)
@@ -30,7 +33,10 @@ def roc_lbptop(pos,neg,label,hold=False,linestyle='--',filename="ROC.png"):
 def det_lbptop(pos,neg,label,hold=False,linestyle='--',filename="DET.png"):
   """Plots the DET curve using Matplotlib"""
 
+  import matplotlib
+  matplotlib.use('Agg')
   import matplotlib.pyplot as mpl
+  mpl.use('Agg')
 
   bob.measure.plot.det(neg, pos, npoints=100,
       linestyle=linestyle, dashes=(6,2), alpha=0.5, label=label)
