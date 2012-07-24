@@ -323,8 +323,10 @@ def getNormFacesFromRange(grayFrameSequence,rangeValues,locations,sz,bbxsize_fil
 "     True if circular LBP is needed in the YT plane, False otherwise
 "   lbptype
 "     The type of the LBP operator (regular, uniform or riu2)
+"   histrogramOutput
+"     If the output is really a histogram. Otherwise a LBPTop volume for each plane will be returned 
 """
-def lbptophist(grayFaceNormFrameSequence,nXY,nXT,nYT,rX,rY,rT,cXY,cXT,cYT,lbptypeXY,lbptypeXT,lbptypeYT):
+def lbptophist(grayFaceNormFrameSequence,nXY,nXT,nYT,rX,rY,rT,cXY,cXT,cYT,lbptypeXY,lbptypeXT,lbptypeYT,histrogramOutput=True):
   
   uniformXY = False
   riu2XY    = False
@@ -416,27 +418,36 @@ def lbptophist(grayFaceNormFrameSequence,nXY,nXT,nYT,rX,rY,rT,cXY,cXT,cYT,lbptyp
   lbpTop(grayFaceNormFrameSequence,XY,XT,YT)
   
   ### Calculating the histograms
+  if(histrogramOutput):
+    #XY
+    histXY = numpy.zeros(shape=(XY.shape[0],lbp_XY.max_label))
+    for i in range(XY.shape[0]):
+      histXY[i] = bob.ip.histogram(XY[i], 0, lbp_XY.max_label-1, lbp_XY.max_label)
+      #histogram normalization
+      histXY[i] = histXY[i] / sum(histXY[i])
 
-  #XY
-  histXY = numpy.zeros(shape=(XY.shape[0],lbp_XY.max_label))
-  for i in range(XY.shape[0]):
-    histXY[i] = bob.ip.histogram(XY[i], 0, lbp_XY.max_label-1, lbp_XY.max_label)
-    #histogram normalization
-    histXY[i] = histXY[i] / sum(histXY[i])
+    #XT
+    histXT = numpy.zeros(shape=(XT.shape[0],lbp_XT.max_label))
+    for i in range(XT.shape[0]):
+      histXT[i] = bob.ip.histogram(XT[i], 0, lbp_XT.max_label-1, lbp_XT.max_label)
+      #histogram normalization
+      histXT[i] = histXT[i] / sum(histXT[i])
 
-  #XT
-  histXT = numpy.zeros(shape=(XT.shape[0],lbp_XT.max_label))
-  for i in range(XT.shape[0]):
-    histXT[i] = bob.ip.histogram(XT[i], 0, lbp_XT.max_label-1, lbp_XT.max_label)
-    #histogram normalization
-    histXT[i] = histXT[i] / sum(histXT[i])
+    #YT
+    histYT = numpy.zeros(shape=(YT.shape[0],lbp_YT.max_label))
+    for i in range(YT.shape[0]):
+      histYT[i] = bob.ip.histogram(YT[i], 0, lbp_YT.max_label-1, lbp_YT.max_label)
+      #histogram normalization
+      histYT[i] = histYT[i] / sum(histYT[i])
 
-  #YT
-  histYT = numpy.zeros(shape=(YT.shape[0],lbp_YT.max_label))
-  for i in range(YT.shape[0]):
-    histYT[i] = bob.ip.histogram(YT[i], 0, lbp_YT.max_label-1, lbp_YT.max_label)
-    #histogram normalization
-    histYT[i] = histYT[i] / sum(histYT[i])
+    return histXY,histXT,histYT
+
+  else:
+    #returning the volume
+    return XY,XT,YT
+   
 
 
-  return histXY,histXT,histYT
+
+
+
