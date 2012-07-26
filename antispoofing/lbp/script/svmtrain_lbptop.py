@@ -92,6 +92,13 @@ def main():
   parser.add_argument('-e', '--energy', type=str, dest="energy", default='0.99', help='The energy which needs to be preserved after the dimensionality reduction if PCA is performed prior to LDA')
   parser.add_argument('-p', '--protocol', metavar='PROTOCOL', type=str, dest="protocol", default='grandtest', help='The protocol type may be specified instead of the the id switch to subselect a smaller number of files to operate on', choices=protocols) 
 
+  parser.add_argument('-pt', '--protocol-test', metavar='PROTOCOL', type=str, dest="protocol_test", default='grandtest', help='The REPLAY-ATTACK protocol type may be specified instead of the id switch to subselect a smaller number of files to operate on', choices=protocols)
+
+  parser.add_argument('--sut', '--support-test', metavar='SUPPORTTYPE', type=str, choices=('fixed', 'hand'), default='', dest='support_test', help='One of the valid supported attacks (fixed, hand) (defaults to "%(default)s")')
+
+  parser.add_argument('--lit', '--light-test', metavar='LIGHT', type=str, choices=('controlled', 'adverse'), default='', dest='light_test', help='Types of illumination conditions (controlled,adverse) (defaults to "%(default)s")')
+
+
   from .. import ml
   from ..ml import pca, norm
 
@@ -112,8 +119,9 @@ def main():
   process_train_attack = db.files(directory=args.inputdir, extension='.hdf5', protocol=args.protocol, groups='train', cls='attack')
   process_devel_real = db.files(directory=args.inputdir, extension='.hdf5', protocol=args.protocol, groups='devel', cls='real')
   process_devel_attack = db.files(directory=args.inputdir, extension='.hdf5', protocol=args.protocol, groups='devel', cls='attack')
-  process_test_real = db.files(directory=args.inputdir, extension='.hdf5', protocol=args.protocol, groups='test', cls='real')
-  process_test_attack = db.files(directory=args.inputdir, extension='.hdf5', protocol=args.protocol, groups='test', cls='attack')
+
+  process_test_real = db.files(directory=args.inputdir, extension='.hdf5', protocol=args.protocol_test, groups='test', cls='real', support=args.support_test, light=args.light_test)
+  process_test_attack = db.files(directory=args.inputdir, extension='.hdf5', protocol=args.protocol_test, groups='test', cls='attack',support=args.support_test,light=args.light_test)
 
   # create the full datasets from the file data
   train_real = create_full_dataset(process_train_real); train_attack = create_full_dataset(process_train_attack); 
