@@ -11,7 +11,7 @@ def roc_lbptop(pos,neg,label,hold=False,linestyle='--',filename="ROC.png"):
   """Plots the ROC curve using Matplotlib"""
 
   import matplotlib
-  matplotlib.use('Agg')
+  matplotlib.use('pdf')
   import matplotlib.pyplot as mpl
 
 
@@ -20,21 +20,26 @@ def roc_lbptop(pos,neg,label,hold=False,linestyle='--',filename="ROC.png"):
   
 
   if(not hold):
+    from matplotlib.backends.backend_pdf import PdfPages
+    pp = PdfPages(filename)
+
     mpl.title("ROC Curve")
     mpl.xlabel('FRR (%)')
     mpl.ylabel('FAR (%)')
     mpl.grid(True, alpha=0.3)
     mpl.legend()
     #mpl.show()
-    mpl.savefig(filename)
+    #mpl.savefig(filename)
+    pp.savefig()
+    pp.close()
 
 
 
-def det_lbptop(pos,neg,label,hold=False,linestyle='--',filename="DET.png"):
+def det_lbptop(pos,neg,label,hold=False,linestyle='--',filename="DET.pdf"):
   """Plots the DET curve using Matplotlib"""
 
   import matplotlib
-  matplotlib.use('Agg')
+  matplotlib.use('pdf')
   import matplotlib.pyplot as mpl
 
   bob.measure.plot.det(neg, pos, npoints=100,
@@ -42,9 +47,10 @@ def det_lbptop(pos,neg,label,hold=False,linestyle='--',filename="DET.png"):
 
 
   if(not hold):
-   
-    bob.measure.plot.det_axis([1, 40, 1, 40])
+    from matplotlib.backends.backend_pdf import PdfPages
+    pp = PdfPages(filename)
 
+    bob.measure.plot.det_axis([1, 40, 1, 40])
 
     mpl.title("DET Curve")
     mpl.xlabel('FRR (%)')
@@ -52,5 +58,7 @@ def det_lbptop(pos,neg,label,hold=False,linestyle='--',filename="DET.png"):
     mpl.grid(True, alpha=0.3)
     mpl.legend()
     #mpl.show()
-    mpl.savefig(filename)
+    #mpl.savefig(filename)
+    pp.savefig()
+    pp.close()
 

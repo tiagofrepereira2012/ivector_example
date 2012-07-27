@@ -39,6 +39,7 @@ setup(
         'ldatrain_lbptop.py = antispoofing.lbp.script.ldatrain_lbptop:main',
         'svmtrain_lbp.py = antispoofing.lbp.script.svmtrain_lbp:main',
         'svmtrain_lbptop.py = antispoofing.lbp.script.svmtrain_lbptop:main',
+        'mlptrain_lbptop.py = antispoofing.lbp.script.mlptrain_lbptop:main',
         ],
       },
 

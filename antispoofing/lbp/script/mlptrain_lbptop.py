@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 # vim: set fileencoding=utf-8 :
 # Tiago de Freitas Pereira <tiagofrepereira@gmail.com>
-# Tue Jul 17 11:50:19 CET 2012
+#Tue Jul 17 11:11:00 CEST 2012
 
-"""This script makes an LDA classification of data into two categories: real accesses and spoofing attacks. There is an option for normalizing and dimensionality reduction of the data prior to the LDA classification.
-After the LDA, each data sample gets a score. Firstly, the EER threshold on the development set is calculated. The, according to this EER, the FAR, FRR and HTER for the test and development set are calculated. The script outputs a text file with the performance results.
+"""This script can makes an SVM classification of data into two categories: real accesses and spoofing attacks. There is an option for normalizing between [-1, 1] and dimensionality reduction of the data prior to the SVM classification.
+The probabilities obtained with the SVM are considered as scores for the data. Firstly, the EER threshold on the development set is calculated. The, according to this EER, the FAR, FRR and HTER for the test and development set are calculated. The script outputs a text file with the performance results.
 The details about the procedure are described in the paper: "On the Effectiveness of Local Binary Patterns in Face Anti-spoofing" - Chingovska, Anjos & Marcel; BIOSIG 2012
 """
 
@@ -12,7 +12,6 @@ import os, sys
 import argparse
 import bob
 import numpy
-
 
 def create_full_dataset(files):
   """Creates a full dataset matrix out of all the specified files"""
@@ -30,7 +29,6 @@ def create_full_dataset(files):
   for key, filename in files.items():
     filename = os.path.expanduser(filename)
     fvs = bob.io.load(filename)
-
 
     if dataset_XY is None:
       #each individual plane
@@ -70,6 +68,11 @@ def create_full_dataset(files):
   dataset = [dataset_XY,dataset_XT,dataset_YT,dataset_XT_YT,dataset_XY_XT_YT]  
   return dataset
 
+def svm_predict(svm_machine, data):
+  labels = [svm_machine.predict_class_and_scores(x)[1][0] for x in data]
+  return labels
+
+
 def main():
 
   basedir = os.path.dirname(os.path.dirname(os.path.realpath(sys.argv[0])))
@@ -95,8 +98,29 @@ def main():
   parser.add_argument('--lit', '--light-test', metavar='LIGHT', type=str, choices=('controlled', 'adverse'), default='', dest='light_test', help='Types of illumination conditions (controlled,adverse) (defaults to "%(default)s")')
 
 
+  parser.add_argument('-b', '--batch-size', metavar='INT', type=int,
+      dest='batch', default=200, help='The number of samples per training iteration. Good values are greater than 100. Defaults to %(default)s')
+
+  parser.add_argument('--ep', '--epoch', metavar='INT', type=int,
+      dest='epoch', default=1, help='This is the number of training steps that need to be executed before we attempt to measure the error on the development set. Defaults to %(default)s')
+
+  parser.add_argument('--hn', '--hidden-neurons', metavar='INT', type=int,
+      dest='nhidden', default=5, help='The number hidden neurons in the (single) hidden layer of the MLP. Defaults to %(default)s')
+
+  parser.add_argument('-m', '--maximum-iterations', metavar='INT', type=int,
+      dest='maxiter', default=0, help='The maximum number of iterations to train for. A value of zero trains until a valley is detected on the development set. Defaults to %(default)s')
+
+  parser.add_argument('-i', '--no-improvements', metavar='INT', type=int,
+      dest='noimprov', default=0, help='The maximum number of iterations to wait for in case no improvements happen in the development set average RMSE. If that number of iterations is reached, the training is stopped. Values in the order of 10-20%% of the maximum number of iterations should be a reasonable default. If set to zero, do not consider this stop criteria. Defaults to %(default)s')
+
+  parser.add_argument('--nt', '--number-train', metavar='INT', type=int,
+      dest='nTrain', default=1, help='How many times do you want to run the MLP?. Defaults to %(default)s')
+
+  parser.add_argument('-V', '--verbose', action='store_true', dest='verbose',
+      default=False, help='Increases this script verbosity')
+
   from .. import ml
-  from ..ml import pca, lda, norm
+  from ..ml import pca, norm, rprop
 
   args = parser.parse_args()
   if not os.path.exists(args.inputdir):
@@ -105,10 +129,11 @@ def main():
   if not os.path.exists(args.outputdir): # if the output directory doesn't exist, create it
     bob.db.utils.makedirs_safe(args.outputdir)
 
+  outputdir = args.outputdir
+
   energy = float(args.energy)
 
   print "Loading input files..."
-
   # loading the input files
   db = bob.db.replay.Database()
 
@@ -124,99 +149,96 @@ def main():
   train_real = create_full_dataset(process_train_real); train_attack = create_full_dataset(process_train_attack); 
   devel_real = create_full_dataset(process_devel_real); devel_attack = create_full_dataset(process_devel_attack); 
   test_real = create_full_dataset(process_test_real); test_attack = create_full_dataset(process_test_attack); 
-  
 
   models = ['XY-plane','XT-Plane','YT-Plane','XT-YT-Plane','XY-XT-YT-plane']
   lines  = ['r','b','y','g^','c']
+
   tbl = []
-
+  
   for i in range(len(models)):
-
-    print("Trainning the " + models[i])
-
-    #Loading the plane data
-    train_real_plane   = train_real[i]
-    train_attack_plane = train_attack[i]
-
-    devel_real_plane   = devel_real[i]
-    devel_attack_plane = devel_attack[i]
-
-    test_real_plane    = test_real[i]
-    test_attack_plane  = test_attack[i]
+    #Store the HTER in the test set in all nets
+    hterDevelNets = []
+    hterTestNets  = []
 
 
-    if args.normalize:  # zero mean unit variance data normalziation
-      print "Applying standard normalization..."
-      mean, std = norm.calc_mean_std(train_real_plane, train_attack_plane)
-      train_real_plane = norm.zeromean_unitvar_norm(train_real_plane, mean, std); train_attack_plane = norm.zeromean_unitvar_norm(train_attack_plane, mean, std)
-      devel_real_plane = norm.zeromean_unitvar_norm(devel_real_plane, mean, std); devel_attack_plane = norm.zeromean_unitvar_norm(devel_attack_plane, mean, std)
-      test_real_plane = norm.zeromean_unitvar_norm(test_real_plane, mean, std); test_attack_plane = norm.zeromean_unitvar_norm(test_attack_plane, mean, std)
+    for j in range(args.nTrain):
 
-    if args.pca_reduction: # PCA dimensionality reduction of the data
-      print "Running PCA reduction..."
-      train = bob.io.Arrayset() # preparing the train data for PCA (putting them altogether into bob.io.Arrayset)
-      train.extend(train_real_plane); train.extend(train_attack_plane)
-      pca_machine = pca.make_pca(train, energy, False) # performing PCA
-      train_real_plane = pca.pcareduce(pca_machine, train_real_plane); train_attack_plane = pca.pcareduce(pca_machine, train_attack_plane)
-      devel_real_plane = pca.pcareduce(pca_machine, devel_real_plane); devel_attack_plane = pca.pcareduce(pca_machine, devel_attack_plane)
-      test_real_plane = pca.pcareduce(pca_machine, test_real_plane); test_attack_plane = pca.pcareduce(pca_machine, test_attack_plane)
+      print("Trainning number "+ str(j+1) +" the " + models[i])
+
+      #Loading the plane data
+      train_real_plane   = train_real[i]
+      train_attack_plane = train_attack[i]
+
+      devel_real_plane   = devel_real[i]
+      devel_attack_plane = devel_attack[i]
+
+      test_real_plane    = test_real[i]
+      test_attack_plane  = test_attack[i]
 
 
-    print "Training LDA machine..."
-    lda_machine = lda.make_lda((train_real_plane, train_attack_plane)) # training the LDA
-    lda_machine.shape = (lda_machine.shape[0], 1) #only use first component!
-
-    print "Computing devel and test scores..."
-    devel_real_plane_out = lda.get_scores(lda_machine, devel_real_plane)
-    devel_attack_plane_out = lda.get_scores(lda_machine, devel_attack_plane)
-    test_real_plane_out = lda.get_scores(lda_machine, test_real_plane)
-    test_attack_plane_out = lda.get_scores(lda_machine, test_attack_plane)
+      if args.normalize:  # normalization in the range [-1, 1] (recommended by LIBSVM)
+        train_data = numpy.concatenate((train_real_plane, train_attack_plane), axis=0) 
+        mins, maxs = norm.calc_min_max(train_data)
+        train_real_plane = norm.norm_range(train_real_plane, mins, maxs, -1, 1); train_attack_plane = norm.norm_range(train_attack_plane, mins, maxs, -1, 1)
+        devel_real_plane = norm.norm_range(devel_real_plane, mins, maxs, -1, 1); devel_attack_plane = norm.norm_range(devel_attack_plane, mins, maxs, -1, 1)
+        test_real_plane  = norm.norm_range(test_real_plane, mins, maxs, -1, 1); test_attack_plane = norm.norm_range(test_attack_plane, mins, maxs, -1, 1)
   
-  
-    # it is expected that the scores of the real accesses are always higher then the scores of the attacks. Therefore, a check is first made, if the   average of the scores of real accesses is smaller then the average of the scores of the attacks, all the scores are inverted by multiplying with -1.
-    if numpy.mean(devel_real_plane_out) < numpy.mean(devel_attack_plane_out):
-      devel_real_plane_out = devel_real_plane_out * -1; devel_attack_plane_out = devel_attack_plane_out * -1
-      test_real_plane_out = test_real_plane_out * -1; test_attack_plane_out = test_attack_plane_out * -1
-     
-    # calculation of the error rates
-    thres = bob.measure.eer_threshold(devel_attack_plane_out, devel_real_plane_out)
-    dev_far, dev_frr = bob.measure.farfrr(devel_attack_plane_out, devel_real_plane_out, thres)
-    test_far, test_frr = bob.measure.farfrr(test_attack_plane_out, test_real_plane_out, thres)
 
-    tbl.append(" ")
-    tbl.append(models[i])
-    if args.pca_reduction:
-      tbl.append("EER @devel - energy kept after PCA = %.2f" % (energy))
-    tbl.append(" threshold: %.4f" % thres)
-    tbl.append(" dev:  FAR %.2f%% (%d / %d) | FRR %.2f%% (%d / %d) | HTER %.2f%% " % \
-        (100*dev_far, int(round(dev_far*len(devel_attack_plane))), len(devel_attack_plane), 
-         100*dev_frr, int(round(dev_frr*len(devel_real_plane))), len(devel_real_plane),
-         50*(dev_far+dev_frr)))
-    tbl.append(" test: FAR %.2f%% (%d / %d) | FRR %.2f%% (%d / %d) | HTER %.2f%% " % \
-        (100*test_far, int(round(test_far*len(test_attack_plane))), len(test_attack_plane),
-         100*test_frr, int(round(test_frr*len(test_real_plane))), len(test_real_plane),
-         50*(test_far+test_frr)))
+      if args.pca_reduction: # PCA dimensionality reduction of the data
+        train = bob.io.Arrayset() # preparing the train data for PCA (putting them altogether into bob.io.Arrayset)
+        train.extend(train_real_plane)
+        train.extend(train_attack_plane)
+        pca_machine = pca.make_pca(train, energy, False) # performing PCA
+        train_real_plane = pca.pcareduce(pca_machine, train_real_plane); train_attack_plane = pca.pcareduce(pca_machine, train_attack_plane)
+        devel_real_plane = pca.pcareduce(pca_machine, devel_real_plane); devel_attack_plane = pca.pcareduce(pca_machine, devel_attack_plane)
+        test_real_plane  = pca.pcareduce(pca_machine, test_real_plane); test_attack_plane = pca.pcareduce(pca_machine, test_attack_plane)
+
+
+      print "Training MLP machine..."
+      mlp, evolution = ml.rprop.make_mlp((train_real_plane,
+      train_attack_plane), (devel_real_plane, devel_attack_plane),
+      args.batch, args.nhidden, args.epoch, args.maxiter, args.noimprov,
+      args.verbose)        
+
+      print "Saving MLP..."
+      if(args.verbose):
+        mlpfile = bob.io.HDF5File(os.path.join(outputdir, 'mlp'+models[i]+'.hdf5'),'w')
+        mlp.save(mlpfile)
+        del mlpfile
+
+      if(args.verbose):
+        print "Saving result evolution..."
+        evofile = bob.io.HDF5File(os.path.join(outputdir, 'training-evolution'+models[i]+'.hdf5'),'w')
+        evolution.save(evofile)
+        del evofile
+
+
+      print "Computing devel and test scores..."
+      devel_res, test_res = evolution.report(mlp, (test_real_plane, test_attack_plane),
+        os.path.join(outputdir, 'plots_MLP_'+models[i]+'.pdf'),
+        os.path.join(outputdir, 'error_MLP_'+models[i]+'.txt'))
+
+      #Recording the HTER
+      hterDevel = 100*((devel_res[0]+devel_res[1])/2)      
+      hterTest  = 100*((test_res[0]+test_res[1])/2)
+      hterTestNets.append(hterTest)
+      hterDevelNets.append(hterDevel)
+  
+    averageDevel = sum(hterDevelNets)/float(len(hterDevelNets))
+    averageTest = sum(hterTestNets)/float(len(hterTestNets))
+    tbl = []
+    tbl.append(" Performance in the devel set ")
+    tbl.append(str(hterDevelNets))
+    tbl.append(" Average %.2f" % averageDevel)
+    tbl.append(" Performance in the test set ")
+    tbl.append(str(hterTestNets))
+    tbl.append(" Average %.2f" % averageTest)
     txt = ''.join([k+'\n' for k in tbl])
-  
 
-    #Plotting the ROC curves
-    from .. import ml
-    if(i==len(models)-1):
-      hold=False
-    else:
-      hold=True
-    
-    testHTER = round(50*(test_far+test_frr),2)
-    ml.perf_lbptop.det_lbptop(test_real_plane_out,test_attack_plane_out,models[i]+" HTER = " + str(testHTER) + "%",hold,linestyle=lines[i],filename=os.path.join(args.outputdir,"DET_LDA.pdf"))
-
-
-
-
-  txt = ''.join([k+'\n' for k in tbl])
-  # write the results to a file 
-  tf = open(os.path.join(args.outputdir, 'LDA_perf_table.txt'), 'w')
-  tf.write(txt)
-
+    # write the results to a file 
+    tf = open(os.path.join(outputdir, 'MLP_performance_'+ models[i] +'.txt'), 'w')
+    tf.write(txt)
+    tf.close()
 
  
 if __name__ == '__main__':
