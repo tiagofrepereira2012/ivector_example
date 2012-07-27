@@ -224,15 +224,20 @@ def main():
       hterTestNets.append(hterTest)
       hterDevelNets.append(hterDevel)
   
-    averageDevel = sum(hterDevelNets)/float(len(hterDevelNets))
-    averageTest = sum(hterTestNets)/float(len(hterTestNets))
+    averageDevel = numpy.average(hterDevelNets)
+    stdDevel     = numpy.std(hterDevelNets)
+    averageTest  = numpy.average(hterTestNets)
+    stdTest      = numpy.std(hterTestNets)
+
     tbl = []
     tbl.append(" Performance in the devel set ")
     tbl.append(str(hterDevelNets))
-    tbl.append(" Average %.2f" % averageDevel)
+    tbl.append(" Average %.2f%% " % averageDevel)
+    tbl.append(" Standard deviation  %.2f " % stdDevel)
     tbl.append(" Performance in the test set ")
     tbl.append(str(hterTestNets))
-    tbl.append(" Average %.2f" % averageTest)
+    tbl.append(" Average %.2f%% " % averageTest)
+    tbl.append(" Standard deviation  %.2f " % stdTest)
     txt = ''.join([k+'\n' for k in tbl])
 
     # write the results to a file 
