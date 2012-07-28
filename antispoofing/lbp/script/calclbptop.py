@@ -102,8 +102,7 @@ def main():
 
   #Gassian filters to DoG
   filter1 = bob.ip.Gaussian( radius_y = 1, radius_x = 1, sigma_y = args.sigma1, sigma_x = args.sigma1)
-  filter2 = bob.ip.Gaussian( radius_y = 1, radius_x = 1, sigma_y = args.sigma2, sigma_x = args.sigma2)
-
+  filter2 = bob.ip.Gaussian( radius_y = 1, radius_x = 1, sigma_y = (-1)*args.sigma2, sigma_x = (-1)*args.sigma2)
 
   # processing each video
   for index, key in enumerate(sorted(process.keys())):
