@@ -49,6 +49,12 @@ def main():
   parser.add_argument('-cXT', '--circularXT', action='store_true', default=False, dest='cXT', help='Is circular neighborhood in XT plane?  (defaults to "%(default)s")')
   parser.add_argument('-cYT', '--circularYT', action='store_true', default=False, dest='cYT', help='Is circular neighborhood in YT plane?  (defaults to "%(default)s")')
 
+  parser.add_argument('-g', '--dog', dest="dog", action='store_true', default=False, help='Use the DoG filter (defaults to "%(default)s")')
+  parser.add_argument('-s1', '--sigma1', type=float, default=1, dest='sigma1', help='Sigma for the first gaussian filter to DoG')
+  parser.add_argument('-s2', '--sigma2', type=float, default=2, dest='sigma2', help='Sigma for the second gaussian filter to DoG')
+
+
+
   # For SGE grid processing @ Idiap
   parser.add_argument('--grid', dest='grid', action='store_true', default=False, help=argparse.SUPPRESS)
 
@@ -56,11 +62,11 @@ def main():
 
   parser.add_argument('--el', '--elbptype', metavar='ELBPTYPE', type=str, choices=('regular', 'transitional', 'direction_coded', 'modified'), default='regular', dest='elbptype', help='Choose the type of extended LBP features to compute (defaults to "%(default)s")')
 
-
-
   parser.add_argument('-b', '--blocks', metavar='BLOCKS', type=int, default=1, dest='blocks', help='The region over which the LBP is calculated will be divided into the given number of blocks squared. The histograms of the individial blocks will be concatenated.(defaults to "%(default)s")')
 
   parser.add_argument('-p', '--protocol', metavar='PROTOCOL', type=str, dest="protocol", default='grandtest', help='The REPLAY-ATTACK protocol type may be specified instead of the id switch to subselect a smaller number of files to operate on', choices=protocols)
+
+
 
   parser.add_argument('-o', dest='overlap', action='store_true', default=False, help='If set, the blocks on which the image is divided will be overlapping')
 
@@ -93,6 +99,10 @@ def main():
           (pos, len(ordered_keys))
     key = ordered_keys[pos] # gets the right key
     process = {key: process[key]}
+
+  #Gassian filters to DoG
+  filter1 = bob.ip.Gaussian( radius_y = 1, radius_x = 1, sigma_y = args.sigma1, sigma_x = args.sigma1)
+  filter2 = bob.ip.Gaussian( radius_y = 1, radius_x = 1, sigma_y = args.sigma2, sigma_x = args.sigma2)
 
 
   # processing each video
@@ -146,6 +156,15 @@ def main():
       grayFrames = numpy.zeros(shape=(nFrames,vin.shape[2],vin.shape[3]))
       for i in range(nFrames):
         grayFrames[i] = bob.ip.rgb_to_gray(vin[i,:,:,:])
+        if(args.dog):
+          filteredImage1 = numpy.ndarray(grayFrames[i].shape, dtype = numpy.float64)
+          filter1(grayFrames[i], filteredImage1)
+          filteredImage2 = numpy.ndarray(grayFrames[i].shape, dtype = numpy.float64)
+          filter2(grayFrames[i], filteredImage2)
+          
+          #Applying DoG
+          grayFrames[i] = filteredImage2-filteredImage1
+	
 
       ### STARTING the video analysis
       #Analysing each sub-volume in the video
