@@ -49,7 +49,8 @@ def main():
   parser.add_argument('-cXT', '--circularXT', action='store_true', default=False, dest='cXT', help='Is circular neighborhood in XT plane?  (defaults to "%(default)s")')
   parser.add_argument('-cYT', '--circularYT', action='store_true', default=False, dest='cYT', help='Is circular neighborhood in YT plane?  (defaults to "%(default)s")')
 
-  parser.add_argument('-g', '--dog', dest="dog", action='store_true', default=False, help='Use the DoG filter (defaults to "%(default)s")')
+  parser.add_argument('-f', '--filter', dest="imageFilter",  metavar='IMAGEFILTER', type=str, default='none', choices=('none', 'DoG', 'TanTriggs'), help='Type of Image filter (defaults to "%(default)s")')
+
   parser.add_argument('-s1', '--sigma1', type=float, default=1, dest='sigma1', help='Sigma for the first gaussian filter to DoG')
   parser.add_argument('-s2', '--sigma2', type=float, default=2, dest='sigma2', help='Sigma for the second gaussian filter to DoG')
 
@@ -100,9 +101,13 @@ def main():
     key = ordered_keys[pos] # gets the right key
     process = {key: process[key]}
 
-  #Gassian filters to DoG
-  filter1 = bob.ip.Gaussian( radius_y = 1, radius_x = 1, sigma_y = args.sigma1, sigma_x = args.sigma1)
-  filter2 = bob.ip.Gaussian( radius_y = 1, radius_x = 1, sigma_y = (-1)*args.sigma2, sigma_x = (-1)*args.sigma2)
+  #Gassian filters DoG
+  if(args.imageFilter=='DoG'):
+    filter1 = bob.ip.Gaussian( radius_y = 1, radius_x = 1, sigma_y = args.sigma1, sigma_x = args.sigma1)
+    filter2 = bob.ip.Gaussian( radius_y = 1, radius_x = 1, sigma_y = (-1)*args.sigma2, sigma_x = (-1)*args.sigma2)
+  elif(args.imageFilter=='TanTriggs'):
+    tanTriggs = bob.ip.TanTriggs()
+
 
   # processing each video
   for index, key in enumerate(sorted(process.keys())):
@@ -155,7 +160,7 @@ def main():
       grayFrames = numpy.zeros(shape=(nFrames,vin.shape[2],vin.shape[3]))
       for i in range(nFrames):
         grayFrames[i] = bob.ip.rgb_to_gray(vin[i,:,:,:])
-        if(args.dog):
+        if(args.imageFilter=='DoG'):
           filteredImage1 = numpy.ndarray(grayFrames[i].shape, dtype = numpy.float64)
           filter1(grayFrames[i], filteredImage1)
           filteredImage2 = numpy.ndarray(grayFrames[i].shape, dtype = numpy.float64)
@@ -163,7 +168,12 @@ def main():
           
           #Applying DoG
           grayFrames[i] = filteredImage2-filteredImage1
-	
+        elif(args.imageFilter=='TanTriggs'):
+          filteredImage = numpy.ndarray(grayFrames[i].shape, dtype = numpy.float64)
+          tanTriggs(grayFrames[i], filteredImage)
+
+          grayFrames[i] = filteredImage
+
 
       ### STARTING the video analysis
       #Analysing each sub-volume in the video
