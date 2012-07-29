@@ -104,7 +104,7 @@ def main():
   #Gassian filters DoG
   if(args.imageFilter=='DoG'):
     filter1 = bob.ip.Gaussian( radius_y = 1, radius_x = 1, sigma_y = args.sigma1, sigma_x = args.sigma1)
-    filter2 = bob.ip.Gaussian( radius_y = 1, radius_x = 1, sigma_y = (-1)*args.sigma2, sigma_x = (-1)*args.sigma2)
+    filter2 = bob.ip.Gaussian( radius_y = 1, radius_x = 1, sigma_y = args.sigma2, sigma_x = args.sigma2)
   elif(args.imageFilter=='TanTriggs'):
     tanTriggs = bob.ip.TanTriggs()
 
@@ -168,6 +168,8 @@ def main():
           
           #Applying DoG
           grayFrames[i] = filteredImage2-filteredImage1
+
+
         elif(args.imageFilter=='TanTriggs'):
           filteredImage = numpy.ndarray(grayFrames[i].shape, dtype = numpy.float64)
           tanTriggs(grayFrames[i], filteredImage)
