@@ -51,7 +51,7 @@ def main():
     fiveqdict   = db.files(directory=args.fiveqdir, extension='.hdf5', protocol=args.protocol)
   else:
     process = db.files(directory=args.inputdir, extension='.mov')
-    fiveqdict = db.files(directory=args.inputdir, extension='.hdf5')
+    fiveqdict = db.files(directory=args.fiveqdir, extension='.hdf5')
 
   # where to find the face bounding boxes
   faceloc_dir = os.path.join(args.inputdir, 'face-locations')
