@@ -31,6 +31,7 @@ setup(
         'calclbptop_videos.py = antispoofing.lbp.script.calclbptop_videos:main',
         'calclbptop_histacum.py = antispoofing.lbp.script.calclbptop_histacum:main',
         'calcframelbp.py = antispoofing.lbp.script.calcframelbp:main',
+        'calcframelbp_5quatities.py = antispoofing.lbp.script.calcframelbp_5quatities:main',
         'mkhistmodel.py = antispoofing.lbp.script.mkhistmodel:main',
         'mkhistmodel_lbptop.py = antispoofing.lbp.script.mkhistmodel_lbptop:main',
         'cmphistmodels.py = antispoofing.lbp.script.cmphistmodels:main',
@@ -40,6 +41,7 @@ setup(
         'svmtrain_lbp.py = antispoofing.lbp.script.svmtrain_lbp:main',
         'svmtrain_lbptop.py = antispoofing.lbp.script.svmtrain_lbptop:main',
         'mlptrain_lbptop.py = antispoofing.lbp.script.mlptrain_lbptop:main',
+        'ldatrain_lbptop_motion.py = antispoofing.lbp.script.ldatrain_lbptop_motion:main',
         ],
       },
 
