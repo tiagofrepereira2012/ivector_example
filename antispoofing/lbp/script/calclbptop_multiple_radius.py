@@ -201,7 +201,7 @@ def main():
 
           if(normalizedVolume==None):
             print("No frames in the volume " + filename)
-            continue
+            break
           
           histXY,histXT,histYT = spoof.lbptophist(normalizedVolume,nXY,nXT,nYT,rX,rY,r,cXY,cXT,cYT,lbptypeXY,lbptypeXT,lbptypeYT)
 
