@@ -221,9 +221,10 @@ def main():
           histVolumeXT= histLocalVolumeXT
           histVolumeYT= histLocalVolumeYT
         else:
-          histVolumeXY= numpy.concatenate((histVolumeXY, histLocalVolumeXY),axis=0)
-          histVolumeXT= numpy.concatenate((histVolumeXT, histLocalVolumeXT),axis=0)
-          histVolumeYT= numpy.concatenate((histVolumeYT, histLocalVolumeYT),axis=0)
+	  if(histLocalVolumeXY!=None):
+            histVolumeXY= numpy.concatenate((histVolumeXY, histLocalVolumeXY),axis=0)
+            histVolumeXT= numpy.concatenate((histVolumeXT, histLocalVolumeXT),axis=0)
+            histVolumeYT= numpy.concatenate((histVolumeYT, histLocalVolumeYT),axis=0)
 
       
       #Saving the results into a file
