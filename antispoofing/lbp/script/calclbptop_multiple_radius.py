@@ -225,12 +225,6 @@ def main():
           histVolumeXT= numpy.concatenate((histVolumeXT, histLocalVolumeXT),axis=0)
           histVolumeYT= numpy.concatenate((histVolumeYT, histLocalVolumeYT),axis=0)
 
-
-        print(histVolumeXY.shape)
-        print(histVolumeXT.shape)
-        print(histVolumeYT.shape)
-        exit()
-
       
       #Saving the results into a file
       maxDim = max(histVolumeXY.shape[1],histVolumeXT.shape[1],histVolumeYT.shape[1])
