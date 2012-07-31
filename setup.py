@@ -41,7 +41,7 @@ setup(
         'svmtrain_lbp.py = antispoofing.lbp.script.svmtrain_lbp:main',
         'svmtrain_lbptop.py = antispoofing.lbp.script.svmtrain_lbptop:main',
         'mlptrain_lbptop.py = antispoofing.lbp.script.mlptrain_lbptop:main',
-        'ldatrain_lbptop_motion.py = antispoofing.lbp.script.ldatrain_lbptop_motion:main',
+        'calclbptop_multiple_radius.py = antispoofing.lbp.script.calclbptop_multiple_radius:main',
         ],
       },
 
