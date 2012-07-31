@@ -28,6 +28,8 @@ def main():
 
   parser.add_argument('--fd', '--fiveq-dir', metavar='DIR', type=str, dest='fiveqdir', default='', help='Base directory containing the 5 quantities from paper "Counter-Measures to Photo Attacks in Face Recognition: a public database and a baseline"')
 
+  parser.add_argument('--bg','--use-bg', dest='use_bg', action='store_true', default=False, help='If set, will use 5 quantities from face + background, otherwise, just the background')
+
   parser.add_argument('-n', '--normface-size', dest="normfacesize", default=64, type=int, help="this is the size of the normalized face box if face normalization is used (defaults to '%(default)s')")
   parser.add_argument('--ff', '--facesize_filter', dest="facesize_filter", default=0, type=int, help="all the frames with faces smaller then this number, will be discarded (defaults to '%(default)s')")
   parser.add_argument('-l', '--lbptype', metavar='LBPTYPE', type=str, choices=('regular', 'riu2', 'uniform'), default='uniform', dest='lbptype', help='Choose the type of LBP to use (defaults to "%(default)s")')
@@ -56,6 +58,12 @@ def main():
   # where to find the face bounding boxes
   faceloc_dir = os.path.join(args.inputdir, 'face-locations')
 
+  #using or not the background info
+  if(args.use_bg):
+    extraDimension = 10
+  else:
+    extraDimension = 5
+
   counter = 0
   # process each video
   for key, filename in process.items():
@@ -80,7 +88,7 @@ def main():
     # start the work here...
     vin = input.load() # load the video
     #The + 10 is for 5 quantities
-    histdata = numpy.ndarray((0,args.blocks * args.blocks * lbphistlength[args.lbptype] + 10), 'float64') # the numpy.ndarray, each row is the histogram of one frame
+    histdata = numpy.ndarray((0,args.blocks * args.blocks * lbphistlength[args.lbptype] + extraDimension), 'float64') # the numpy.ndarray, each row is the histogram of one frame
 
     numvf = 0 # number of valid frames in the video (will be smaller then the total number of frames if a face is not detected or a very small face is detected in a frame when face lbp are calculated  
 
@@ -91,7 +99,7 @@ def main():
       hist, vf = spoof.lbphist_facenorm(frame, args.lbptype, locations[k], sz, args.elbptype, numbl=args.blocks,  overlap=args.overlap, bbxsize_filter=args.facesize_filter) # vf = 1 if it was a valid frame, 0 otherwise
       numvf = numvf + vf
       if vf == 1: # if it is a valid frame, add its histogram into the list of frame feature vectors
-        hist = numpy.append(hist,fiveq)
+        hist = numpy.append(hist,fiveq[0:extraDimension])
         histdata = numpy.append(histdata, hist.reshape([1, hist.size]), axis = 0)
 
     sys.stdout.write('\n')
