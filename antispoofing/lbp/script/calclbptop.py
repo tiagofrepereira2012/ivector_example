@@ -109,6 +109,24 @@ def main():
     tanTriggs = bob.ip.TanTriggs()
 
 
+  volume_face_detection = args.volume_face_detection
+  nXY = args.nXY
+  nXT = args.nXT
+  nYT = args.nYT
+
+  rX = args.rX
+  rY = args.rY
+  rT = args.rT
+
+  cXY = args.cXY
+  cXT = args.cXT
+  cYT = args.cYT
+
+  lbptypeXY =args.lbptypeXY
+  lbptypeXT =args.lbptypeXT
+  lbptypeYT =args.lbptypeYT
+
+
   # processing each video
   for index, key in enumerate(sorted(process.keys())):
     filename = process[key]
@@ -130,27 +148,6 @@ def main():
 
     # start the work here...
     vin = input.load() # load the video
-    
-    #TODO: I SHOULD USE THAT
-    #numvf = 0 # number of valid frames in the video (will be smaller then the total number of frames if a face is not detected or a very small face is detected in a frame when face lbp are calculated   
-    
-    volume_face_detection = args.volume_face_detection
-    nXY = args.nXY
-    nXT = args.nXT
-    nYT = args.nYT
-
-    rX = args.rX
-    rY = args.rY
-    rT = args.rT
-
-    cXY = args.cXY
-    cXT = args.cXT
-    cYT = args.cYT
-
-    lbptypeXY =args.lbptypeXY
-    lbptypeXT =args.lbptypeXT
-    lbptypeYT =args.lbptypeYT
-
     
     if(volume_face_detection):
       maxRadius = max(rX,rY,rT) #Getting the max radius to extract the volume for analysis
