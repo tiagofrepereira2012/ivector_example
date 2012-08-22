@@ -12,7 +12,13 @@ import bob
 import numpy
 from .. import ml
 from ..ml import pca, lda, norm
+
+#plot
 from pylab import *
+from matplotlib.backends.backend_agg import FigureCanvasAgg
+from matplotlib.figure import Figure
+from matplotlib.mlab import normpdf
+from matplotlib.cm import gray as GrayColorMap
 
 """
 " Get the scores from some machine
@@ -68,10 +74,11 @@ def getScores(grayFrames,nXY,nXT,nYT,rX,rY,rT,cXY,cXT,cYT,lbptypeXY,lbptypeXT,lb
 """
 " Plot the reference threshold and the current score
 """
-def plotScores(scores,index,threshold):
+def plotScores(scores,index,threshold,width,height):
 
-  from matplotlib.cm import gray as GrayColorMap
-  handle = figure(figsize=(4,5),dpi=80)
+  dpi=100
+  handle = Figure(figsize=(width/dpi,height/dpi),dpi=dpi)
+  axis = handle.add_subplot(111)
   grid(True)
 
   #Number of frames
@@ -81,16 +88,22 @@ def plotScores(scores,index,threshold):
   thresoldValues = threshold*numpy.ones(len(scores))
 
   #plotting the reference value
-  plot(frames,thresoldValues,'r--')
+  axis.plot(frames,thresoldValues,'r--')
 
   currentScores = scores[0:index]
 
   #plotting the current score timeline
-  plot(frames[0:index],currentScores,'b')
+  axis.plot(frames[0:index],currentScores,'b')
+
+  axis.set_ylim(-5,5)
 
   plotImage = fig2bzarray(handle)
+ 
+  newPlotImage = numpy.zeros(shape=(3,height,width))
+  newPlotImage[:,0:plotImage.shape[1],0:plotImage.shape[2]] = plotImage[:,:,:]
+  newPlotImage = numpy.array(newPlotImage,dtype='uint8',order='C')
 
-  return plotImage
+  return newPlotImage
 
 
 def fig2bzarray(fig):
@@ -100,8 +113,10 @@ def fig2bzarray(fig):
   @param fig a matplotlib figure
   @return a blitz 3D array of RGB values
   """
+  #from matplotlib.backends.backend_agg import FigureCanvasAgg
 
   # draw the renderer
+  canvas = FigureCanvasAgg(fig)
   fig.canvas.draw()
 
   # Get the RGB buffer from the figure, re-shape it adequately
@@ -111,6 +126,7 @@ def fig2bzarray(fig):
   buf = numpy.transpose(buf, (2,0,1))
 
   return buf
+
 
 
 def main():
@@ -210,21 +226,22 @@ def main():
 
   height    = volXY.shape[1]
   width     = volXY.shape[2]
+
   framerate = input.frame_rate
 
   vou = bob.io.VideoWriter(outputFile + "_LBPTOP.avi",3*height,3*width,framerate)
+
+  #graphTest = bob.io.VideoWriter(outputFile + "_SCORES.avi",height,2*width,framerate)
 
   colorLUT_U2   = getColorLUT_U2(patterns)
   colorLUT_RIU2 = getColorLUT_RIU2(patterns)
 
   for i in range(volXY.shape[0]):
 
-    plotFrame = plotScores(scores,i,threshold)
-    
-    print(plotFrame.shape)
-    exit()
+    #Plotting the score
+    plotFrame = plotScores(scores,i,threshold,2*width,height)
+    #graphTest.append(plotFrame)
 
-    continue
 
 
     imxy_RIU2    = numpy.zeros(shape=(3,height,width),dtype='uint8',order='C')
@@ -268,6 +285,7 @@ def main():
     imall_origin = numpy.zeros(shape=(3,height,3*width),dtype='uint8',order='C')
 
     imall_origin[:,:,0:width] = vin[i,:,0:height,0:width]
+    imall_origin[:,:,width:imall_origin.shape[2]] = plotFrame
 
     imall_U2 = numpy.concatenate((imxy_U2,imxt_U2,imyt_U2),axis=2)
     imall_RIU2 = numpy.concatenate((imxy_RIU2,imxt_RIU2,imyt_RIU2),axis=2)
@@ -281,6 +299,7 @@ def main():
   #voutYT.close()
   #voutXT_YT.close()
   vou.close()
+  #graphTest.close()
 
   return 0
 
