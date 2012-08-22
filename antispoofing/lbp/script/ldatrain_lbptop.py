@@ -178,10 +178,6 @@ def main():
     devel_attack_plane_out = lda.get_scores(lda_machine, devel_attack_plane)
     test_real_plane_out = lda.get_scores(lda_machine, test_real_plane)
     test_attack_plane_out = lda.get_scores(lda_machine, test_attack_plane)
- 
-    if args.normalize:  #Storing the normaliation factors in PCA machine
-      lda_machine.input_subtract = mean
-      lda_machine.input_divide = std
 
     hdf5File_lda = bob.io.HDF5File(os.path.join(args.outputdir, 'lda_machine_'+ str(energy) + "-" + models[i] +'.txt'),openmode_string='w')
     lda_machine.save(hdf5File_lda)
