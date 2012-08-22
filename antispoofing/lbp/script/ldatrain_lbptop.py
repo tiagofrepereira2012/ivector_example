@@ -164,7 +164,9 @@ def main():
       if args.normalize:  #Storing the normaliation factors in PCA machine
         pca_machine.input_subtract = mean
         pca_machine.input_divide = std
-      pca_machine.save(os.path.join(args.outputdir, 'pca_machine_'+ str(energy) + "-" + models[i] +'.txt'))
+
+      hdf5File_pca = bob.io.HDF5File(os.path.join(args.outputdir, 'pca_machine_'+ str(energy) + '-' + models[i] +'.txt'),openmode_string='w')
+      pca_machine.save(hdf5File_pca)
 
 
     print "Training LDA machine..."
@@ -181,7 +183,8 @@ def main():
       lda_machine.input_subtract = mean
       lda_machine.input_divide = std
 
-    lda_machine.save(os.path.join(args.outputdir, 'lda_machine_'+ str(energy) + "-" + models[i] +'.txt'))
+    hdf5File_lda = bob.io.HDF5File(os.path.join(args.outputdir, 'lda_machine_'+ str(energy) + "-" + models[i] +'.txt'),openmode_string='w')
+    lda_machine.save(hdf5File_lda)
 
     # it is expected that the scores of the real accesses are always higher then the scores of the attacks. Therefore, a check is first made, if the   average of the scores of real accesses is smaller then the average of the scores of the attacks, all the scores are inverted by multiplying with -1.
     if numpy.mean(devel_real_plane_out) < numpy.mean(devel_attack_plane_out):
