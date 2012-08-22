@@ -10,6 +10,108 @@ import os, sys
 import argparse
 import bob
 import numpy
+from .. import ml
+from ..ml import pca, lda, norm
+from pylab import *
+
+"""
+" Get the scores from some machine
+" 
+" @param grayFrames sequence
+
+"""
+def getScores(grayFrames,nXY,nXT,nYT,rX,rY,rT,cXY,cXT,cYT,lbptypeXY,lbptypeXT,lbptypeYT,inputFaceLocation,pcaMachinePath,classificationMachinePath):
+  from .. import spoof
+  from .. import faceloc
+
+  scores = numpy.zeros(shape=(0))
+  nFrames = len(grayFrames)
+  maxRadius = max(rX,rY,rT)
+
+  #Loading face locations
+  locations = faceloc.read_face(inputFaceLocation)
+  locations = faceloc.expand_detections(locations, nFrames)
+
+
+  sz = 64
+  facesize_filter = 50
+
+  for i in range(maxRadius,nFrames-maxRadius):
+
+    #Select the volume to analyse
+    rangeValues = range(i-maxRadius,i+1+maxRadius)
+    normalizedVolume = spoof.getNormFacesFromRange(grayFrames,rangeValues,locations,facesize_filter)
+
+    if(normalizedVolume==None):
+      print("No frames in the volume")
+      continue
+
+    #Getting histogram
+    histXY,histXT,histYT = spoof.lbptophist(normalizedVolume,nXY,nXT,nYT,rX,rY,rT,cXY,cXT,cYT,lbptypeXY,lbptypeXT,lbptypeYT)
+
+    hist_XY_XT_YT         = numpy.concatenate((histXY,histXT,histYT),axis=1)
+    
+    hdf5File_pca          = bob.io.HDF5File(pcaMachinePath,openmode_string='r')
+    pcaMachine            = bob.machine.LinearMachine(hdf5File_pca)
+
+    hdf5File_lda          = bob.io.HDF5File(classificationMachinePath,openmode_string='r')
+    classificationMachine = bob.machine.LinearMachine(hdf5File_lda)
+
+    #PCA
+    pcaData = pca.pcareduce(pcaMachine, hist_XY_XT_YT)
+
+    #MACHINE
+    scores = numpy.append(scores,lda.get_scores(classificationMachine, pcaData))
+
+  return scores
+
+"""
+" Plot the reference threshold and the current score
+"""
+def plotScores(scores,index,threshold):
+
+  from matplotlib.cm import gray as GrayColorMap
+  handle = figure(figsize=(4,5),dpi=80)
+  grid(True)
+
+  #Number of frames
+  frames = numpy.array(range(len(scores)))
+
+  #Creating the threshold reference
+  thresoldValues = threshold*numpy.ones(len(scores))
+
+  #plotting the reference value
+  plot(frames,thresoldValues,'r--')
+
+  currentScores = scores[0:index]
+
+  #plotting the current score timeline
+  plot(frames[0:index],currentScores,'b')
+
+  plotImage = fig2bzarray(handle)
+
+  return plotImage
+
+
+def fig2bzarray(fig):
+  """
+  @brief Convert a Matplotlib figure to a 3D blitz array with RGB channels and
+  return it
+  @param fig a matplotlib figure
+  @return a blitz 3D array of RGB values
+  """
+
+  # draw the renderer
+  fig.canvas.draw()
+
+  # Get the RGB buffer from the figure, re-shape it adequately
+  w,h = fig.canvas.get_width_height()
+  buf = numpy.fromstring(fig.canvas.tostring_rgb(),dtype=numpy.uint8)
+  buf.shape = (h,w,3)
+  buf = numpy.transpose(buf, (2,0,1))
+
+  return buf
+
 
 def main():
 
@@ -22,6 +124,8 @@ def main():
 
   parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
   parser.add_argument('-i', '--input-file', metavar='DIR', type=str, dest='inputFile', default=INPUT_DIR, help='Base directory containing the videos to be treated by this procedure (defaults to "%(default)s")')
+
+  parser.add_argument('-if', '--input-face-location', metavar='DIR', type=str, dest='inputFaceLocation', default=INPUT_DIR, help='Input face location file (defaults to "%(default)s")')
 
   parser.add_argument('-o', '--output-file', metavar='DIR', type=str, dest='outputFile', default=OUTPUT_DIR, help='The outputfile (defaults to "%(default)s")')
 
@@ -45,7 +149,11 @@ def main():
   parser.add_argument('-cXT', '--circularXT', action='store_true', default=False, dest='cXT', help='Is circular neighborhood in XT plane?  (defaults to "%(default)s")')
   parser.add_argument('-cYT', '--circularYT', action='store_true', default=False, dest='cYT', help='Is circular neighborhood in YT plane?  (defaults to "%(default)s")')
 
-  parser.add_argument('-lm', '--lda-machine', metavar='DIR', type=str, dest='ldaMachine', default='', help='LDA Machine Path (defaults to "%(default)s")')
+  parser.add_argument('-lm', '--lda-machine', metavar='DIR', type=str, dest='ldaMachinePath', default='', help='LDA Machine Path (defaults to "%(default)s")')
+  parser.add_argument('-pm', '--pca-machine', metavar='DIR', type=str, dest='pcaMachinePath', default='', help='PCA Machine Path (defaults to "%(default)s")')
+
+  parser.add_argument('-t', '--threshold', metavar='DIR', type=float, dest='threshold', default=0, help='Threshold for classification (defaults to "%(default)s")')
+
 
 
   args = parser.parse_args()
@@ -54,8 +162,9 @@ def main():
 
   from .. import spoof
 
-  inputFile = args.inputFile
-  outputFile = args.outputFile
+  inputFile         = args.inputFile
+  outputFile        = args.outputFile
+  inputFaceLocation = args.inputFaceLocation
 
   input = bob.io.VideoReader(inputFile)
     
@@ -78,6 +187,11 @@ def main():
   lbptypeXT =args.lbptypeXT
   lbptypeYT =args.lbptypeYT
 
+  pcaMachinePath = args.pcaMachinePath
+  ldaMachinePath = args.ldaMachinePath
+
+  threshold = args.threshold
+
   patterns = numpy.array(args.patterns)
 
   nFrames = vin.shape[0]
@@ -86,6 +200,10 @@ def main():
   grayFrames = numpy.zeros(shape=(nFrames,vin.shape[2],vin.shape[3]))
   for i in range(nFrames):
     grayFrames[i] = bob.ip.rgb_to_gray(vin[i,:,:,:])
+
+  #Get scores from LDA
+  scores = getScores(grayFrames,nXY,nXT,nYT,rX,rY,rT,cXY,cXT,cYT,lbptypeXY,lbptypeXT,lbptypeYT,inputFaceLocation,pcaMachinePath,ldaMachinePath)
+
 
   volXY,volXT,volYT = spoof.lbptophist(grayFrames,nXY,nXT,nYT,rX,rY,rT,cXY,cXT,cYT,lbptypeXY,lbptypeXT,lbptypeYT,histrogramOutput=False)
   #volDif_XT_YT = volXT-volYT
@@ -100,6 +218,15 @@ def main():
   colorLUT_RIU2 = getColorLUT_RIU2(patterns)
 
   for i in range(volXY.shape[0]):
+
+    plotFrame = plotScores(scores,i,threshold)
+    
+    print(plotFrame.shape)
+    exit()
+
+    continue
+
+
     imxy_RIU2    = numpy.zeros(shape=(3,height,width),dtype='uint8',order='C')
     imxy_U2    = numpy.zeros(shape=(3,height,width),dtype='uint8',order='C')
     #imxy = colorLUT[volXY[i]]
@@ -149,7 +276,6 @@ def main():
 
     vou.append(imall)
 
-
   #voutXY.close()
   #voutXT.close()
   #voutYT.close()
@@ -157,8 +283,6 @@ def main():
   vou.close()
 
   return 0
-
-
 
 
 def getColorLUT_RIU2(patterns):
