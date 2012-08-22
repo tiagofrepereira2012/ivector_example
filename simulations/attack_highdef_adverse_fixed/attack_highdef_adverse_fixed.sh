@@ -1,4 +1,4 @@
-../../bin/calclbptop_videos.py -i attack_highdef_adverse_fixed.mov -o R111_square_0 -rT 1 --patterns 0 --lda-machine /idiap/temp/tpereira/buildOutProjects/antispoofing.lbp/SIMULATIONS/BB_per_volume/VIDEO_GENERATOR/N888-R11N_circle/res_T1/lda_machine_0.99-XY-XT-YT-plane.txt --pca-machine /idiap/temp/tpereira/buildOutProjects/antispoofing.lbp/SIMULATIONS/BB_per_volume/VIDEO_GENERATOR/N888-R11N_circle/res_T1/pca_machine_0.99-XY-XT-YT-plane.txt --input-face-location attack_highdef_adverse_fixed.face --threshold 0.3730
+../../bin/calclbptop_videos.py -i attack_highdef_adverse_fixed.mov -o R111_square_0 -rT 1 --patterns 0 --lda-machine lda_machine_0.99-XY-XT-YT-plane.txt --pca-machine pca_machine_0.99-XY-XT-YT-plane.txt --input-face-location attack_highdef_adverse_fixed.face --threshold 0.3730
 
 
 #../../../../bin/calclbptop_videos.py -i attack_highdef_adverse_fixed.mov -o R111_square_1 -rT 1 --patterns 1
