@@ -182,9 +182,9 @@ def main():
     sys.stdout.flush()
    
   #Print the histogram
-  plotHistrogram('XY.png',histVolumeXY.sum(axis=0))
-  plotHistrogram('XT.png',histVolumeXT.sum(axis=0))
-  plotHistrogram('YT.png',histVolumeYT.sum(axis=0))
+  plotHistrogram('XY.pdf',histVolumeXY.sum(axis=0))
+  plotHistrogram('XT.pdf',histVolumeXT.sum(axis=0))
+  plotHistrogram('YT.pdf',histVolumeYT.sum(axis=0))
 
   return 0
 
@@ -195,16 +195,22 @@ if __name__ == "__main__":
 def plotHistrogram(filename,data):
 
   import numpy as np
-  import matplotlib.mlab as mlab
+  import matplotlib
+  matplotlib.use('pdf')
+  from matplotlib.backends.backend_pdf import PdfPages
   import matplotlib.pyplot as plt
   
   bins = [i+1 for i in range(data.shape[0])]
 
   # the histogram of the data
   n, bins, patches = plt.hist(data,bins, facecolor='green')
+  pp = PdfPages(filename)
 
   plt.ylabel('Bins')
   plt.title('LBPTop bins ' + filename)
   plt.grid(True)
-  plt.savefig(filename)
+
+  pp.savefig()
+  pp.close()
+
   

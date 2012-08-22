@@ -146,7 +146,7 @@ def main():
 
 
     if args.normalize:  # zero mean unit variance data normalziation
-      print "Applying standard normalization..."
+      print "Calculating the normalization factor"
       mean, std = norm.calc_mean_std(train_real_plane, train_attack_plane)
       train_real_plane = norm.zeromean_unitvar_norm(train_real_plane, mean, std); train_attack_plane = norm.zeromean_unitvar_norm(train_attack_plane, mean, std)
       devel_real_plane = norm.zeromean_unitvar_norm(devel_real_plane, mean, std); devel_attack_plane = norm.zeromean_unitvar_norm(devel_attack_plane, mean, std)
@@ -161,6 +161,11 @@ def main():
       devel_real_plane = pca.pcareduce(pca_machine, devel_real_plane); devel_attack_plane = pca.pcareduce(pca_machine, devel_attack_plane)
       test_real_plane = pca.pcareduce(pca_machine, test_real_plane); test_attack_plane = pca.pcareduce(pca_machine, test_attack_plane)
 
+      if args.normalize:  #Storing the normaliation factors in PCA machine
+        pca_machine.input_subtract = mean
+        pca_machine.input_divide = std
+      pca_machine.save(os.path.join(args.outputdir, 'pca_machine_'+ str(energy) + "-" + models[i] +'.txt'))
+
 
     print "Training LDA machine..."
     lda_machine = lda.make_lda((train_real_plane, train_attack_plane)) # training the LDA
@@ -171,8 +176,13 @@ def main():
     devel_attack_plane_out = lda.get_scores(lda_machine, devel_attack_plane)
     test_real_plane_out = lda.get_scores(lda_machine, test_real_plane)
     test_attack_plane_out = lda.get_scores(lda_machine, test_attack_plane)
-  
-  
+ 
+    if args.normalize:  #Storing the normaliation factors in PCA machine
+      lda_machine.input_subtract = mean
+      lda_machine.input_divide = std
+
+    lda_machine.save(os.path.join(args.outputdir, 'lda_machine_'+ str(energy) + "-" + models[i] +'.txt'))
+
     # it is expected that the scores of the real accesses are always higher then the scores of the attacks. Therefore, a check is first made, if the   average of the scores of real accesses is smaller then the average of the scores of the attacks, all the scores are inverted by multiplying with -1.
     if numpy.mean(devel_real_plane_out) < numpy.mean(devel_attack_plane_out):
       devel_real_plane_out = devel_real_plane_out * -1; devel_attack_plane_out = devel_attack_plane_out * -1
