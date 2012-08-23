@@ -29,6 +29,7 @@ setup(
         'calclbp.py = antispoofing.lbp.script.calclbp:main',
         'calclbptop.py = antispoofing.lbp.script.calclbptop:main',
         'calclbptop_videos.py = antispoofing.lbp.script.calclbptop_videos:main',
+        'calclbptop_videos_all_bins.py = antispoofing.lbp.script.calclbptop_videos_all_bins:main',
         'calclbptop_histacum.py = antispoofing.lbp.script.calclbptop_histacum:main',
         'calcframelbp.py = antispoofing.lbp.script.calcframelbp:main',
         'calcframelbp_5quatities.py = antispoofing.lbp.script.calcframelbp_5quatities:main',
