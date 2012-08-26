@@ -16,6 +16,7 @@ import numpy
 from .. import ml
 from ..ml import pca, lda, norm
 
+import matplotlib; matplotlib.use('pdf') #avoids TkInter threaded start
 from matplotlib.backends.backend_pdf import PdfPages
 import matplotlib.pyplot as mpl
 
