@@ -13,6 +13,11 @@ import argparse
 import bob
 import numpy
 
+from .. import ml
+from ..ml import pca, lda, norm
+
+from matplotlib.backends.backend_pdf import PdfPages
+import matplotlib.pyplot as mpl
 
 def create_full_dataset(files):
   """Creates a full dataset matrix out of all the specified files"""
@@ -95,8 +100,6 @@ def main():
   parser.add_argument('--lit', '--light-test', metavar='LIGHT', type=str, choices=('controlled', 'adverse'), default='', dest='light_test', help='Types of illumination conditions (controlled,adverse) (defaults to "%(default)s")')
 
 
-  from .. import ml
-  from ..ml import pca, lda, norm
 
   args = parser.parse_args()
   if not os.path.exists(args.inputdir):
@@ -124,7 +127,14 @@ def main():
   train_real = create_full_dataset(process_train_real); train_attack = create_full_dataset(process_train_attack); 
   devel_real = create_full_dataset(process_devel_real); devel_attack = create_full_dataset(process_devel_attack); 
   test_real = create_full_dataset(process_test_real); test_attack = create_full_dataset(process_test_attack); 
-  
+ 
+  #Storing the scores in order to plot their distribution
+  develRealScores   = []
+  develAttackScores = []
+  testRealScores    = []
+  testAttackScores  = []
+  thresholds        = []
+  testHTERs         = []
 
   models = ['XY-plane','XT-Plane','YT-Plane','XT-YT-Plane','XY-XT-YT-plane']
   lines  = ['r','b','y','g^','c']
@@ -192,6 +202,14 @@ def main():
     dev_far, dev_frr = bob.measure.farfrr(devel_attack_plane_out, devel_real_plane_out, thres)
     test_far, test_frr = bob.measure.farfrr(test_attack_plane_out, test_real_plane_out, thres)
 
+    #Storing the scores
+    develRealScores.append(devel_real_plane_out)
+    develAttackScores.append(devel_attack_plane_out)
+    testRealScores.append(test_real_plane_out)
+    testAttackScores.append(test_attack_plane_out)
+    thresholds.append(thres)
+
+
     tbl.append(" ")
     tbl.append(models[i])
     if args.pca_reduction:
@@ -208,21 +226,38 @@ def main():
     txt = ''.join([k+'\n' for k in tbl])
   
 
-    #Plotting the ROC curves
-    from .. import ml
+    testHTER = round(50*(test_far+test_frr),2)
+    testHTERs.append(testHTER)
+
+
+  #Plotting the DET curves
+  for i in range(len(models)):
+    
     if(i==len(models)-1):
       hold=False
     else:
       hold=True
-    
-    testHTER = round(50*(test_far+test_frr),2)
-    ml.perf_lbptop.det_lbptop(test_real_plane_out,test_attack_plane_out,models[i]+" HTER = " + str(testHTER) + "%",hold,linestyle=lines[i],filename=os.path.join(args.outputdir,"DET_LDA.pdf"))
+
+    #Plotting the DET for each plane
+    ml.perf_lbptop.det_lbptop(testRealScores[i],testAttackScores[i],models[i]+" HTER = " + str(thresholds[i]) + "%",hold,linestyle=lines  [i],filename=os.path.join(args.outputdir,"DET_LDA.pdf"))
 
 
+  #Plotting the score distributions
+  pp = PdfPages(os.path.join(args.outputdir,"Scores Distribution.pdf"))
+  for i in range(len(models)):
+    fig = mpl.figure()
 
+    train = [numpy.array([0]),numpy.array([0])]
+    devel = [develRealScores[i],develAttackScores[i]]
+    test  = [testRealScores[i],testAttackScores[i]]
 
-  txt = ''.join([k+'\n' for k in tbl])
+    ml.perf.score_distribution_plot(test, devel, train, epochs=1, bins=20, eer_thres=thresholds[i],mhter_thres=0)
+    pp.savefig(fig)
+  
+  pp.close()
+
   # write the results to a file 
+  txt = ''.join([k+'\n' for k in tbl])
   tf = open(os.path.join(args.outputdir, 'LDA_perf_table.txt'), 'w')
   tf.write(txt)
 

@@ -24,14 +24,15 @@ def score_distribution_plot(test, devel, train, epochs, bins, eer_thres,
   """Plots the score distributions in 3 different subplots"""
 
   import matplotlib.pyplot as mpl
-  histoargs = {'bins': bins, 'alpha': 0.8, 'histtype': 'step', 'range': (-1,1)} 
+  histoargs = {'bins': bins, 'alpha': 0.8, 'histtype': 'step', 'range': (-5,5)} 
   lineargs = {'alpha': 0.5}
   axis_fontsize = 8
 
   # 3 plots (same page) with the tree sets
   mpl.subplot(3,1,1)
-  mpl.hist(test[0][:,0], label='Real Accesses', color='g', **histoargs)
-  mpl.hist(test[1][:,0], label='Attacks', color='b', **histoargs)
+  
+  mpl.hist(test[0], label='Real Accesses', color='g', **histoargs)
+  mpl.hist(test[1], label='Attacks', color='b', **histoargs)
   xmax, xmin, ymax, ymin = mpl.axis()
   mpl.vlines(eer_thres, ymin, ymax, color='red', label='EER', 
       linestyles='solid', **lineargs)
@@ -45,8 +46,8 @@ def score_distribution_plot(test, devel, train, epochs, bins, eer_thres,
   axis.yaxis.set_label_position('right')
   pyplot_axis_fontsize(axis, axis_fontsize)
   mpl.subplot(3,1,2)
-  mpl.hist(devel[0][:,0], color='g', **histoargs)
-  mpl.hist(devel[1][:,0], color='b', **histoargs)
+  mpl.hist(devel[0], color='g', **histoargs)
+  mpl.hist(devel[1], color='b', **histoargs)
   xmax, xmin, ymax, ymin = mpl.axis()
   mpl.vlines(eer_thres, ymin, ymax, color='red', linestyles='solid',
       label='EER', **lineargs)
@@ -58,8 +59,8 @@ def score_distribution_plot(test, devel, train, epochs, bins, eer_thres,
   axis.yaxis.set_label_position('right')
   pyplot_axis_fontsize(axis, axis_fontsize)
   mpl.subplot(3,1,3)
-  mpl.hist(train[0][:,0], color='g', **histoargs)
-  mpl.hist(train[1][:,0], color='b', **histoargs)
+  mpl.hist(train[0], color='g', **histoargs)
+  mpl.hist(train[1], color='b', **histoargs)
   xmax, xmin, ymax, ymin = mpl.axis()
   mpl.vlines(eer_thres, ymin, ymax, color='red', linestyles='solid', 
       label='EER', **lineargs)
