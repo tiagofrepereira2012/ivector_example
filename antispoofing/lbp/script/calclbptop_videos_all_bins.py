@@ -20,6 +20,10 @@ from matplotlib.figure import Figure
 from matplotlib.mlab import normpdf
 from matplotlib.cm import gray as GrayColorMap
 
+from .. import spoof
+from .. import faceloc
+
+
 """
 " Get the scores from some machine
 " 
@@ -27,8 +31,6 @@ from matplotlib.cm import gray as GrayColorMap
 
 """
 def getScores(grayFrames,nXY,nXT,nYT,rX,rY,rT,cXY,cXT,cYT,lbptypeXY,lbptypeXT,lbptypeYT,inputFaceLocation,pcaMachinePath,classificationMachinePath):
-  from .. import spoof
-  from .. import faceloc
 
   scores = numpy.zeros(shape=(0))
   nFrames = len(grayFrames)
@@ -72,30 +74,58 @@ def getScores(grayFrames,nXY,nXT,nYT,rX,rY,rT,cXY,cXT,cYT,lbptypeXY,lbptypeXT,lb
   return scores
 
 """
+"Get the center coordinates of a bounding box
+"""
+def getCenterCoordinatesFromBB(inputFaceLocation,nFrames):
+
+  centerCoordinates= numpy.zeros(shape=(nFrames,2))
+
+  #Loading face locations
+  locations = faceloc.read_face(inputFaceLocation)
+  locations = faceloc.expand_detections(locations, nFrames)
+
+  for i in range(nFrames):
+    centerCoordinates[i][0] = locations[i].x+(locations[i].width/2)
+    centerCoordinates[i][1] = locations[i].y+(locations[i].height/2)  
+
+  return centerCoordinates
+
+"""
 " Plot the reference threshold and the current score
 """
-def plotScores(scores,index,threshold,width,height):
+def plotPoints(points,index,threshold=None,width=0,height=0,ylim=(-5,5), plotTitle=""):
 
   dpi=100
   handle = Figure(figsize=(width/dpi,height/dpi),dpi=dpi)
   axis = handle.add_subplot(111)
   grid(True)
 
+  axis.set_title(plotTitle)
+
   #Number of frames
-  frames = numpy.array(range(len(scores)))
+  frames = numpy.array(range(len(points)))
 
-  #Creating the threshold reference
-  thresoldValues = threshold*numpy.ones(len(scores))
 
-  #plotting the reference value
-  axis.plot(frames,thresoldValues,'r--')
+  if(threshold!=None):
+    #Creating the threshold reference
+    thresoldValues = threshold*numpy.ones(len(points))
 
-  currentScores = scores[0:index]
+    #plotting the reference value
+    axis.plot(frames,thresoldValues,'r--')
+  else:
+    #Creating the threshold reference
+    thresoldValues = ylim[0]*numpy.ones(len(points))
 
-  #plotting the current score timeline
-  axis.plot(frames[0:index],currentScores,'b')
+    #plotting the reference value
+    axis.plot(frames,thresoldValues,'w--')
 
-  axis.set_ylim(-5,5)
+
+  currentPoints = points[0:index]
+
+  #plotting the current point timeline
+  axis.plot(frames[0:index],currentPoints,'b')
+
+  axis.set_ylim(ylim)
 
   plotImage = fig2bzarray(handle)
  
@@ -104,6 +134,33 @@ def plotScores(scores,index,threshold,width,height):
   newPlotImage = numpy.array(newPlotImage,dtype='uint8',order='C')
 
   return newPlotImage
+
+
+"""
+" Plot bars
+"""
+def plotBars(value,barWidth=1,width=0,height=0,plotTitle="",ylim=(-5,5)):
+
+  dpi=100
+  handle = Figure(figsize=(width/dpi,height/dpi),dpi=dpi)
+  axis = handle.add_subplot(111)
+  grid(True)
+
+  axis.set_title(plotTitle)
+
+  #plotting the current point timeline
+  axis.bar(left=10,height=value,width=barWidth,color='b')
+
+  plotImage = fig2bzarray(handle)
+
+  axis.set_ylim(ylim)
+ 
+  newPlotImage = numpy.zeros(shape=(3,height,width))
+  newPlotImage[:,0:plotImage.shape[1],0:plotImage.shape[2]] = plotImage[:,:,:]
+  newPlotImage = numpy.array(newPlotImage,dtype='uint8',order='C')
+
+  return newPlotImage
+
 
 
 def fig2bzarray(fig):
@@ -135,15 +192,13 @@ def main():
   
   basedir = os.path.dirname(os.path.dirname(os.path.realpath(sys.argv[0])))
 
-  INPUT_DIR = os.path.join(basedir, 'video.mov')
-  OUTPUT_DIR = os.path.join(basedir, 'output.avi')
+  INPUT_DIR = basedir
+  OUTPUT_DIR = basedir
 
   parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-  parser.add_argument('-i', '--input-file', metavar='DIR', type=str, dest='inputFile', default=INPUT_DIR, help='Base directory containing the videos to be treated by this procedure (defaults to "%(default)s")')
+  parser.add_argument('-i', '--inputDir', metavar='DIR', type=str, dest='inputDir', default=INPUT_DIR, help='Base directory containing the videos to be treated by this procedure (defaults to "%(default)s")')
 
-  parser.add_argument('-if', '--input-face-location', metavar='DIR', type=str, dest='inputFaceLocation', default=INPUT_DIR, help='Input face location file (defaults to "%(default)s")')
-
-  parser.add_argument('-o', '--output-file', metavar='DIR', type=str, dest='outputFile', default=OUTPUT_DIR, help='The outputfile (defaults to "%(default)s")')
+  parser.add_argument('-o', '--outputDir', metavar='DIR', type=str, dest='outputDir', default=OUTPUT_DIR, help='The output Dir (defaults to "%(default)s")')
 
   parser.add_argument('-lXY', '--lbptypeXY', metavar='LBPTYPE', type=str, choices=('regular', 'riu2', 'uniform'), default='uniform', dest='lbptypeXY', help='Choose the type of LBP to use (defaults to "%(default)s")')
 
@@ -170,20 +225,27 @@ def main():
 
   parser.add_argument('-vb', '--visualize-bins', metavar='', type=str, choices=('riu2', 'uniform'), default='uniform', dest='visualizeBins', help='What bins do you want to visualize (defaults to "%(default)s")')
 
+  # For SGE grid processing @ Idiap
+  parser.add_argument('--grid', dest='grid', action='store_true', default=False, help=argparse.SUPPRESS)
+
   args = parser.parse_args()
 
   lbphistlength = {'regular':256, 'riu2':10, 'uniform':59} # hardcoding the number of bins for the LBP variants
 
   from .. import spoof
 
-  inputFile         = args.inputFile
-  outputFile        = args.outputFile
-  inputFaceLocation = args.inputFaceLocation
+  inputDir         = args.inputDir
+  outputDir        = args.outputDir
+  #inputFaceLocation = args.inputFaceLocation
 
-  input = bob.io.VideoReader(inputFile)
-    
-  # start the work here...
-  vin = input.load() # load the video
+  
+  db = bob.db.replay.Database()
+  process = db.files(directory=inputDir, extension='.mov')
+  outputFiles = db.files(directory=outputDir, extension='.avi')
+
+  # where to find the face bounding boxes
+  faceloc_dir = os.path.join(args.inputDir, 'face-locations')
+
     
   nXY = args.nXY
   nXT = args.nXT
@@ -207,85 +269,152 @@ def main():
   threshold     = args.threshold
   visualizeBins = args.visualizeBins
 
-  nFrames = vin.shape[0]
 
-  #Converting all frames to grayscale
-  grayFrames = numpy.zeros(shape=(nFrames,vin.shape[2],vin.shape[3]))
-  for i in range(nFrames):
-    grayFrames[i] = bob.ip.rgb_to_gray(vin[i,:,:,:])
-
-  #Get scores from LDA
-  scores = getScores(grayFrames,nXY,nXT,nYT,rX,rY,rT,cXY,cXT,cYT,lbptypeXY,lbptypeXT,lbptypeYT,inputFaceLocation,pcaMachinePath,ldaMachinePath)
-
-
-  volXY,volXT,volYT = spoof.lbptophist(grayFrames,nXY,nXT,nYT,rX,rY,rT,cXY,cXT,cYT,lbptypeXY,lbptypeXT,lbptypeYT,histrogramOutput=False)
-  #volDif_XT_YT = volXT-volYT
-
-  height    = volXY.shape[1]
-  width     = volXY.shape[2]
-
-  framerate = input.frame_rate
-
-  vou = bob.io.VideoWriter(outputFile + "_LBPTOP.avi",4*height,10*width,framerate)
-
-  #graphTest = bob.io.VideoWriter(outputFile + "_SCORES.avi",height,2*width,framerate)
-
-  for i in range(volXY.shape[0]):
-
-    #Plotting the score
-    plotFrame = plotScores(scores,i,threshold,2*width,height)
-    #graphTest.append(plotFrame)
-
-    imall_xy = numpy.zeros(shape=(3,height,10*width),dtype='uint8',order='C')
-    imall_xt = numpy.zeros(shape=(3,height,10*width),dtype='uint8',order='C')
-    imall_yt = numpy.zeros(shape=(3,height,10*width),dtype='uint8',order='C')
-
-    #For each pattern
-    for j in range(10):
-   
-      patterns = numpy.array(j)
-
-      if(visualizeBins == "uniform"):
-        colorLUT = getColorLUT_U2(patterns)
-      else:
-        colorLUT = getColorLUT_RIU2(patterns)
-
-      imxy    = numpy.zeros(shape=(3,height,width),dtype='uint8',order='C')
-      imxy[0,:,:] = colorLUT[volXY[i]][:,:,0]
-      imxy[1,:,:] = colorLUT[volXY[i]][:,:,1]
-      imxy[2,:,:] = colorLUT[volXY[i]][:,:,2]
-
-      imxt    = numpy.zeros(shape=(3,height,width),dtype='uint8',order='C')
-      imxt[0,:,:] = colorLUT[volXT[i]][:,:,0]
-      imxt[1,:,:] = colorLUT[volXT[i]][:,:,1]
-      imxt[2,:,:] = colorLUT[volXT[i]][:,:,2]
-
-      imyt    = numpy.zeros(shape=(3,height,width),dtype='uint8',order='C')
-      imyt[0,:,:] = colorLUT[volYT[i]][:,:,0]
-      imyt[1,:,:] = colorLUT[volYT[i]][:,:,1]
-      imyt[2,:,:] = colorLUT[volYT[i]][:,:,2]
-
-      imall_xy[:,:,j*width:j*width + width] = imxy
-      imall_xt[:,:,j*width:j*width + width] = imxt
-      imall_yt[:,:,j*width:j*width + width] = imyt
+  # finally, if we are on a grid environment, just find what I have to process.
+  if args.grid:
+    pos = int(os.environ['SGE_TASK_ID']) - 1
+    ordered_keys = sorted(process.keys())
+    if pos >= len(ordered_keys):
+      raise RuntimeError, "Grid request for job %d on a setup with %d jobs" % \
+          (pos, len(ordered_keys))
+    key = ordered_keys[pos] # gets the right key
+    process = {key: process[key]}
 
 
-    #Generating video
-    imall_origin = numpy.zeros(shape=(3,height,10*width),dtype='uint8',order='C')
+  # processing each video
+  for index, key in enumerate(sorted(process.keys())):
+    filename   = process[key]
+    outputFile = outputFiles[key]
 
-    imall_origin[:,:,0:width] = vin[i,:,0:height,0:width]
-    imall_origin[:,:,width:width+plotFrame.shape[2]] = plotFrame
+    #load video
+    input = bob.io.VideoReader(filename)
+    vin = input.load() # load the video
 
-    imall =  numpy.concatenate((imall_origin,imall_xy,imall_xt,imall_yt),axis=1)
+    #load face location file
+    inputFaceLocation = os.path.expanduser(db.paths([key], faceloc_dir, '.face')[0])
+      
+    # start the work here...
 
-    vou.append(imall)
+    nFrames = vin.shape[0]
 
-  #voutXY.close()
-  #voutXT.close()
-  #voutYT.close()
-  #voutXT_YT.close()
-  vou.close()
-  #graphTest.close()
+    #Converting all frames to grayscale
+    grayFrames = numpy.zeros(shape=(nFrames,vin.shape[2],vin.shape[3]))
+    for i in range(nFrames):
+      grayFrames[i] = bob.ip.rgb_to_gray(vin[i,:,:,:])
+
+
+    ##################
+    #Get the center coordinates
+    centerCoordinates = getCenterCoordinatesFromBB(inputFaceLocation,len(grayFrames))
+
+
+    #######################
+    #Get scores from the machine
+    scores = getScores(grayFrames,nXY,nXT,nYT,rX,rY,rT,cXY,cXT,cYT,lbptypeXY,lbptypeXT,lbptypeYT,inputFaceLocation,pcaMachinePath,ldaMachinePath)
+
+
+    volXY,volXT,volYT = spoof.lbptophist(grayFrames,nXY,nXT,nYT,rX,rY,rT,cXY,cXT,cYT,lbptypeXY,lbptypeXT,lbptypeYT,histrogramOutput=False)
+    #volDif_XT_YT = volXT-volYT
+
+    height    = volXY.shape[1]
+    width     = volXY.shape[2]
+
+    framerate = input.frame_rate
+
+    #vou = bob.io.VideoWriter(outputFile + "_LBPTOP.avi",5*height,10*width,framerate)
+    vou = bob.io.VideoWriter(outputFile,4*height,10*width,framerate)
+
+    #graphTest = bob.io.VideoWriter(outputFile + "_SCORES.avi",height,2*width,framerate)
+    #binsCount = numpy.zeros(shape=(volXY.shape[0],10))
+
+    for i in range(volXY.shape[0]):
+
+      #Plotting the score
+      plotScores = plotPoints(scores,i,threshold=threshold,width=2*width,height=height,plotTitle="SCORES")
+
+      #Plotting the X-Coordinate
+      plotXCoordinates = plotPoints(centerCoordinates[:,0],i,width=2*width,height=height,ylim=(min(centerCoordinates[:,0])-5,max(centerCoordinates[:,0])+5),plotTitle="FACE DETECTOR X - COORDINATE")
+      plotYCoordinates = plotPoints(centerCoordinates[:,1],i,width=2*width,height=height,ylim=(min(centerCoordinates[:,1])-5,max(centerCoordinates[:,1])+5),plotTitle="FACE DETECTOR Y - COORDINATE")
+
+      #Plotting the Y-Coordinate
+
+      imall_xy = numpy.zeros(shape=(3,height,10*width),dtype='uint8',order='C')
+      imall_xt = numpy.zeros(shape=(3,height,10*width),dtype='uint8',order='C')
+      imall_yt = numpy.zeros(shape=(3,height,10*width),dtype='uint8',order='C')
+
+      #Sum the amount of riu2
+      #imall_binsCount = numpy.zeros(shape=(3,height,10*width),dtype='uint8',order='C')
+
+      #For each pattern
+      for j in range(10):
+     
+        patterns = numpy.array(j)
+
+        if(visualizeBins == "uniform"):
+          colorLUT = getColorLUT_U2(patterns)
+        else:
+          colorLUT = getColorLUT_RIU2(patterns)
+
+        #Draw each pattern
+        imxy    = numpy.zeros(shape=(3,height,width),dtype='uint8',order='C')
+        imxy[0,:,:] = colorLUT[volXY[i]][:,:,0]
+        imxy[1,:,:] = colorLUT[volXY[i]][:,:,1]
+        imxy[2,:,:] = colorLUT[volXY[i]][:,:,2]
+
+        imxt    = numpy.zeros(shape=(3,height,width),dtype='uint8',order='C')
+        imxt[0,:,:] = colorLUT[volXT[i]][:,:,0]
+        imxt[1,:,:] = colorLUT[volXT[i]][:,:,1]
+        imxt[2,:,:] = colorLUT[volXT[i]][:,:,2]
+
+        imyt    = numpy.zeros(shape=(3,height,width),dtype='uint8',order='C')
+        imyt[0,:,:] = colorLUT[volYT[i]][:,:,0]
+        imyt[1,:,:] = colorLUT[volYT[i]][:,:,1]
+        imyt[2,:,:] = colorLUT[volYT[i]][:,:,2]
+
+        #Sum all patterns
+        #sumPatterns = sum(imxy!=255) + sum(imxt!=255) + sum(imyt!=255)
+        #binsCount[i,j] = sumPatterns
+        #plottedBars[:,:,j*width:j*width + width] = plotBars(sumPatterns,barWidth=1,width=width,height=height,plotTitle="",ylim=(5000,40000))
+        #imall_binsCount[:,:,j*width:j*width + width] = plotPoints(binsCount[:,j],i,width=width,height=height,ylim=(5000,40000))
+        
+
+        imall_xy[:,:,j*width:j*width + width] = imxy
+        imall_xt[:,:,j*width:j*width + width] = imxt
+        imall_yt[:,:,j*width:j*width + width] = imyt
+
+
+      #Generating video
+      imall_origin = numpy.zeros(shape=(3,height,10*width),dtype='uint8',order='C')
+
+      imall_origin[:,:,0:width] = vin[i,:,0:height,0:width]
+
+      #Ploting scores
+      begin = width
+      end = begin+plotScores.shape[2]
+      imall_origin[:,:,begin:end] = plotScores
+
+      #Ploting X-Coordinate
+      begin = end
+      end = begin+plotXCoordinates.shape[2]
+      imall_origin[:,:,begin:end] = plotXCoordinates
+
+      #Ploting Y-Coordinate
+      begin = end
+      end = begin+plotYCoordinates.shape[2]
+      imall_origin[:,:,begin:end] = plotYCoordinates
+
+
+      imall =  numpy.concatenate((imall_origin,imall_xy,imall_xt,imall_yt),axis=1)
+      #imall =  numpy.concatenate((imall_origin,imall_xy,imall_xt,imall_yt,imall_binsCount),axis=1)
+
+      vou.append(imall)
+
+    #voutXY.close()
+    #voutXT.close()
+    #voutYT.close()
+    #voutXT_YT.close()
+    vou.close()
+    #graphTest.close()
 
   return 0
 
@@ -306,7 +435,7 @@ def getColorLUT_RIU2(patterns):
 
   #B) LBP pattern with 0 bit to 1
   if(len(numpy.where(patterns==0)[0])==1):
-    m_lut_RIU2[1] = numpy.array([0,255,255])
+    m_lut_RIU2[1] = numpy.array([0,0,0])
 
 
   #C) LBP patterns with 1 bit to 1
@@ -413,7 +542,7 @@ def getColorLUT_U2(patterns):
 
   #B) LBP pattern with 0 bit to 1
   if(len(numpy.where(patterns==0)[0])==1):
-    m_lut_U2[1] = numpy.array([0,255,255])
+    m_lut_U2[1] = numpy.array([0,0,0])
 
 
   #C) LBP patterns with 7 bit to 1
