@@ -14,6 +14,7 @@ from .. import ml
 from ..ml import pca, lda, norm
 
 #plot
+import matplotlib; matplotlib.use('pdf') #avoids TkInter threaded start
 from pylab import *
 from matplotlib.backends.backend_agg import FigureCanvasAgg
 from matplotlib.figure import Figure
