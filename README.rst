@@ -1,15 +1,15 @@
-Counter-Measures for Face Spoofing Attacks based on Local Binary Patterns (LBP)
+LBP-TOP based countermeasure against facial spoofing attacks
 ===============================================================================
 
-This package implements the LBP counter-measure to spoofing attacks to
+This package implements the LBP-TOP countermeasure to spoofing attacks to
 face recognition systems as described at the paper::
 
-  @INPROCEEDINGS{Chingovska_BIOSIG_2012,
-  author = {Chingovska, Ivana and Anjos, Andr{\'{e}} and Marcel, S{\'{e}}bastien},
-  keywords = {Attack, Counter-Measures, Counter-Spoofing, Face Recognition, Liveness Detection, Replay, Spoofing},
-  month = sep,
-  title = {On the Effectiveness of Local Binary Patterns in Face Anti-spoofing},
-  journal = {IEEE BIOSIG 2012},
+  @INPROCEEDINGS{deFreitasPereira_LBP_2012,
+  author = {de Freitas Pereira, Tiago and Anjos, Andr{\'{e}} and De Martino, Jos{\'{e}} Mario and Marcel, S{\'{e}}bastien},
+  keywords = {Attack, Countermeasures, Counter-Spoofing, Face Recognition, Liveness Detection, Replay, Spoofing},
+  month = dec,
+  title = {LBP-TOP based countermeasure against facial spoofing attacks},
+  journal = {ACCV 2012},
   year = {2012},
   }
  
@@ -20,7 +20,7 @@ installed **prior** to using the programs described in this package. Visit
 To run the code in this package, you will also need `Bob, an open-source
 toolkit for Signal Processing and Machine Learning
 <http://idiap.github.com/bob>`_. The code has been tested to work with Bob
-1.0.x.
+1.1.x.
 
 Installation
 ------------
@@ -29,13 +29,13 @@ To follow these instructions locally you will need a local copy of this
 package. Start by cloning this project with something like (shell commands are marked with a
 ``$`` signal)::
 
-  $ git clone --depth=1 https://github.com/bioidiap/antispoofing.lbp.git
-  $ cd antispoofing.lbp
+  $ git clone --depth=1 https://github.com/bioidiap/antispoofing.lbptop.git
+  $ cd antispoofing.lbptop
   $ rm -rf .git # you don't need the git directories...
 
 Alternatively, you can use the github tarball API to download the package::
 
-  $ wget --no-check-certificate https://github.com/bioidiap/antispoofing.lbp/tarball/master -O- | tar xz 
+  $ wget --no-check-certificate https://github.com/bioidiap/antispoofing.lbptop/tarball/master -O- | tar xz 
   $ mv bioidiap-antispoofing-* antispoofing.lbp
 
 Installation of the toolkit uses the `buildout <http://www.buildout.org/>`_
@@ -78,12 +78,12 @@ Reference
 
 If you need to cite this work, please use the following::
 
-   @INPROCEEDINGS{Chingovska_BIOSIG_2012,
-   author = {Chingovska, Ivana and Anjos, Andr{\'{e}} and Marcel, S{\'{e}}bastien},
-   keywords = {Attack, Counter-Measures, Counter-Spoofing, Face Recognition, Liveness Detection, Replay, Spoofing},
-   month = sep,
-   title = {On the Effectiveness of Local Binary Patterns in Face Anti-spoofing},
-   journal = {IEEE BIOSIG 2012},
-   year = {2012},
-   }
+  @INPROCEEDINGS{deFreitasPereira_LBP_2012,
+  author = {de Freitas Pereira, Tiago and Anjos, Andr{\'{e}} and De Martino, Jos{\'{e}} Mario and Marcel, S{\'{e}}bastien},
+  keywords = {Attack, Countermeasures, Counter-Spoofing, Face Recognition, Liveness Detection, Replay, Spoofing},
+  month = dec,
+  title = {LBP-TOP based countermeasure against facial spoofing attacks},
+  journal = {ACCV 2012},
+  year = {2012},
+  }
 
