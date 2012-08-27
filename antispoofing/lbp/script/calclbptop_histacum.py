@@ -2,7 +2,10 @@
 #Tiago de Freitas Pereira <tiagofrepereira@gmail.com>
 #Fri Jul 13 14:30:00 CEST 2012
 
-"""Calculates the LBPTop planes (XY,XT,YT) of the normalized faces in the videos in the REPLAY-ATTACK database. The result is the LBP histogram over all orthogonal frames of the video (XY,XT,YT). Different types of LBP operators are supported. The histograms can be computed for a subset of the videos in the database (using the protocols in REPLAY-ATTACK). The output is a single .hdf5 file for each video. The procedure is described in the paper: NAME OF THE PAPER.
+"""
+
+
+The procedure is described in the paper: "LBP-TOP based countermeasure against facial spoofing attacks" - de Freitas Pereira, Tiago and Anjos, Andre and De Martino, Jose Mario and Marcel, Sebastien; ACCV - LBP 2012
 """
 
 import os, sys

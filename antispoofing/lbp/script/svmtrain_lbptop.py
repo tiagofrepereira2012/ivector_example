@@ -3,7 +3,7 @@
 # Tiago de Freitas Pereira <tiagofrepereira@gmail.com>
 #Tue Jul 17 11:11:00 CEST 2012
 
-"""This script can makes an SVM classification of data into two categories: real accesses and spoofing attacks. There is an option for normalizing between [-1, 1] and dimensionality reduction of the data prior to the SVM classification.
+"""This script can makes an SVM classification of data into two categories: real accesses and spoofing attacks for each LBP-TOP plane and it combinations. There is an option for normalizing between [-1, 1] and dimensionality reduction of the data prior to the SVM classification.
 The probabilities obtained with the SVM are considered as scores for the data. Firstly, the EER threshold on the development set is calculated. The, according to this EER, the FAR, FRR and HTER for the test and development set are calculated. The script outputs a text file with the performance results.
 The details about the procedure are described in the paper: "On the Effectiveness of Local Binary Patterns in Face Anti-spoofing" - Chingovska, Anjos & Marcel; BIOSIG 2012
 """

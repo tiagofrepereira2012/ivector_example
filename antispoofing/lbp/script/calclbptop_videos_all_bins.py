@@ -1,9 +1,19 @@
 #!/usr/bin/env python
 #Tiago de Freitas Pereira <tiagofrepereira@gmail.com>
-#Mon Jul 23 15:16:00 CEST 2012
+#Mon Aug 25 15:16:00 CEST 2012
 
 """
-Create a LBPTop Video from an input video. The output is the 3 videos, one for each plane (XY,XT,YT)
+Create a LBP-TOP Video description from an input video. The output video has the following configuration:
+_______________________________________
+| VIDEO - Score over the time - Correlation between the face center bounding box and score
+|
+| XY frames for each set of bins
+|
+| XT frames for each set of bins
+|
+| YT frames for each set of bins
+-----------------------------------------------
+
 """
 
 import os, sys

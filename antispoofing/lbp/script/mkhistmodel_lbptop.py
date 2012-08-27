@@ -2,7 +2,7 @@
 #Tiago de Freitas Pereira <tiagofrepereira@gmail.com>
 #Mon Jul 16 08:30:00 CEST 2012
 
-"""This script makes a histogram models for the real accesses videos in REPLAY-ATTACK by averaging the LBP histograms of each real access video. The output is an hdf5 file with the computed model histograms. The procedure is described in the paper: "On the Effectiveness of Local Binary patterns in Face Anti-spoofing" - Chingovska, Anjos & Marcel; BIOSIG 2012
+"""This script makes a histogram models for the real accesses videos in REPLAY-ATTACK by averaging the LBP histograms of each real access video for each LBP-TOP plane and it combinations. The output is an hdf5 file with the computed model histograms. The procedure is described in the paper: "LBP-TOP based countermeasure against facial spoofing attacks" - de Freitas Pereira, Tiago and Anjos, Andre and De Martino, Jose Mario and Marcel, Sebastien; ACCV - LBP 2012
 """
 
 import os, sys

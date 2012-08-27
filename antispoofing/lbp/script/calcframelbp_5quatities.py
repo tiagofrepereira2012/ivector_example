@@ -1,8 +1,10 @@
 #!/usr/bin/env python
-#Ivana Chingovska <ivana.chingovska@idiap.ch>
-#Mon Feb  6 17:41:18 CET 2012
+#Tiago de Freitas Pereira <tiagofrepereira@gmail.com>
+#Thu Aug 2  14:32:00 CEST 2012
 
-"""Calculates the normalized LBP histogram of the normalized faces in each of the frames of the videos in the REPLAY-ATTACK database. The result are LBP histograms for each frame of the video. Different types of LBP operators are supported. The histograms can be computed for a subset of the videos in the database (using the protocols in REPLAY-ATTACK). The output is a single .hdf5 file for each video. The procedure is described in the paper: "On the Effectiveness of Local Binary patterns in Face Anti-spoofing" - Chingovska, Anjos & Marcel; BIOSIG 2012
+"""
+Calculates the normalized LBP histogram of the normalized faces in each of the frames of the videos in the REPLAY-ATTACK database and combine with the five quantities published in "Counter-Measures to Photo Attacks in Face Recognition: a public database and a
+baseline, Anjos & Marcel, IJCB'11.". The result are LBP histograms for each frame of the video concatenated with the five quantities. Different types of LBP operators are supported. The histograms can be computed for a subset of the videos in the database (using the protocols in REPLAY-ATTACK). The output is a single .hdf5 file for each video. The procedure is described in the paper: "LBP-TOP based countermeasure against facial spoofing attacks" - de Freitas Pereira, Tiago and Anjos, Andre and De Martino, Jose Mario and Marcel, Sebastien; ACCV - LBP 2012
 """
 
 import os, sys
