@@ -15,7 +15,7 @@ face recognition systems as described at the paper::
  
 The dataset used in the paper is REPLAY-ATTACK database and it is publicly available. It should be downloaded and
 installed **prior** to using the programs described in this package. Visit
-`the REPLAY-ATTACK database page <https://www.idiap.ch/dataset/printattack>`_ for more information.
+`the REPLAY-ATTACK database page <https://www.idiap.ch/dataset/replayattack>`_ for more information.
 
 To run the code in this package, you will also need `Bob, an open-source
 toolkit for Signal Processing and Machine Learning
