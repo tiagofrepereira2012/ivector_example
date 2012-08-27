@@ -2,7 +2,7 @@
 #Tiago de Freitas Pereira <tiagofrepereira@gmail.com>
 #Thu Jul 21 15:56:55 CET 2012
 
-"""This script calculates the chi2 difference between a model histogram and the data histograms for each plane and it combinations in the LBP-TOP, assigning scores to the data according to this. Firstly, the EER threshold on the development set is calculated. The, according to this EER, the FAR, FRR and HTER for the test and development set are calculated. The script outputs a text file with the performance results.
+"""This script calculates the chi2 difference between a model histogram and the data histograms for each LBP-TOP plane and it combinations, assigning scores to the data according to this. Firstly, the EER threshold on the development set is calculated. The, according to this EER, the FAR, FRR and HTER for the test and development set are calculated. The script outputs a text file with the performance results.
 The details about the procedure are described in the paper: "LBP-TOP based countermeasure against facial spoofing attacks" - de Freitas Pereira, Tiago and Anjos, Andre and De Martino, Jose Mario and Marcel, Sebastien; ACCV - LBP 2012
 """
 
