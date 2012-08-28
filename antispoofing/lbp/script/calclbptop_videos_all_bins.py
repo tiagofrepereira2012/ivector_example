@@ -19,6 +19,7 @@ _______________________________________
 import os, sys
 import argparse
 import bob
+import xbob.db.replay
 import numpy
 from .. import ml
 from ..ml import pca, lda, norm
@@ -250,7 +251,7 @@ def main():
   #inputFaceLocation = args.inputFaceLocation
 
   
-  db = bob.db.replay.Database()
+  db = xbob.db.replay.Database()
   process = db.files(directory=inputDir, extension='.mov')
   outputFiles = db.files(directory=outputDir, extension='.mj2')
 #  outputFiles = db.files(directory=outputDir, extension='.ogg')

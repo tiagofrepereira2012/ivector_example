@@ -9,6 +9,7 @@ The details about the procedure are described in the paper: "On the Effectivenes
 import os, sys
 import argparse
 import bob
+import xbob.db.replay
 import numpy
 
 def create_full_dataset(files):
@@ -56,7 +57,7 @@ def main():
   print "Loading input files..."
 
   # loading the input files (all the feature vectors of all the files in different subdatasets)
-  db = bob.db.replay.Database()
+  db = xbob.db.replay.Database()
 
   process_devel_real = db.files(directory=args.inputdir, extension='.hdf5', protocol=args.protocol, groups='devel', cls='real')
   process_devel_attack = db.files(directory=args.inputdir, extension='.hdf5', protocol=args.protocol, groups='devel', cls='attack')

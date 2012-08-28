@@ -13,6 +13,7 @@ import argparse
 def main():
 
   import bob
+  import xbob.db.replay
   import numpy
   import math
 
@@ -48,7 +49,7 @@ def main():
   from .. import spoof
   from .. import faceloc
 
-  db = bob.db.replay.Database()
+  db = xbob.db.replay.Database()
 
   if args.protocol:
     process = db.files(directory=args.inputdir, extension='.mov', protocol=args.protocol)

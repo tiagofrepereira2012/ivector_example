@@ -11,6 +11,7 @@ The details about the procedure are described in the paper: "On the Effectivenes
 import os, sys
 import argparse
 import bob
+import xbob.db.replay
 import numpy
 
 def create_full_dataset(files):
@@ -113,7 +114,7 @@ def main():
 
   print "Loading input files..."
   # loading the input files
-  db = bob.db.replay.Database()
+  db = xbob.db.replay.Database()
 
   process_train_real = db.files(directory=args.inputdir, extension='.hdf5', protocol=args.protocol, groups='train', cls='real')
   process_train_attack = db.files(directory=args.inputdir, extension='.hdf5', protocol=args.protocol, groups='train', cls='attack')

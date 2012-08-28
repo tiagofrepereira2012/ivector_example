@@ -22,7 +22,7 @@ setup(
     install_requires=[
         "bob",      # base signal proc./machine learning library
         "argparse", # better option parsing
-        "xbob.db.replay", 
+        "xbob.db.replay", #Replay database
     ],
 
     entry_points={

@@ -10,7 +10,7 @@ The procedure is described in the paper: "LBP-TOP based countermeasure against f
 
 import os, sys
 import argparse
-import bob
+import xbob.db.replay
 import numpy
 
 def main():
@@ -79,7 +79,7 @@ def main():
   from .. import faceloc
 
 
-  db = bob.db.replay.Database()
+  db = xbob.db.replay.Database()
 
   process = db.files(directory=args.inputdir, extension='.mov', protocol=args.protocol, cls=args.cls, support=args.support, groups=args.groups,light=args.light)
 

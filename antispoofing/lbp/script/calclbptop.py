@@ -8,6 +8,7 @@
 import os, sys
 import argparse
 import bob
+import xbob.db.replay
 import numpy
 
 def main():
@@ -79,7 +80,7 @@ def main():
   from .. import faceloc
 
 
-  db = bob.db.replay.Database()
+  db = xbob.db.replay.Database()
 
   if args.protocol:
     process = db.files(directory=args.inputdir, extension='.mov', protocol=args.protocol)
