@@ -234,7 +234,7 @@ def main():
 
   parser.add_argument('-t', '--threshold', metavar='DIR', type=float, dest='threshold', default=0, help='Threshold for classification (defaults to "%(default)s")')
 
-  parser.add_argument('-vb', '--visualize-bins', metavar='', type=str, choices=('riu2', 'uniform'), default='uniform', dest='visualizeBins', help='What bins do you want to visualize (defaults to "%(default)s")')
+  parser.add_argument('-vb', '--visualize-bins', metavar='', type=str, choices=('riu2', 'uniform','black'), default='black', dest='visualizeBins', help='What bins do you want to visualize (defaults to "%(default)s")')
 
   # For SGE grid processing @ Idiap
   parser.add_argument('--grid', dest='grid', action='store_true', default=False, help=argparse.SUPPRESS)
@@ -252,7 +252,8 @@ def main():
   
   db = bob.db.replay.Database()
   process = db.files(directory=inputDir, extension='.mov')
-  outputFiles = db.files(directory=outputDir, extension='.avi')
+  outputFiles = db.files(directory=outputDir, extension='.mj2')
+#  outputFiles = db.files(directory=outputDir, extension='.ogg')
 
   # where to find the face bounding boxes
   faceloc_dir = os.path.join(args.inputDir, 'face-locations')
@@ -334,6 +335,8 @@ def main():
 
     #vou = bob.io.VideoWriter(outputFile + "_LBPTOP.avi",5*height,10*width,framerate)
     vou = bob.io.VideoWriter(outputFile,4*height,10*width,framerate)
+    print(vou.codec_name)
+    exit()
 
     #graphTest = bob.io.VideoWriter(outputFile + "_SCORES.avi",height,2*width,framerate)
     #binsCount = numpy.zeros(shape=(volXY.shape[0],10))
@@ -363,8 +366,15 @@ def main():
 
         if(visualizeBins == "uniform"):
           colorLUT = getColorLUT_U2(patterns)
-        else:
+        elif(visualizeBins == "riu2"):
           colorLUT = getColorLUT_RIU2(patterns)
+        else:
+          if((j%2)==0):
+            color = [0,0,0]
+          else:
+            color = [255,0,0]
+
+        colorLUT = getColorLUT_OneColor(patterns,color)
 
         #Draw each pattern
         imxy    = numpy.zeros(shape=(3,height,width),dtype='uint8',order='C')
@@ -425,11 +435,120 @@ def main():
     #voutYT.close()
     #voutXT_YT.close()
     vou.close()
+    exit()
     #graphTest.close()
 
   return 0
 
 
+#Black LUT
+def getColorLUT_OneColor(patterns,color):
+  m_lut_OneColor = numpy.ones(shape=(59,3),dtype='uint8',order='C')
+  m_lut_OneColor = m_lut_OneColor*255
+
+  #J) LBP patterns with 8 bits to 1
+  if(len(numpy.where(patterns==8)[0])==1):
+    m_lut_OneColor[58] = numpy.array(color)
+
+  #A) all non uniform patterns have a label of 0.
+  if(len(numpy.where(patterns==9)[0])==1):
+    m_lut_OneColor[0] = numpy.array(color)
+
+  #B) LBP pattern with 0 bit to 1
+  if(len(numpy.where(patterns==0)[0])==1):
+    m_lut_OneColor[1] = numpy.array(color)
+
+
+  #C) LBP patterns with 1 bit to 1
+  #2-9
+  if(len(numpy.where(patterns==1)[0])==1):
+    m_lut_OneColor[2] = numpy.array(color)
+    m_lut_OneColor[3] = numpy.array(color)
+    m_lut_OneColor[4] = numpy.array(color)
+    m_lut_OneColor[5] = numpy.array(color)
+    m_lut_OneColor[6] = numpy.array(color)
+    m_lut_OneColor[7] = numpy.array(color)
+    m_lut_OneColor[8] = numpy.array(color)
+    m_lut_OneColor[9] = numpy.array(color)
+
+
+  #D) LBP patterns with 2 bits to 1
+  #10-17
+  if(len(numpy.where(patterns==2)[0])==1):
+    m_lut_OneColor[10] = numpy.array(color)
+    m_lut_OneColor[11] = numpy.array(color)
+    m_lut_OneColor[12] = numpy.array(color)
+    m_lut_OneColor[13] = numpy.array(color)
+    m_lut_OneColor[14] = numpy.array(color)
+    m_lut_OneColor[15] = numpy.array(color)
+    m_lut_OneColor[16] = numpy.array(color)
+    m_lut_OneColor[17] = numpy.array(color)
+
+  #E) LBP patterns with 3 bits to 1
+  #18-25
+  if(len(numpy.where(patterns==3)[0])==1):
+    m_lut_OneColor[18] = numpy.array(color)
+    m_lut_OneColor[19] = numpy.array(color)
+    m_lut_OneColor[20] = numpy.array(color)
+    m_lut_OneColor[21] = numpy.array(color)
+    m_lut_OneColor[22] = numpy.array(color)
+    m_lut_OneColor[23] = numpy.array(color)
+    m_lut_OneColor[24] = numpy.array(color)
+    m_lut_OneColor[25] = numpy.array(color)
+
+  #F) LBP patterns with 4 bits to 1
+  #26-33
+  if(len(numpy.where(patterns==4)[0])==1):
+    m_lut_OneColor[26] = numpy.array(color)
+    m_lut_OneColor[27] = numpy.array(color)
+    m_lut_OneColor[28] = numpy.array(color)
+    m_lut_OneColor[29] = numpy.array(color)
+    m_lut_OneColor[30] = numpy.array(color)
+    m_lut_OneColor[31] = numpy.array(color)
+    m_lut_OneColor[32] = numpy.array(color)
+    m_lut_OneColor[33] = numpy.array(color)
+
+  #G) LBP patterns with 5 bits to 1
+  #34-41
+  if(len(numpy.where(patterns==5)[0])==1):
+    m_lut_OneColor[34] = numpy.array(color)
+    m_lut_OneColor[35] = numpy.array(color)
+    m_lut_OneColor[36] = numpy.array(color)
+    m_lut_OneColor[37] = numpy.array(color)
+    m_lut_OneColor[38] = numpy.array(color)
+    m_lut_OneColor[39] = numpy.array(color)
+    m_lut_OneColor[40] = numpy.array(color)
+    m_lut_OneColor[41] = numpy.array(color)
+
+  #H) LBP patterns with 6 bits to 1
+  #42-49
+  if(len(numpy.where(patterns==6)[0])==1):
+    m_lut_OneColor[42] = numpy.array(color)
+    m_lut_OneColor[43] = numpy.array(color)
+    m_lut_OneColor[44] = numpy.array(color)
+    m_lut_OneColor[45] = numpy.array(color)
+    m_lut_OneColor[46] = numpy.array(color)
+    m_lut_OneColor[47] = numpy.array(color)
+    m_lut_OneColor[48] = numpy.array(color)
+    m_lut_OneColor[49] = numpy.array(color)
+
+  #I) LBP patterns with 7 bits to 1
+  #50-57
+  if(len(numpy.where(patterns==7)[0])==1):
+    m_lut_OneColor[50] = numpy.array(color)
+    m_lut_OneColor[51] = numpy.array(color)
+    m_lut_OneColor[52] = numpy.array(color)
+    m_lut_OneColor[53] = numpy.array(color)
+    m_lut_OneColor[54] = numpy.array(color)
+    m_lut_OneColor[55] = numpy.array(color)
+    m_lut_OneColor[56] = numpy.array(color)
+    m_lut_OneColor[57] = numpy.array(color)
+
+
+
+  return m_lut_OneColor
+
+#LUT for Rotation Invarian uniform patterns
 def getColorLUT_RIU2(patterns):
 
   #m_lut_RIU2 = numpy.zeros(shape=(59,3),dtype='uint8',order='C')
