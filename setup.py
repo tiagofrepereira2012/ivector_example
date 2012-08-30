@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#Ivana Chingovska <tiagofrepereira@gmail.com>
+#Tiago de Freitas Pereira <tiagofrepereira@gmail.com>
 #Sun Jul  8 20:35:55 CEST 2012
 
 from setuptools import setup, find_packages
