@@ -36,7 +36,7 @@ package. Start by cloning this project with something like (shell commands are m
 Alternatively, you can use the github tarball API to download the package::
 
   $ wget --no-check-certificate https://github.com/bioidiap/antispoofing.lbptop/tarball/master -O- | tar xz 
-  $ mv bioidiap-antispoofing-* antispoofing.lbp
+  $ mv bioidiap-antispoofing-* antispoofing.lbptop
 
 Installation of the toolkit uses the `buildout <http://www.buildout.org/>`_
 build environment. You don't need to understand its inner workings to use this
