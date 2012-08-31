@@ -11,23 +11,23 @@ setup(
     name='antispoofing.lbptop',
     version='1.0.0a0',
     description='LBP-TOP based countermeasure against facial spoofing attacks',
-    url='http://github.com/bioidiap/antispoofing.lbptop',
-    license='LICENSE.txt',
+    url='http://pypi.python.org/pypi/antispoofing.lbptop',
+    license='GPLv3',
     author='Tiago de Freitas Pereira',
     author_email='tiagofrepereira@gmail.com',
-    long_description=open('doc/howto.rst').read(),
+    long_description=open('README.rst').read(),
 
     # This line is required for any distutils based packaging.
     packages=find_packages(),
+    include_packages_data = True,
 
     install_requires=[
-        "bob >= 1.1",      # base signal proc./machine learning library
-        "argparse", # better option parsing
+        "bob >= 1.0",      # base signal proc./machine learning library
         "xbob.db.replay", #Replay database
     ],
 
     namespace_packages = [
-      'antispooofing',
+      'antispoofing',
       ],
 
     entry_points={
