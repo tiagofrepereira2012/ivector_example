@@ -9,14 +9,14 @@ If you use this package and/or its results, please cite the following publicatio
 
 1. The original paper with the counter-measure explained in details::
 
-  @INPROCEEDINGS{Pereira_LBP_2012,
-    author = {Pereira, Tiago de Freitas and Anjos, Andr{\'{e}} and De Martino, Jos{\'{e}} Mario and Marcel, S{\'{e}}bastien},
-    keywords = {Attack, Countermeasures, Counter-Spoofing, Face Recognition, Liveness Detection, Replay, Spoofing},
-    month = dec,
-    title = {LBP-TOP based countermeasure against facial spoofing attacks},
-    journal = {ACCV 2012},
-    year = {2012},
-  }
+    @inproceedings{Pereira_LBP_2012,
+      author = {Pereira, Tiago de Freitas and Anjos, Andr{\'{e}} and De Martino, Jos{\'{e}} Mario and Marcel, S{\'{e}}bastien},
+      keywords = {Attack, Countermeasures, Counter-Spoofing, Face Recognition, Liveness Detection, Replay, Spoofing},
+      month = dec,
+      title = {LBP-TOP based countermeasure against facial spoofing attacks},
+      journal = {ACCV 2012},
+      year = {2012},
+    }
 
 
 2. Bob as the core framework used to run the experiments::
