@@ -30,6 +30,21 @@ If you use this package and/or its results, please cite the following publicatio
     publisher = {ACM Press},
   }
 
+3. The original paper with the counter-measure explained in details::
+
+    @inproceedings{Anjos_IJCB_2011,
+      author = {Anjos, Andr{\'{e}} and Marcel, S{\'{e}}bastien},
+      keywords = {Attack, Counter-Measures, Counter-Spoofing, Disguise, Dishonest Acts, Face Recognition, Face Verification, Forgery, Liveness Detection, Replay, Spoofing, Trick},
+      month = oct,
+      title = {Counter-Measures to Photo Attacks in Face Recognition: a public database and a baseline},
+      journal = {International Joint Conference on Biometrics 2011},
+      year = {2011},
+      pdf = {http://publications.idiap.ch/downloads/papers/2011/Anjos_IJCB_2011.pdf}
+    }
+
+
+
+
 Raw Data
 --------
  
