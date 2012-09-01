@@ -139,14 +139,87 @@ that *contains* the sub-directories ``train``, ``test``, ``devel`` and
 Calculate the multiresolution and single resolution LBP-TOP features
 ====================================================================
 
+The first stage of the process is calculating the feature vectors, which are essentially LBP-TOP histograms for each frame of the video.
+
+The program to be used is `script/calclbptop_multiple_radius.py`.
+
+The following command will calculate the per-video averaged feature vectors of all the videos in the REPLAY-ATTACK database and will put the resulting .hdf5 files with the extracted feature vectors in the default output directory `./lbp_features`.
+
+.. code-block:: shell
+
+  $ ./bin/calclbptop_multiple_radius.py
+
+
+To gerate LBP-TOP features following the multiresolution strategy in time domain, it is necessary to set different values for Rt. For example, to generate a multiresolution description in time domain for Rt=[1-4] the code is the follows:
+
+.. code-block:: shell
+
+  $ ./bin/calclbptop_multiple_radius.py -rT 1 2 3 4
+
+
+To gerate a single resolution strategy in time domain, it is necessary to set only one value for Rt. For example, to generate a single resolution description in time domain for Rt=1 the code is the follows:
+
+.. code-block:: shell
+
+  $ ./bin/calclbptop_multiple_radius.py -rT 1
+
+
+
+To see all the options for the scripts `calclbptop_multiple_radius.py` just type
+`--help` at the command line.
+
+
+
 Classification using Chi-2 Distance
 ====================================================================
+
+The clasification using Chi-2 distance consists of two steps. The first one is creating the histogram model (average LBP-TOP histogram for each plane and it combinations of all the real access videos in the training set). The second step is comparison of the features of development and test videos to the model histogram and writing the results.
+
+The script to use for creating the histogram model is `script/mkhistmodel_lbptop.py`. It expects that the LBP-TOP features of the videos are stored in a folder `./lbp_features`. The model histogram will be written in the default output folder `./res`. You can change this default features by setting the input arguments. To execute this script, just run:
+
+.. code-block:: shell
+
+  $ ./bin/mkhistmodel_lbptop.py
+
+The script for performing Chi-2 histogram comparison is `script/cmphistmodels_lbptop.py`, and it assumes that the model histogram has been already created. It makes use of the utility script `spoof/chi2.py` and `ml/perf.py` for writing the results in a file. The default input directory is `./lbp_features`, while the default input directory for the histogram model as well as default output directory is `./res`. To execute this script, just run: 
+
+.. code-block:: shell
+
+  $ ./bin/cmphistmodel_lbptop.py
+
+The performance results will be calculated for each LBP-TOP planes and it combinations.
+
+To see all the options for the scripts `mkhistmodel_lbptop.py` and `cmphistmodels_lbptop.py`, just type `--help` at the command line.
+
+
 
 Classification with Linear Discriminant Analysis (LDA)
 ====================================================================
 
+The classification with LDA is performed using the script `script/ldatrain_lbptop.py`. It makes use of the scripts `ml/lda.py`, `ml\pca.py` (if PCA reduction is performed on the data) and `ml\norm.py` (if the data need to be normalized). The default input and output directories are `./lbp_features` and `./res`. To execute the script with the default parameters, call:
+
+.. code-block:: shell
+
+  $ ./bin/ldatrain_lbptop.py
+
+The performance results will be calculated for each LBP-TOP planes and it combinations.
+
+To see all the options for this script, just type `--help` at the command line.
+
+
 Classification with Support Vector Machine (SVM)
 ====================================================================
+
+The classification with SVM is performed using the script `script/svmtrain_lbptop.py`. It makes use of the scripts `ml\pca.py` (if PCA reduction is performed on the data) and `ml\norm.py` (if the data need to be normalized). The default input and output directories are `./lbp_features` and `./res`. To execute the script with the default parameters, call:
+
+.. code-block:: shell
+
+  $ ./bin/svmtrain_lbptop.py
+
+The performance results will be calculated for each LBP-TOP planes and it combinations.
+
+To see all the options for this script, just type `--help` at the command line.
+
 
 Problems
 --------
