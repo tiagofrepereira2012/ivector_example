@@ -113,3 +113,46 @@ get you a fully operational test and development environment.
     [external]
     recipe = xbob.buildout:external
     egg-directories=/Users/crazyfox/work/bob/build/lib
+
+User Guide
+----------
+
+It is assumed you have followed the installation instructions for the package
+and got this package installed and the REPLAY-ATTACK database downloaded and
+uncompressed in a directory. You should have all required utilities sitting
+inside a binary directory depending on your installation strategy (utilities
+will be inside the ``bin`` if you used the buildout option). We expect that the
+video files downloaded for the REPLAY-ATTACK database are installed in a
+sub-directory called ``database`` at the root of the package.  You can use a
+link to the location of the database files, if you don't want to have the
+database installed on the root of this package::
+
+  $ ln -s /path/where/you/installed/the/print-attack-database database
+
+If you don't want to create a link, use the ``--input-dir`` flag to specify
+the root directory containing the database files. That would be the directory
+that *contains* the sub-directories ``train``, ``test``, ``devel`` and
+``face-locations``.
+
+
+Calculate the multiresolution and single resolution LBP-TOP features
+====================================================================
+
+Classification using Chi-2 Distance
+====================================================================
+
+Classification with Linear Discriminant Analysis (LDA)
+====================================================================
+
+Classification with Support Vector Machine (SVM)
+====================================================================
+
+Problems
+--------
+
+In case of problems, please contact any of the authors of the paper.
+
+
+
+
+
