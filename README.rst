@@ -1,26 +1,41 @@
 LBP-TOP based countermeasure against facial spoofing attacks
 ===============================================================================
 
-This package implements the LBP-TOP countermeasure to spoofing attacks to
-face recognition systems as described at the paper::
 
-  @INPROCEEDINGS{deFreitasPereira_LBP_2012,
-  author = {de Freitas Pereira, Tiago and Anjos, Andr{\'{e}} and De Martino, Jos{\'{e}} Mario and Marcel, S{\'{e}}bastien},
+This package implements an LBP-TOP based countermeasure to spoofing attacks to face recognition systems as described at the paper LBP-TOP based countermeasure against facial spoofing attacks, International Workshop on Computer Vision With Local Binary Pattern Variants, 2012.
+
+
+If you use this package and/or its results, please cite the following publications:
+
+1. The original paper with the counter-measure explained in details:
+
+  @INPROCEEDINGS{Pereira_LBP_2012,
+  author = {Pereira, Tiago de Freitas and Anjos, Andr{\'{e}} and De Martino, Jos{\'{e}} Mario and Marcel, S{\'{e}}bastien},
   keywords = {Attack, Countermeasures, Counter-Spoofing, Face Recognition, Liveness Detection, Replay, Spoofing},
   month = dec,
   title = {LBP-TOP based countermeasure against facial spoofing attacks},
   journal = {ACCV 2012},
   year = {2012},
   }
+
+2. Bob as the core framework used to run the experiments:
+
+  @inproceedings{Anjos_ACMMM_2012,
+  author = {A. Anjos AND L. El Shafey AND R. Wallace AND M. G\"unther AND C. McCool AND S. Marcel},
+  title = {Bob: a free signal processing and machine learning toolbox for researchers},
+  year = {2012},
+  month = oct,
+  booktitle = {20th ACM Conference on Multimedia Systems (ACMMM), Nara, Japan},
+  publisher = {ACM Press},
+  }
+
+Raw Data
+--------
  
 The dataset used in the paper is REPLAY-ATTACK database and it is publicly available. It should be downloaded and
 installed **prior** to using the programs described in this package. Visit
 `the REPLAY-ATTACK database page <https://www.idiap.ch/dataset/replayattack>`_ for more information.
 
-To run the code in this package, you will also need `Bob, an open-source
-toolkit for Signal Processing and Machine Learning
-<http://idiap.github.com/bob>`_. The code has been tested to work with Bob
-1.1.x.
 
 Installation
 ------------
@@ -72,18 +87,4 @@ Usage
 
 Please refer to the documentation inside the ``doc`` directory of this package
 for further instructions on the functionality available.
-
-Reference
----------
-
-If you need to cite this work, please use the following::
-
-  @INPROCEEDINGS{deFreitasPereira_LBP_2012,
-  author = {de Freitas Pereira, Tiago and Anjos, Andr{\'{e}} and De Martino, Jos{\'{e}} Mario and Marcel, S{\'{e}}bastien},
-  keywords = {Attack, Countermeasures, Counter-Spoofing, Face Recognition, Liveness Detection, Replay, Spoofing},
-  month = dec,
-  title = {LBP-TOP based countermeasure against facial spoofing attacks},
-  journal = {ACCV 2012},
-  year = {2012},
-  }
 
