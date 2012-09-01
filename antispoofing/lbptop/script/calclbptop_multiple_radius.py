@@ -21,7 +21,7 @@ def main():
   INPUT_DIR = os.path.join(basedir, 'database')
   OUTPUT_DIR = os.path.join(basedir, 'lbp_features')
 
-  protocols = bob.db.replay.Database().protocols()
+  protocols = xbob.db.replay.Database().protocols()
 
   parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
   parser.add_argument('-v', '--input-dir', metavar='DIR', type=str, dest='inputdir', default=INPUT_DIR, help='Base directory containing the videos to be treated by this procedure (defaults to "%(default)s")')
@@ -51,26 +51,10 @@ def main():
   parser.add_argument('-cXT', '--circularXT', action='store_true', default=False, dest='cXT', help='Is circular neighborhood in XT plane?  (defaults to "%(default)s")')
   parser.add_argument('-cYT', '--circularYT', action='store_true', default=False, dest='cYT', help='Is circular neighborhood in YT plane?  (defaults to "%(default)s")')
 
-  parser.add_argument('-f', '--filter', dest="imageFilter",  metavar='IMAGEFILTER', type=str, default='none', choices=('none', 'DoG', 'TanTriggs'), help='Type of Image filter (defaults to "%(default)s")')
-
-  parser.add_argument('-s1', '--sigma1', type=float, default=1, dest='sigma1', help='Sigma for the first gaussian filter to DoG')
-  parser.add_argument('-s2', '--sigma2', type=float, default=2, dest='sigma2', help='Sigma for the second gaussian filter to DoG')
-
-
   # For SGE grid processing @ Idiap
   parser.add_argument('--grid', dest='grid', action='store_true', default=False, help=argparse.SUPPRESS)
 
-  parser.add_argument('-vo', '--volume-face-detection', action='store_true', default=False, dest='volume_face_detection', help='With this option, only one face bounding box (the center frame) will be used for the volume analisys and the other frames will share the same bounding box. Otherwise the frames will use the respectives bounding boxes (defaults to "%(default)s")')
-
-  parser.add_argument('--el', '--elbptype', metavar='ELBPTYPE', type=str, choices=('regular', 'transitional', 'direction_coded', 'modified'), default='regular', dest='elbptype', help='Choose the type of extended LBP features to compute (defaults to "%(default)s")')
-
-  parser.add_argument('-b', '--blocks', metavar='BLOCKS', type=int, default=1, dest='blocks', help='The region over which the LBP is calculated will be divided into the given number of blocks squared. The histograms of the individial blocks will be concatenated.(defaults to "%(default)s")')
-
   parser.add_argument('-p', '--protocol', metavar='PROTOCOL', type=str, dest="protocol", default='grandtest', help='The REPLAY-ATTACK protocol type may be specified instead of the id switch to subselect a smaller number of files to operate on', choices=protocols)
-
-
-
-  parser.add_argument('-o', dest='overlap', action='store_true', default=False, help='If set, the blocks on which the image is divided will be overlapping')
 
   args = parser.parse_args()
 
@@ -102,15 +86,6 @@ def main():
     key = ordered_keys[pos] # gets the right key
     process = {key: process[key]}
 
-  #Gassian filters DoG
-  if(args.imageFilter=='DoG'):
-    filter1 = bob.ip.Gaussian( radius_y = 1, radius_x = 1, sigma_y = args.sigma1, sigma_x = args.sigma1)
-    filter2 = bob.ip.Gaussian( radius_y = 1, radius_x = 1, sigma_y = args.sigma2, sigma_x = args.sigma2)
-  elif(args.imageFilter=='TanTriggs'):
-    tanTriggs = bob.ip.TanTriggs()
-
-
-  volume_face_detection = args.volume_face_detection
   nXY = args.nXY
   nXT = args.nXT
   nYT = args.nYT
@@ -154,112 +129,77 @@ def main():
     vin = input.load() # load the video
     
     
-    if(volume_face_detection):
-      nFrames = vin.shape[0]
+    nFrames = vin.shape[0]
       
-      #Converting all frames to grayscale
-      grayFrames = numpy.zeros(shape=(nFrames,vin.shape[2],vin.shape[3]))
-      for i in range(nFrames):
-        grayFrames[i] = bob.ip.rgb_to_gray(vin[i,:,:,:])
-        if(args.imageFilter=='DoG'):
-          filteredImage1 = numpy.ndarray(grayFrames[i].shape, dtype = numpy.float64)
-          filter1(grayFrames[i], filteredImage1)
-          filteredImage2 = numpy.ndarray(grayFrames[i].shape, dtype = numpy.float64)
-          filter2(grayFrames[i], filteredImage2)
+    #Converting all frames to grayscale
+    grayFrames = numpy.zeros(shape=(nFrames,vin.shape[2],vin.shape[3]))
+    for i in range(nFrames):
+      grayFrames[i] = bob.ip.rgb_to_gray(vin[i,:,:,:])
+
+
+    ### STARTING the video analysis
+    #Analysing each sub-volume in the video
+    histVolumeXY = None
+    histVolumeXT = None
+    histVolumeYT = None
+    for i in range(maxRadius,nFrames-maxRadius):
+
+      histLocalVolumeXY = None
+      histLocalVolumeXT = None
+      histLocalVolumeYT = None
+
+      #For each different radius
+      for r in rT:
+        #The max local radius to select the volume
+        maxLocalRadius = max(rX,rY,r)
+
+        #Select the volume to analyse
+        rangeValues = range(i-maxLocalRadius,i+1+maxLocalRadius)
+        normalizedVolume = spoof.getNormFacesFromRange(grayFrames,rangeValues,locations,sz,args.facesize_filter)
+
+        if(normalizedVolume==None):
+          print("No frames in the volume " + filename)
+          break
           
-          #Applying DoG
-          grayFrames[i] = filteredImage2-filteredImage1
+        histXY,histXT,histYT = spoof.lbptophist(normalizedVolume,nXY,nXT,nYT,rX,rY,r,cXY,cXT,cYT,lbptypeXY,lbptypeXT,lbptypeYT)
 
-
-        elif(args.imageFilter=='TanTriggs'):
-          filteredImage = numpy.ndarray(grayFrames[i].shape, dtype = numpy.float64)
-          tanTriggs(grayFrames[i], filteredImage)
-
-          grayFrames[i] = filteredImage
-
-
-      ### STARTING the video analysis
-      #Analysing each sub-volume in the video
-      histVolumeXY = None
-      histVolumeXT = None
-      histVolumeYT = None
-      for i in range(maxRadius,nFrames-maxRadius):
-
-        histLocalVolumeXY = None
-        histLocalVolumeXT = None
-        histLocalVolumeYT = None
-
-        #For each different radius
-        for r in rT:
-          #The max local radius to select the volume
-          maxLocalRadius = max(rX,rY,r)
-
-          #Select the volume to analyse
-          rangeValues = range(i-maxLocalRadius,i+1+maxLocalRadius)
-          normalizedVolume = spoof.getNormFacesFromRange(grayFrames,rangeValues,locations,sz,args.facesize_filter)
-
-          if(normalizedVolume==None):
-            print("No frames in the volume " + filename)
-            break
-          
-          histXY,histXT,histYT = spoof.lbptophist(normalizedVolume,nXY,nXT,nYT,rX,rY,r,cXY,cXT,cYT,lbptypeXY,lbptypeXT,lbptypeYT)
-
-	  #Concatenating in columns
-          if(histLocalVolumeXY == None):
-	    histLocalVolumeXY = histXY
-	    histLocalVolumeXT = histXT
-            histLocalVolumeYT = histYT
-          else:
-            #Is no necessary concatenate more elements in space with diferent radius in type
-            histLocalVolumeXT= numpy.concatenate((histLocalVolumeXT, histXT),axis=1)
-            histLocalVolumeYT= numpy.concatenate((histLocalVolumeYT, histYT),axis=1)
-
-	#Concatenating in rows
-        if(histVolumeXY == None):
-          histVolumeXY= histLocalVolumeXY
-          histVolumeXT= histLocalVolumeXT
-          histVolumeYT= histLocalVolumeYT
+	#Concatenating in columns
+        if(histLocalVolumeXY == None):
+	  histLocalVolumeXY = histXY
+	  histLocalVolumeXT = histXT
+          histLocalVolumeYT = histYT
         else:
-	  if(histLocalVolumeXY!=None):
-            histVolumeXY= numpy.concatenate((histVolumeXY, histLocalVolumeXY),axis=0)
-            histVolumeXT= numpy.concatenate((histVolumeXT, histLocalVolumeXT),axis=0)
-            histVolumeYT= numpy.concatenate((histVolumeYT, histLocalVolumeYT),axis=0)
+          #Is no necessary concatenate more elements in space with diferent radius in type
+          histLocalVolumeXT= numpy.concatenate((histLocalVolumeXT, histXT),axis=1)
+          histLocalVolumeYT= numpy.concatenate((histLocalVolumeYT, histYT),axis=1)
+
+     #Concatenating in rows
+      if(histVolumeXY == None):
+        histVolumeXY= histLocalVolumeXY
+        histVolumeXT= histLocalVolumeXT
+        histVolumeYT= histLocalVolumeYT
+      else:
+        if(histLocalVolumeXY!=None):
+          histVolumeXY= numpy.concatenate((histVolumeXY, histLocalVolumeXY),axis=0)
+          histVolumeXT= numpy.concatenate((histVolumeXT, histLocalVolumeXT),axis=0)
+          histVolumeYT= numpy.concatenate((histVolumeYT, histLocalVolumeYT),axis=0)
 
       
-      #Saving the results into a file
-      maxDim = max(histVolumeXY.shape[1],histVolumeXT.shape[1],histVolumeYT.shape[1])
-      histData = numpy.zeros(shape=(4,histVolumeXY.shape[0],maxDim),dtype='float64')
+    #Saving the results into a file
+    maxDim = max(histVolumeXY.shape[1],histVolumeXT.shape[1],histVolumeYT.shape[1])
+    histData = numpy.zeros(shape=(4,histVolumeXY.shape[0],maxDim),dtype='float64')
   
-      #TODO: PROPOSE A BETTER SOLUTION TO STORE THE DIMENSIONS.
-      #dims = array([histVolumeXY.shape[1],histVolumeXT.shape[1],histVolumeYT.shape[1]])
-      dims = numpy.zeros(shape=(histVolumeXY.shape[0],maxDim))
-      dims[0][0] = histVolumeXY.shape[1]  
-      dims[0][1] = histVolumeXT.shape[1]
-      dims[0][2] = histVolumeYT.shape[1]
-      histData[0] = dims
-      histData[1,:,0:dims[0][0]] = histVolumeXY
-      histData[2,:,0:dims[0][1]] = histVolumeXT
-      histData[3,:,0:dims[0][2]] = histVolumeYT
+    #TODO: PROPOSE A BETTER SOLUTION TO STORE THE DIMENSIONS.
+    #dims = array([histVolumeXY.shape[1],histVolumeXT.shape[1],histVolumeYT.shape[1]])
+    dims = numpy.zeros(shape=(histVolumeXY.shape[0],maxDim))
+    dims[0][0] = histVolumeXY.shape[1]  
+    dims[0][1] = histVolumeXT.shape[1]
+    dims[0][2] = histVolumeYT.shape[1]
+    histData[0] = dims
+    histData[1,:,0:dims[0][0]] = histVolumeXY
+    histData[2,:,0:dims[0][1]] = histVolumeXT
+    histData[3,:,0:dims[0][2]] = histVolumeYT
 
-    else:
-      #Extract the LBPTop of each frame using independent bounding boxes
-
-      #Getting the gray and normalized face frames
-      grayFaceNormFrameSequence = spoof.rgbVideo2grayVideo_facenorm(vin,locations,sz,bbxsize_filter=args.facesize_filter)
-      histXY,histXT,histYT = spoof.lbptophist(grayFaceNormFrameSequence,nXY,nXT,nYT,rX,rY,rT,cXY,cXT,cYT,lbptypeXY,lbptypeXT,lbptypeYT)
-
-      #TODO: PROPOSE A BETTER SOLUTION TO STORE THE DIMENSIONS.
-      maxDim = max(histVolumeXY.shape[1],histVolumeXT.shape[1],histVolumeYT.shape[1])
-      dims = numpy.zeros(shape=(histVolumeXY.shape[0],maxDim))
-      dims[0][0] = histVolumeXY.shape[1]  
-      dims[0][1] = histVolumeXT.shape[1]
-      dims[0][2] = histVolumeYT.shape[1]
-
-      histData = numpy.zeros(shape=(4,histVolumeXY.shape[0],maxDim),dtype='float64')
-      histData[0] = dims
-      histData[1,:,0:dims[0][0]] = histXY
-      histData[2,:,0:dims[0][1]] = histXT
-      histData[3,:,0:dims[0][2]] = histYT
 
     sys.stdout.write('\n')
     sys.stdout.flush()

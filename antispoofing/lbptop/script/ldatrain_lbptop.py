@@ -84,7 +84,7 @@ def main():
   INPUT_DIR = os.path.join(basedir, 'lbp_features')
   OUTPUT_DIR = os.path.join(basedir, 'res')
 
-  protocols = bob.db.replay.Database().protocols()
+  protocols = xbob.db.replay.Database().protocols()
 
   parser = argparse.ArgumentParser(description=__doc__,
       formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -234,7 +234,7 @@ def main():
 
   #Plotting the DET curves
   for i in range(len(models)):
-    
+
     if(i==len(models)-1):
       hold=False
     else:
@@ -245,7 +245,7 @@ def main():
 
 
   #Plotting the score distributions
-  pp = PdfPages(os.path.join(args.outputdir,"Scores Distribution.pdf"))
+  pp = PdfPages(os.path.join(args.outputdir,"LDA_Scores-Distribution.pdf"))
   for i in range(len(models)):
     fig = mpl.figure()
 

@@ -32,12 +32,12 @@ setup(
 
     entry_points={
       'console_scripts': [
-        'calclbptop.py = antispoofing.lbp.script.calclbptop:main',
-        'mkhistmodel_lbptop.py = antispoofing.lbp.script.mkhistmodel_lbptop:main',
-        'cmphistmodels_lbptop.py = antispoofing.lbp.script.cmphistmodels_lbptop:main',
-        'ldatrain_lbptop.py = antispoofing.lbp.script.ldatrain_lbptop:main',
-        'svmtrain_lbptop.py = antispoofing.lbp.script.svmtrain_lbptop:main',
-        'calclbptop_multiple_radius.py = antispoofing.lbp.script.calclbptop_multiple_radius:main',
+        'calclbptop.py = antispoofing.lbptop.script.calclbptop:main',
+        'mkhistmodel_lbptop.py = antispoofing.lbptop.script.mkhistmodel_lbptop:main',
+        'cmphistmodels_lbptop.py = antispoofing.lbptop.script.cmphistmodels_lbptop:main',
+        'ldatrain_lbptop.py = antispoofing.lbptop.script.ldatrain_lbptop:main',
+        'svmtrain_lbptop.py = antispoofing.lbptop.script.svmtrain_lbptop:main',
+        'calclbptop_multiple_radius.py = antispoofing.lbptop.script.calclbptop_multiple_radius:main',
         ],
       },
 

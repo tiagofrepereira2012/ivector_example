@@ -8,8 +8,9 @@ The details about the procedure are described in the paper: "LBP-TOP based count
 
 import os, sys
 import argparse
-import xbob.db.replay
 import numpy
+import bob
+import xbob.db.replay
 
 def create_full_dataset(files):
   """Creates a full dataset matrix out of all the specified files"""
@@ -76,7 +77,7 @@ def main():
   INPUT_MODEL_DIR = os.path.join(basedir, 'res')
   OUTPUT_DIR = os.path.join(basedir, 'res')
   
-  protocols = bob.db.replay.Database().protocols()
+  protocols = xbob.db.replay.Database().protocols()
 
   parser = argparse.ArgumentParser(description=__doc__,
       formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -120,7 +121,7 @@ def main():
 
   # loading the histogram models
   histmodelsfile = bob.io.HDF5File(os.path.join(args.inputmodeldir, 'histmodelsfile.hdf5'),'r')
-  tf = open(os.path.join(args.outputdir, 'perf_table.txt'), 'w')
+  tf = open(os.path.join(args.outputdir, 'CHI-2_perf_table.txt'), 'w')
 
   for i in range(len(models)):
     print "Loading the model " + models[i]

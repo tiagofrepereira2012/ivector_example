@@ -82,7 +82,7 @@ def main():
   INPUT_DIR = os.path.join(basedir, 'lbp_features')
   OUTPUT_DIR = os.path.join(basedir, 'res')
 
-  protocols = bob.db.replay.Database().protocols()
+  protocols = xbob.db.replay.Database().protocols()
 
   parser = argparse.ArgumentParser(description=__doc__,
       formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -128,6 +128,15 @@ def main():
   train_real = create_full_dataset(process_train_real); train_attack = create_full_dataset(process_train_attack); 
   devel_real = create_full_dataset(process_devel_real); devel_attack = create_full_dataset(process_devel_attack); 
   test_real = create_full_dataset(process_test_real); test_attack = create_full_dataset(process_test_attack); 
+
+  #Storing the scores in order to plot their distribution
+  develRealScores   = []
+  develAttackScores = []
+  testRealScores    = []
+  testAttackScores  = []
+  thresholds        = []
+  testHTERs         = []
+
 
   models = ['XY-plane','XT-Plane','YT-Plane','XT-YT-Plane','XY-XT-YT-plane']
   lines  = ['r','b','y','g^','c']
@@ -188,6 +197,12 @@ def main():
     dev_far, dev_frr = bob.measure.farfrr(devel_attack_plane_out, devel_real_plane_out, thres)
     test_far, test_frr = bob.measure.farfrr(test_attack_plane_out, test_real_plane_out, thres)
 
+    #Storing the scores
+    develRealScores.append(devel_real_plane_out)
+    develAttackScores.append(devel_attack_plane_out)
+    testRealScores.append(test_real_plane_out)
+    testAttackScores.append(test_attack_plane_out)
+    thresholds.append(thres)
 
 
     tbl.append(" ")
@@ -204,16 +219,35 @@ def main():
          100*test_frr, int(round(test_frr*len(test_real_plane))), len(test_real_plane),
          50*(test_far+test_frr)))
   
-    #Plotting the ROC curves
-    from .. import ml
+    testHTER = round(50*(test_far+test_frr),2)
+    testHTERs.append(testHTER)
+
+
+  #Plotting the DET curves
+  for i in range(len(models)):
+
     if(i==len(models)-1):
       hold=False
     else:
       hold=True
-    
-    testHTER = round(50*(test_far+test_frr),2)
-    ml.perf_lbptop.det_lbptop(test_real_plane_out,test_attack_plane_out,models[i]+" HTER = " + str(testHTER) + "%",hold,linestyle=lines[i],filename=os.path.join(args.outputdir,"DET_SVM.png"))
 
+    #Plotting the DET for each plane
+    ml.perf_lbptop.det_lbptop(testRealScores[i],testAttackScores[i],models[i]+" HTER = " + str(thresholds[i]) + "%",hold,linestyle=lines  [i],filename=os.path.join(args.outputdir,"DET_SVM.pdf"))
+
+
+  #Plotting the score distributions
+  pp = PdfPages(os.path.join(args.outputdir,"SVM_Scores-Distribution.pdf"))
+  for i in range(len(models)):
+    fig = mpl.figure()
+
+    train = [numpy.array([0]),numpy.array([0])]
+    devel = [develRealScores[i],develAttackScores[i]]
+    test  = [testRealScores[i],testAttackScores[i]]
+
+    ml.perf.score_distribution_plot(test, devel, train, epochs=1, bins=20, eer_thres=thresholds[i],mhter_thres=0)
+    pp.savefig(fig)
+  
+  pp.close()
 
 
 
