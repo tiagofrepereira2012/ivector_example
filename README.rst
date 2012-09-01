@@ -21,28 +21,14 @@ If you use this package and/or its results, please cite the following publicatio
 
 2. Bob as the core framework used to run the experiments::
 
-  @inproceedings{Anjos_ACMMM_2012,
-    author = {A. Anjos AND L. El Shafey AND R. Wallace AND M. G\"unther AND C. McCool AND S. Marcel},
-    title = {Bob: a free signal processing and machine learning toolbox for researchers},
-    year = {2012},
-    month = oct,
-    booktitle = {20th ACM Conference on Multimedia Systems (ACMMM), Nara, Japan},
-    publisher = {ACM Press},
-  }
-
-3. The original paper with the counter-measure explained in details::
-
-    @inproceedings{Anjos_IJCB_2011,
-      author = {Anjos, Andr{\'{e}} and Marcel, S{\'{e}}bastien},
-      keywords = {Attack, Counter-Measures, Counter-Spoofing, Disguise, Dishonest Acts, Face Recognition, Face Verification, Forgery, Liveness Detection, Replay, Spoofing, Trick},
+    @inproceedings{Anjos_ACMMM_2012,
+      author = {A. Anjos AND L. El Shafey AND R. Wallace AND M. G\"unther AND C. McCool AND S. Marcel},
+      title = {Bob: a free signal processing and machine learning toolbox for researchers},
+      year = {2012},
       month = oct,
-      title = {Counter-Measures to Photo Attacks in Face Recognition: a public database and a baseline},
-      journal = {International Joint Conference on Biometrics 2011},
-      year = {2011},
-      pdf = {http://publications.idiap.ch/downloads/papers/2011/Anjos_IJCB_2011.pdf}
+      booktitle = {20th ACM Conference on Multimedia Systems (ACMMM), Nara, Japan},
+      publisher = {ACM Press},
     }
-
-
 
 
 Raw Data
@@ -56,24 +42,52 @@ installed **prior** to using the programs described in this package. Visit
 Installation
 ------------
 
-To follow these instructions locally you will need a local copy of this
-package. Start by cloning this project with something like (shell commands are marked with a
-``$`` signal)::
+.. note:: 
 
-  $ git clone --depth=1 https://github.com/bioidiap/antispoofing.lbptop.git
-  $ cd antispoofing.lbptop
-  $ rm -rf .git # you don't need the git directories...
+  If you are reading this page through our GitHub portal and not through PyPI,
+  note **the development tip of the package may not be stable** or become
+  unstable in a matter of moments.
 
-Alternatively, you can use the github tarball API to download the package::
+  Go to `http://pypi.python.org/pypi/antispoofing.motion
+  <http://pypi.python.org/pypi/antispoofing.lbptop>`_ to download the latest
+  stable version of this package.
 
-  $ wget --no-check-certificate https://github.com/bioidiap/antispoofing.lbptop/tarball/master -O- | tar xz 
-  $ mv bioidiap-antispoofing-* antispoofing.lbptop
+There are 2 options you can follow to get this package installed and
+operational on your computer: you can use automatic installers like `pip
+<http://pypi.python.org/pypi/pip/>`_ (or `easy_install
+<http://pypi.python.org/pypi/setuptools>`_) or manually download, unpack and
+use `zc.buildout <http://pypi.python.org/pypi/zc.buildout>`_ to create a
+virtual work environment just for this package.
 
-Installation of the toolkit uses the `buildout <http://www.buildout.org/>`_
-build environment. You don't need to understand its inner workings to use this
-package. Here is a recipe to get you started::
+Using an automatic installer
+============================
+
+Using ``pip`` is the easiest (shell commands are marked with a ``$`` signal)::
+
+  $ pip install antispoofing.lbptop
+
+You can also do the same with ``easy_install``::
+
+  $ easy_install antispoofing.lbptop
+
+This will download and install this package plus any other required
+dependencies. It will also verify if the version of Bob you have installed
+is compatible.
+
+This scheme works well with virtual environments by `virtualenv
+<http://pypi.python.org/pypi/virtualenv>`_ or if you have root access to your
+machine. Otherwise, we recommend you use the next option.
+
+Using ``zc.buildout``
+=====================
+
+Download the latest version of this package from `PyPI
+<http://pypi.python.org/pypi/antispoofing.lbptop>`_ and unpack it in your
+working area. The installation of the toolkit itself uses `buildout
+<http://www.buildout.org/>`_. You don't need to understand its inner workings
+to use this package. Here is a recipe to get you started::
   
-  $ python bootstrap.py
+  $ python bootstrap.py 
   $ ./bin/buildout
 
 These 2 commands should download and install all non-installed dependencies and
@@ -91,16 +105,11 @@ get you a fully operational test and development environment.
   If Bob is installed by the administrator of your system, it is safe to
   consider it uses the default python interpreter. In this case, the above 3
   command lines should work as expected. If you have Bob installed somewhere
-  else on a private directory, edit the file ``localbob.cfg`` and use that
-  with ``buildout`` instead::
+  else on a private directory, edit the file ``buildout.cfg`` **before**
+  running ``./bin/buildout``. Find the section named ``external`` and edit the
+  line ``egg-directories`` to point to the ``lib`` directory of the Bob
+  installation you want to use. For example::
 
-    $ python boostrap.py
-    $ # edit localbob.cfg
-    $ ./bin/buildout -c localbob.cfg
-
-Usage
------
-
-Please refer to the documentation inside the ``doc`` directory of this package
-for further instructions on the functionality available.
-
+    [external]
+    recipe = xbob.buildout:external
+    egg-directories=/Users/crazyfox/work/bob/build/lib
