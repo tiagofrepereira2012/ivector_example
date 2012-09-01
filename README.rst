@@ -8,6 +8,7 @@ This package implements an LBP-TOP based countermeasure to spoofing attacks to f
 If you use this package and/or its results, please cite the following publications:
 
 1. The original paper with the counter-measure explained in details::
+
   @INPROCEEDINGS{Pereira_LBP_2012,
     author = {Pereira, Tiago de Freitas and Anjos, Andr{\'{e}} and De Martino, Jos{\'{e}} Mario and Marcel, S{\'{e}}bastien},
     keywords = {Attack, Countermeasures, Counter-Spoofing, Face Recognition, Liveness Detection, Replay, Spoofing},
@@ -19,6 +20,7 @@ If you use this package and/or its results, please cite the following publicatio
 
 
 2. Bob as the core framework used to run the experiments::
+
   @inproceedings{Anjos_ACMMM_2012,
     author = {A. Anjos AND L. El Shafey AND R. Wallace AND M. G\"unther AND C. McCool AND S. Marcel},
     title = {Bob: a free signal processing and machine learning toolbox for researchers},
