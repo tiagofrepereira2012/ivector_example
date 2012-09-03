@@ -139,11 +139,11 @@ that *contains* the sub-directories ``train``, ``test``, ``devel`` and
 Calculate the multiresolution and single resolution LBP-TOP features
 ====================================================================
 
-The first stage of the process is calculating the feature vectors, which are essentially LBP-TOP histograms for each frame of the video.
+The first stage of the process is calculating the feature vectors, which are essentially LBP-TOP histograms (XY, XT and YT directions) for each frame of the video.
 
 The program to be used is `script/calclbptop_multiple_radius.py`.
 
-The following command will calculate the per-video averaged feature vectors of all the videos in the REPLAY-ATTACK database and will put the resulting .hdf5 files with the extracted feature vectors in the default output directory `./lbp_features`.
+The resulting hitograms will put in .hdf5 files in the default output directory `./lbp_features`.
 
 .. code-block:: shell
 
@@ -187,7 +187,7 @@ The script for performing Chi-2 histogram comparison is `script/cmphistmodels_lb
 
   $ ./bin/cmphistmodel_lbptop.py
 
-The performance results will be calculated for each LBP-TOP planes and it combinations.
+The performance results will be calculated for each LBP-TOP planes and the combinations XT+YT and XY+XT+YT.
 
 To see all the options for the scripts `mkhistmodel_lbptop.py` and `cmphistmodels_lbptop.py`, just type `--help` at the command line.
 
@@ -202,7 +202,7 @@ The classification with LDA is performed using the script `script/ldatrain_lbpto
 
   $ ./bin/ldatrain_lbptop.py
 
-The performance results will be calculated for each LBP-TOP planes and it combinations.
+The performance results will be calculated for each LBP-TOP planes and the combinations XT+YT and XY+XT+YT.
 
 To see all the options for this script, just type `--help` at the command line.
 
@@ -216,10 +216,24 @@ The classification with SVM is performed using the script `script/svmtrain_lbpto
 
   $ ./bin/svmtrain_lbptop.py
 
-The performance results will be calculated for each LBP-TOP planes and it combinations.
+The performance results will be calculated for each LBP-TOP planes and the combinations XT+YT and XY+XT+YT.
 
 To see all the options for this script, just type `--help` at the command line.
 
+Execute the best results
+====================================================================
+
+As reported in the paper, the best result achieved was HTER=7.60%. To get this results the steps are:
+
+.. code-block:: shell
+
+  #Extracting the LBP-TOP features
+  $ ./bin/calclbptop_multiple_radius.py --directory lbptop_features/ --input-dir database/ -rX 1 -rY 1 -rT 1 2 -cXY -cXT -cYT --lbptypeXY regular --lbptypeXT regular --lbptypeYT regular
+
+  #Running the SVM machine
+  $ ./bin/svmtrain_lbptop.py  -n --input-dir lbptop_features/  --output-dir res_T1-2/
+
+After that, it's recommended to go out for a long coffee
 
 Problems
 --------
