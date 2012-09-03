@@ -220,7 +220,7 @@ The performance results will be calculated for each LBP-TOP planes and the combi
 
 To see all the options for this script, just type `--help` at the command line.
 
-Execute the best results
+Generating the best results
 ====================================================================
 
 As reported in the paper, the best result achieved was HTER=7.60%. To get this results the steps are:
@@ -231,7 +231,7 @@ As reported in the paper, the best result achieved was HTER=7.60%. To get this r
   $ ./bin/calclbptop_multiple_radius.py --directory lbptop_features/ --input-dir database/ -rX 1 -rY 1 -rT 1 2 -cXY -cXT -cYT --lbptypeXY regular --lbptypeXT regular --lbptypeYT regular
 
   #Running the SVM machine
-  $ ./bin/svmtrain_lbptop.py  -n --input-dir lbptop_features/  --output-dir res_T1-2/
+  $ ./bin/svmtrain_lbptop.py  -n --input-dir lbptop_features/ --output-dir res_T1-2/
 
 After that, it's recommended to go out for a long coffee
 
