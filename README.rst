@@ -223,7 +223,7 @@ To see all the options for this script, just type `--help` at the command line.
 Generating the best results
 ====================================================================
 
-As reported in the paper, the best result achieved was HTER=7.60%. To get this results the steps are:
+As reported in the paper, the best result achieved was HTER=7.60%. To get this result the steps are:
 
 .. code-block:: shell
 
