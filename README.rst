@@ -143,7 +143,7 @@ The first stage of the process is calculating the feature vectors, which are ess
 
 The program to be used is `script/calclbptop_multiple_radius.py`.
 
-The resulting hitograms will put in .hdf5 files in the default output directory `./lbp_features`.
+The resulting histograms will be put in .hdf5 files in the default output directory `./lbp_features`.
 
 .. code-block:: shell
 
@@ -231,9 +231,9 @@ As reported in the paper, the best result achieved was HTER=7.60%. To get this r
   $ ./bin/calclbptop_multiple_radius.py --directory lbptop_features/ --input-dir database/ -rX 1 -rY 1 -rT 1 2 -cXY -cXT -cYT --lbptypeXY regular --lbptypeXT regular --lbptypeYT regular
 
   #Running the SVM machine
-  $ ./bin/svmtrain_lbptop.py  -n --input-dir lbptop_features/ --output-dir res_T1-2/
+  $ ./bin/svmtrain_lbptop.py  -n --input-dir lbptop_features/ --output-dir res/
 
-After that, it's recommended to go out for a long coffee
+After that, it's recommended to go out for a long coffee.
 
 Problems
 --------
