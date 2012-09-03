@@ -5,7 +5,7 @@
 
 """This script can makes an SVM classification of data into two categories: real accesses and spoofing attacks for each LBP-TOP plane and it combinations. There is an option for normalizing between [-1, 1] and dimensionality reduction of the data prior to the SVM classification.
 The probabilities obtained with the SVM are considered as scores for the data. Firstly, the EER threshold on the development set is calculated. The, according to this EER, the FAR, FRR and HTER for the test and development set are calculated. The script outputs a text file with the performance results.
-The details about the procedure are described in the paper: "On the Effectiveness of Local Binary Patterns in Face Anti-spoofing" - Chingovska, Anjos & Marcel; BIOSIG 2012
+The details about the procedure are described in the paper: "LBP-TOP based countermeasure against facial spoofing attacks" - de Freitas Pereira, Tiago and Anjos, Andre and De Martino, Jose Mario and Marcel, Sebastien; ACCV - LBP 2012
 """
 
 import os, sys
@@ -71,7 +71,7 @@ def create_full_dataset(files):
   return dataset
 
 def svm_predict(svm_machine, data):
-  labels = [svm_machine.predict_class_and_scores(x)[1][0] for x in data]
+  labels = numpy.array([svm_machine.predict_class_and_scores(x)[1][0] for x in data])
   return labels
 
 
