@@ -32,7 +32,6 @@ setup(
 
     entry_points={
       'console_scripts': [
-        'calclbptop.py = antispoofing.lbptop.script.calclbptop:main',
         'mkhistmodel_lbptop.py = antispoofing.lbptop.script.mkhistmodel_lbptop:main',
         'cmphistmodels_lbptop.py = antispoofing.lbptop.script.cmphistmodels_lbptop:main',
         'ldatrain_lbptop.py = antispoofing.lbptop.script.ldatrain_lbptop:main',
