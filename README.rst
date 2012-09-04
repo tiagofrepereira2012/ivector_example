@@ -220,12 +220,12 @@ The performance results will be calculated for each LBP-TOP planes and the combi
 
 To see all the options for this script, just type `--help` at the command line.
 
-Generating the paper results
+Generating paper results
 ====================================================================
 
 The next code blocks are codes to generate the results from lines 4, 5, 6, 7, 8 of Table 1.
 
-- *Line 4:*
+- **Line 4:**
 .. code-block:: shell
 
   #Extracting the LBP-TOP features
@@ -235,7 +235,7 @@ The next code blocks are codes to generate the results from lines 4, 5, 6, 7, 8 
   $ ./bin/svmtrain_lbptop.py  -n --input-dir lbptop_features/ --output-dir res/
 
 
-- *Line 5:*
+- **Line 5:**
 .. code-block:: shell
 
   #Extracting the LBP-TOP features
@@ -245,7 +245,7 @@ The next code blocks are codes to generate the results from lines 4, 5, 6, 7, 8 
   $ ./bin/svmtrain_lbptop.py  -n --input-dir lbptop_features/ --output-dir res/
 
 
-- *Line 6:*
+- **Line 6:**
 .. code-block:: shell
 
   #Extracting the LBP-TOP features
@@ -255,7 +255,7 @@ The next code blocks are codes to generate the results from lines 4, 5, 6, 7, 8 
   $ ./bin/svmtrain_lbptop.py  -n --input-dir lbptop_features/ --output-dir res/
 
 
-- *Line 7:*
+- **Line 7:**
 .. code-block:: shell
 
   #Extracting the LBP-TOP features
@@ -265,7 +265,7 @@ The next code blocks are codes to generate the results from lines 4, 5, 6, 7, 8 
   $ ./bin/svmtrain_lbptop.py  -n --input-dir lbptop_features/ --output-dir res/
 
 
-- *Line 8:*
+- **Line 8:**
 .. code-block:: shell
 
   #Extracting the LBP-TOP features
