@@ -49,7 +49,7 @@ Installation
   note **the development tip of the package may not be stable** or become
   unstable in a matter of moments.
 
-  Go to `http://pypi.python.org/pypi/antispoofing.motion
+  Go to `http://pypi.python.org/pypi/antispoofing.lbptop
   <http://pypi.python.org/pypi/antispoofing.lbptop>`_ to download the latest
   stable version of this package.
 
@@ -220,11 +220,42 @@ The performance results will be calculated for each LBP-TOP planes and the combi
 
 To see all the options for this script, just type `--help` at the command line.
 
-Generating the best results
+Generating the paper results
 ====================================================================
 
-As reported in the paper, the best result achieved was HTER=7.60%. To get this result the steps are:
+The next code blocks are codes to generate the results from lines 4, 5, 6, 7, 8 of Table 1.
 
+- *Line 4:*
+.. code-block:: shell
+
+  #Extracting the LBP-TOP features
+  $ ./bin/calclbptop_multiple_radius.py --directory lbptop_features/ --input-dir database/ -rX 1 -rY 1 -rT 1 2 3 4 5 6 -cXY -cXT -cYT --lbptypeXY riu2 --lbptypeXT riu2 --lbptypeYT riu2
+
+  #Running the SVM machine
+  $ ./bin/svmtrain_lbptop.py  -n --input-dir lbptop_features/ --output-dir res/
+
+
+- *Line 5:*
+.. code-block:: shell
+
+  #Extracting the LBP-TOP features
+  $ ./bin/calclbptop_multiple_radius.py --directory lbptop_features/ --input-dir database/ -rX 1 -rY 1 -rT 1 2 3 4 5 6 -cXY -cXT -cYT -nXT 4 -nYT 4
+
+  #Running the SVM machine
+  $ ./bin/svmtrain_lbptop.py  -n --input-dir lbptop_features/ --output-dir res/
+
+
+- *Line 6:*
+.. code-block:: shell
+
+  #Extracting the LBP-TOP features
+  $ ./bin/calclbptop_multiple_radius.py --directory lbptop_features/ --input-dir database/ -rX 1 -rY 1 -rT 1 2 3 4 -cXY -cXT -cYT
+
+  #Running the SVM machine
+  $ ./bin/svmtrain_lbptop.py  -n --input-dir lbptop_features/ --output-dir res/
+
+
+- *Line 7:*
 .. code-block:: shell
 
   #Extracting the LBP-TOP features
@@ -232,6 +263,17 @@ As reported in the paper, the best result achieved was HTER=7.60%. To get this r
 
   #Running the SVM machine
   $ ./bin/svmtrain_lbptop.py  -n --input-dir lbptop_features/ --output-dir res/
+
+
+- *Line 8:*
+.. code-block:: shell
+
+  #Extracting the LBP-TOP features
+  $ ./bin/calclbptop_multiple_radius.py --directory lbptop_features/ --input-dir database/ -rX 1 -rY 1 -rT 1 2 -cXY -cXT -cYT -nXT 16 -nYT 16
+
+  #Running the SVM machine
+  $ ./bin/svmtrain_lbptop.py  -n --input-dir lbptop_features/ --output-dir res/
+
 
 After that, it's recommended to go out for a long coffee.
 
