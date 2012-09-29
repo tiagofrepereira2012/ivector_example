@@ -24,6 +24,7 @@ setup(
     install_requires=[
         "bob >= 1.0",      # base signal proc./machine learning library
         "xbob.db.replay", #Replay database
+        "antispoofing.utils",  #Utils Package
     ],
 
     namespace_packages = [
@@ -37,6 +38,9 @@ setup(
         'ldatrain_lbptop.py = antispoofing.lbptop.script.ldatrain_lbptop:main',
         'svmtrain_lbptop.py = antispoofing.lbptop.script.svmtrain_lbptop:main',
         'calclbptop_multiple_radius.py = antispoofing.lbptop.script.calclbptop_multiple_radius:main',
+
+        'result_analysis.py = antispoofing.lbptop.script.result_analysis:main',
+        'make_scores.py  = antispoofing.lbptop.script.make_scores:main',
         ],
       },
 

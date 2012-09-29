@@ -147,21 +147,21 @@ The resulting histograms will be put in .hdf5 files in the default output direct
 
 .. code-block:: shell
 
-  $ ./bin/calclbptop_multiple_radius.py
+  $ ./bin/calclbptop_multiple_radius.py replay
 
 
 To gerate LBP-TOP features following the multiresolution strategy in time domain, it is necessary to set different values for Rt. For example, to generate a multiresolution description in time domain for Rt=[1-4] the code is the follows:
 
 .. code-block:: shell
 
-  $ ./bin/calclbptop_multiple_radius.py -rT 1 2 3 4
+  $ ./bin/calclbptop_multiple_radius.py -rT 1 2 3 4 replay
 
 
 To gerate a single resolution strategy in time domain, it is necessary to set only one value for Rt. For example, to generate a single resolution description in time domain for Rt=1 the code is the follows:
 
 .. code-block:: shell
 
-  $ ./bin/calclbptop_multiple_radius.py -rT 1
+  $ ./bin/calclbptop_multiple_radius.py -rT 1 replay
 
 
 
@@ -229,7 +229,7 @@ The next code blocks are codes to generate the results from lines 4, 5, 6, 7, 8 
 .. code-block:: shell
 
   #Extracting the LBP-TOP features
-  $ ./bin/calclbptop_multiple_radius.py --directory lbptop_features/ --input-dir database/ -rX 1 -rY 1 -rT 1 2 3 4 5 6 -cXY -cXT -cYT --lbptypeXY riu2 --lbptypeXT riu2 --lbptypeYT riu2
+  $ ./bin/calclbptop_multiple_radius.py --directory lbptop_features/ --input-dir database/ -rX 1 -rY 1 -rT 1 2 3 4 5 6 -cXY -cXT -cYT --lbptypeXY riu2 --lbptypeXT riu2 --lbptypeYT riu2 replay
 
   #Running the SVM machine
   $ ./bin/svmtrain_lbptop.py  -n --input-dir lbptop_features/ --output-dir res/
@@ -239,7 +239,7 @@ The next code blocks are codes to generate the results from lines 4, 5, 6, 7, 8 
 .. code-block:: shell
 
   #Extracting the LBP-TOP features
-  $ ./bin/calclbptop_multiple_radius.py --directory lbptop_features/ --input-dir database/ -rX 1 -rY 1 -rT 1 2 3 4 5 6 -cXY -cXT -cYT -nXT 4 -nYT 4
+  $ ./bin/calclbptop_multiple_radius.py --directory lbptop_features/ --input-dir database/ -rX 1 -rY 1 -rT 1 2 3 4 5 6 -cXY -cXT -cYT -nXT 4 -nYT 4 replay
 
   #Running the SVM machine
   $ ./bin/svmtrain_lbptop.py  -n --input-dir lbptop_features/ --output-dir res/
@@ -249,7 +249,7 @@ The next code blocks are codes to generate the results from lines 4, 5, 6, 7, 8 
 .. code-block:: shell
 
   #Extracting the LBP-TOP features
-  $ ./bin/calclbptop_multiple_radius.py --directory lbptop_features/ --input-dir database/ -rX 1 -rY 1 -rT 1 2 3 4 -cXY -cXT -cYT
+  $ ./bin/calclbptop_multiple_radius.py --directory lbptop_features/ --input-dir database/ -rX 1 -rY 1 -rT 1 2 3 4 -cXY -cXT -cYT replay
 
   #Running the SVM machine
   $ ./bin/svmtrain_lbptop.py  -n --input-dir lbptop_features/ --output-dir res/
@@ -259,7 +259,7 @@ The next code blocks are codes to generate the results from lines 4, 5, 6, 7, 8 
 .. code-block:: shell
 
   #Extracting the LBP-TOP features
-  $ ./bin/calclbptop_multiple_radius.py --directory lbptop_features/ --input-dir database/ -rX 1 -rY 1 -rT 1 2 -cXY -cXT -cYT --lbptypeXY regular --lbptypeXT regular --lbptypeYT regular
+  $ ./bin/calclbptop_multiple_radius.py --directory lbptop_features/ --input-dir database/ -rX 1 -rY 1 -rT 1 2 -cXY -cXT -cYT --lbptypeXY regular --lbptypeXT regular --lbptypeYT regular replay
 
   #Running the SVM machine
   $ ./bin/svmtrain_lbptop.py  -n --input-dir lbptop_features/ --output-dir res/
@@ -269,7 +269,7 @@ The next code blocks are codes to generate the results from lines 4, 5, 6, 7, 8 
 .. code-block:: shell
 
   #Extracting the LBP-TOP features
-  $ ./bin/calclbptop_multiple_radius.py --directory lbptop_features/ --input-dir database/ -rX 1 -rY 1 -rT 1 2 -cXY -cXT -cYT -nXT 16 -nYT 16
+  $ ./bin/calclbptop_multiple_radius.py --directory lbptop_features/ --input-dir database/ -rX 1 -rY 1 -rT 1 2 -cXY -cXT -cYT -nXT 16 -nYT 16 replay
 
   #Running the SVM machine
   $ ./bin/svmtrain_lbptop.py  -n --input-dir lbptop_features/ --output-dir res/
