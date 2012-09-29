@@ -234,6 +234,20 @@ The next code blocks are codes to generate the results from lines 4, 5, 6, 7, 8 
   #Running the SVM machine
   $ ./bin/svmtrain_lbptop.py  -n --input-dir lbptop_features/ --output-dir res/
 
+  #Extracting the scores for each plane
+  $ ./bin/make_scores.py --features-dir lbptop_features --machine-file lda_machine_0.99-XY-plane.txt --normalization-file svm_normalization_XY-plane.txt --machine-type SVM --plane XY --output-dir res/scores/scores_XY replay
+
+  $ ./bin/make_scores.py --features-dir lbptop_features --machine-file lda_machine_0.99-XT-Plane.txt --normalization-file svm_normalization_XT-Plane.txt --machine-type SVM --plane XT --output-dir res/scores/scores_XT replay
+
+  $ ./bin/make_scores.py --features-dir lbptop_features --machine-file lda_machine_0.99-YT-Plane.txt --normalization-file svm_normalization_YT-Plane.txt --machine-type SVM --plane YT --output-dir res/scores/scores_YT replay
+
+  $ ./bin/make_scores.py --features-dir lbptop_features --machine-file lda_machine_0.99-XT-YT-Plane.txt --normalization-file svm_normalization_XT-YT-Plane.txt --machine-type SVM --plane XT-YT --output-dir res/scores/scores_XT-YT replay
+
+  $ ./bin/make_scores.py --features-dir lbptop_features --machine-file lda_machine_0.99-XY-XT-YT-plane.txt --normalization-file svm_normalization_XY-XT-YT-plane.txt --machine-type SVM --plane XY-XT-YT --output-dir res/scores/scores_XY-XT-YT replay
+
+  #Result Analysis
+  $./bin/result_analysis.py --scores-dir res/scores/ --output-dir res/results/
+
 
 - **Line 5:**
 .. code-block:: shell
@@ -243,6 +257,21 @@ The next code blocks are codes to generate the results from lines 4, 5, 6, 7, 8 
 
   #Running the SVM machine
   $ ./bin/svmtrain_lbptop.py  -n --input-dir lbptop_features/ --output-dir res/
+
+  #Extracting the scores for each plane
+  $ ./bin/make_scores.py --features-dir lbptop_features --machine-file lda_machine_0.99-XY-plane.txt --normalization-file svm_normalization_XY-plane.txt --machine-type SVM --plane XY --output-dir res/scores/scores_XY replay
+
+  $ ./bin/make_scores.py --features-dir lbptop_features --machine-file lda_machine_0.99-XT-Plane.txt --normalization-file svm_normalization_XT-Plane.txt --machine-type SVM --plane XT --output-dir res/scores/scores_XT replay
+
+  $ ./bin/make_scores.py --features-dir lbptop_features --machine-file lda_machine_0.99-YT-Plane.txt --normalization-file svm_normalization_YT-Plane.txt --machine-type SVM --plane YT --output-dir res/scores/scores_YT replay
+
+  $ ./bin/make_scores.py --features-dir lbptop_features --machine-file lda_machine_0.99-XT-YT-Plane.txt --normalization-file svm_normalization_XT-YT-Plane.txt --machine-type SVM --plane XT-YT --output-dir res/scores/scores_XT-YT replay
+
+  $ ./bin/make_scores.py --features-dir lbptop_features --machine-file lda_machine_0.99-XY-XT-YT-plane.txt --normalization-file svm_normalization_XY-XT-YT-plane.txt --machine-type SVM --plane XY-XT-YT --output-dir res/scores/scores_XY-XT-YT replay
+
+  #Result Analysis
+  $./bin/result_analysis.py --scores-dir res/scores/ --output-dir res/results/
+
 
 
 - **Line 6:**
@@ -255,6 +284,21 @@ The next code blocks are codes to generate the results from lines 4, 5, 6, 7, 8 
   $ ./bin/svmtrain_lbptop.py  -n --input-dir lbptop_features/ --output-dir res/
 
 
+  #Extracting the scores for each plane
+  $ ./bin/make_scores.py --features-dir lbptop_features --machine-file lda_machine_0.99-XY-plane.txt --normalization-file svm_normalization_XY-plane.txt --machine-type SVM --plane XY --output-dir res/scores/scores_XY replay
+
+  $ ./bin/make_scores.py --features-dir lbptop_features --machine-file lda_machine_0.99-XT-Plane.txt --normalization-file svm_normalization_XT-Plane.txt --machine-type SVM --plane XT --output-dir res/scores/scores_XT replay
+
+  $ ./bin/make_scores.py --features-dir lbptop_features --machine-file lda_machine_0.99-YT-Plane.txt --normalization-file svm_normalization_YT-Plane.txt --machine-type SVM --plane YT --output-dir res/scores/scores_YT replay
+
+  $ ./bin/make_scores.py --features-dir lbptop_features --machine-file lda_machine_0.99-XT-YT-Plane.txt --normalization-file svm_normalization_XT-YT-Plane.txt --machine-type SVM --plane XT-YT --output-dir res/scores/scores_XT-YT replay
+
+  $ ./bin/make_scores.py --features-dir lbptop_features --machine-file lda_machine_0.99-XY-XT-YT-plane.txt --normalization-file svm_normalization_XY-XT-YT-plane.txt --machine-type SVM --plane XY-XT-YT --output-dir res/scores/scores_XY-XT-YT replay
+
+  #Result Analysis
+  $./bin/result_analysis.py --scores-dir res/scores/ --output-dir res/results/
+
+
 - **Line 7:**
 .. code-block:: shell
 
@@ -263,6 +307,20 @@ The next code blocks are codes to generate the results from lines 4, 5, 6, 7, 8 
 
   #Running the SVM machine
   $ ./bin/svmtrain_lbptop.py  -n --input-dir lbptop_features/ --output-dir res/
+
+  #Extracting the scores for each plane
+  $ ./bin/make_scores.py --features-dir lbptop_features --machine-file lda_machine_0.99-XY-plane.txt --normalization-file svm_normalization_XY-plane.txt --machine-type SVM --plane XY --output-dir res/scores/scores_XY replay
+
+  $ ./bin/make_scores.py --features-dir lbptop_features --machine-file lda_machine_0.99-XT-Plane.txt --normalization-file svm_normalization_XT-Plane.txt --machine-type SVM --plane XT --output-dir res/scores/scores_XT replay
+
+  $ ./bin/make_scores.py --features-dir lbptop_features --machine-file lda_machine_0.99-YT-Plane.txt --normalization-file svm_normalization_YT-Plane.txt --machine-type SVM --plane YT --output-dir res/scores/scores_YT replay
+
+  $ ./bin/make_scores.py --features-dir lbptop_features --machine-file lda_machine_0.99-XT-YT-Plane.txt --normalization-file svm_normalization_XT-YT-Plane.txt --machine-type SVM --plane XT-YT --output-dir res/scores/scores_XT-YT replay
+
+  $ ./bin/make_scores.py --features-dir lbptop_features --machine-file lda_machine_0.99-XY-XT-YT-plane.txt --normalization-file svm_normalization_XY-XT-YT-plane.txt --machine-type SVM --plane XY-XT-YT --output-dir res/scores/scores_XY-XT-YT replay
+
+  #Result Analysis
+  $./bin/result_analysis.py --scores-dir res/scores/ --output-dir res/results/
 
 
 - **Line 8:**
@@ -273,6 +331,21 @@ The next code blocks are codes to generate the results from lines 4, 5, 6, 7, 8 
 
   #Running the SVM machine
   $ ./bin/svmtrain_lbptop.py  -n --input-dir lbptop_features/ --output-dir res/
+
+  #Extracting the scores for each plane
+  $ ./bin/make_scores.py --features-dir lbptop_features --machine-file lda_machine_0.99-XY-plane.txt --normalization-file svm_normalization_XY-plane.txt --machine-type SVM --plane XY --output-dir res/scores/scores_XY replay
+
+  $ ./bin/make_scores.py --features-dir lbptop_features --machine-file lda_machine_0.99-XT-Plane.txt --normalization-file svm_normalization_XT-Plane.txt --machine-type SVM --plane XT --output-dir res/scores/scores_XT replay
+
+  $ ./bin/make_scores.py --features-dir lbptop_features --machine-file lda_machine_0.99-YT-Plane.txt --normalization-file svm_normalization_YT-Plane.txt --machine-type SVM --plane YT --output-dir res/scores/scores_YT replay
+
+  $ ./bin/make_scores.py --features-dir lbptop_features --machine-file lda_machine_0.99-XT-YT-Plane.txt --normalization-file svm_normalization_XT-YT-Plane.txt --machine-type SVM --plane XT-YT --output-dir res/scores/scores_XT-YT replay
+
+  $ ./bin/make_scores.py --features-dir lbptop_features --machine-file lda_machine_0.99-XY-XT-YT-plane.txt --normalization-file svm_normalization_XY-XT-YT-plane.txt --machine-type SVM --plane XY-XT-YT --output-dir res/scores/scores_XY-XT-YT replay
+
+  #Result Analysis
+  $./bin/result_analysis.py --scores-dir res/scores/ --output-dir res/results/
+
 
 
 After that, it's recommended to go out for a long coffee.
