@@ -275,7 +275,6 @@ The next code blocks are codes to generate the results from lines 4, 5, 6, 7, 8 
   #Running the SVM machine
   $ ./bin/svmtrain_lbptop.py  -n --input-dir lbptop_features/ --output-dir res/
 
-
   #Extracting the scores for each plane
   $ ./bin/make_scores.py --features-dir lbptop_features --machine-file lda_machine_0.99-XY-plane.txt --normalization-file svm_normalization_XY-plane.txt --machine-type SVM --plane XY --output-dir res/scores/scores_XY replay
   $ ./bin/make_scores.py --features-dir lbptop_features --machine-file lda_machine_0.99-XT-Plane.txt --normalization-file svm_normalization_XT-Plane.txt --machine-type SVM --plane XT --output-dir res/scores/scores_XT replay
