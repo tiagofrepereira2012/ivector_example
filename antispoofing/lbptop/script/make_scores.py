@@ -5,12 +5,6 @@
 """
 This script will run feature vectors through a trained SVM and LDA and will produce score files for every individual video file in the database. Following the patter
 
-for each plane
-
-======+==============
-score | isValidFrame
-
-
 The procedure is described in the paper: "LBP-TOP based countermeasure against facial spoofing attacks" - de Freitas Pereira, Tiago and Anjos, Andre and De Martino, Jose Mario and Marcel, Sebastien; ACCV - LBP 2012
 
 """
@@ -18,19 +12,16 @@ The procedure is described in the paper: "LBP-TOP based countermeasure against f
 import os, sys
 import argparse
 import bob
-import xbob.db.replay
 import numpy
 
 from .. import spoof
-from ..spoof import calclbptop, helpers
+from ..spoof import calclbptop
 from antispoofing.utils.ml import *
+from antispoofing.utils.db import *
 
+from antispoofing.lbptop.helpers import *
 
 def main():
-
-  import math
-  
-  replayAttackProtocols = xbob.db.replay.Database().protocols()
 
   ##########
   # General configuration
@@ -52,28 +43,16 @@ def main():
 
   parser.add_argument('-l', '--plane', type=str,dest='planeName',default='XY-XT-YT',choices=('XY','XT','YT','XT-YT','XY-XT-YT'),help="Plane name to calculate the scores")
 
+  parser.add_argument('-v', '--verbose', action='store_true', dest='verbose', default=False, help='Increases this script verbosity')
+
   # For SGE grid processing @ Idiap
   parser.add_argument('--grid', dest='grid', action='store_true', default=False, help=argparse.SUPPRESS)
+
 
   #######
   # Database especific configuration
   #######
-  subparsers = parser.add_subparsers(help="Database tests available")
-
-  ##
-  #Sub parsing replay attack database
-  ##
-  parser_replay = subparsers.add_parser('replay', help='Replay attack database')
-  parser_replay.add_argument('--protocol', type=str, dest="replayProtocol", default='grandtest', help='The REPLAY-ATTACK protocol type may be specified instead of the id switch to subselect a smaller number of files to operate on', choices=replayAttackProtocols)
-
-  parser_replay.add_argument('--support', type=str, choices=('fixed', 'hand'), default='', dest='replaySupport', help='One of the valid supported attacks (fixed, hand) (defaults to "%(default)s")')
-
-  parser_replay.add_argument('--light', type=str, choices=('controlled', 'adverse'), default='', dest='replayLight', help='Types of illumination conditions (controlled,adverse) (defaults to "%(default)s")')
-
-  parser_replay.add_argument('--group', type=str, choices=('train', 'devel', 'test'), default='', dest='replayGroup', help='One of the protocolar subgroups of data (train, devel, test) (defaults to "%(default)s")')
-
-  
-  parser_replay.set_defaults(which='replay') #Help to choose which subparser was selected
+  Database.create_parser(parser)
 
   args = parser.parse_args()
 
@@ -88,19 +67,19 @@ def main():
   machineType        = args.machineType
   outputDir          = args.outputDir
   planeName          = args.planeName
+  verbose            = args.verbose
+  databaseName       = args.which
 
-  #########
-  # Loading some dataset
-  #########
-  #Loading Replay attack
-  if(database == 'replay'):
-    replayProtocol = args.replayProtocol
-    replaySupport  = args.replaySupport
-    replayLight    = args.replayLight
-    replayGroup   = args.replayGroup
+  ####################
+  #Querying the database
+  ####################
+  if(verbose):
+    sys.stdout.write("Querying the database ... \n")
+    sys.stdout.flush()
 
-    db = xbob.db.replay.Database()
-    process = db.objects(protocol=replayProtocol,groups=replayGroup,support=replaySupport,light=replayLight)
+  database = new_database(databaseName,args=args)
+  realObjects, attackObjects = database.get_all_data()
+  process = realObjects + attackObjects 
 
   
   # finally, if we are on a grid environment, just find what I have to process.
@@ -115,14 +94,12 @@ def main():
   # processing each video
   for index, obj in enumerate(process):
 
-    #filename = str(obj.videofile(featuresDir)) 
-    if(database=="replay"):
-      filename = str(obj.videofile(featuresDir))
+    filename = str(obj.videofile(featuresDir))
 
-    
-    sys.stdout.write("Processing file %s [%d/%d] \n" % (filename,
-      index+1, len(process)))
-    sys.stdout.flush()
+    if(verbose):
+      sys.stdout.write("Processing file %s [%d/%d] \n" % (filename,
+        index+1, len(process)))
+      sys.stdout.flush()
 
     #Getting the datata
     dataset = calclbptop.create_full_dataset([obj],featuresDir,retrieveNanLines=True)
@@ -152,6 +129,9 @@ def main():
 
     # saves the output
     obj.save(scores,directory=outputDir,extension='.hdf5')  
+
+  if(verbose):
+    print("All done !")
 
   return 0
 

@@ -13,21 +13,18 @@ The procedure is described in the paper: "LBP-TOP based countermeasure against f
 import os, sys
 import argparse
 import bob
-import xbob.db.replay
 import numpy
 
 from .. import spoof
-from ..spoof import calclbptop, helpers, perf_lbptop
+from ..spoof import calclbptop
 
 from antispoofing.utils.ml import *
 from antispoofing.utils.helpers import *
+from antispoofing.utils.db import *
 
+from antispoofing.lbptop.helpers import *
 
 def main():
-
-  import math
-  
-  replayAttackProtocols = xbob.db.replay.Database().protocols()
 
   ##########
   # General configuration
@@ -41,16 +38,12 @@ def main():
 
   parser.add_argument('-n','--score-normalization',type=str, dest='scoreNormalization',default='', choices=('znorm','minmax',''))
 
-  ##
-  #Parsing replay attack database
-  ##
-  parser.add_argument('--protocol', type=str, dest="protocol", default='grandtest', help='The REPLAY-ATTACK protocol type may be specified instead of the id switch to subselect a smaller number of files to operate on', choices=replayAttackProtocols)
+  parser.add_argument('-v', '--verbose', action='store_true', dest='verbose', default=False, help='Increases this script verbosity')
 
-  parser.add_argument('--support', type=str, choices=('fixed', 'hand'), default='', dest='support', help='One of the valid supported attacks (fixed, hand) (defaults to "%(default)s")')
-
-  parser.add_argument('--light', type=str, choices=('controlled', 'adverse'), default='', dest='light', help='Types of illumination conditions (controlled,adverse) (defaults to "%(default)s")')
-
-  parser.add_argument('--group', type=str, choices=('train', 'devel', 'test'), default='', dest='group', help='One of the protocolar subgroups of data (train, devel, test) (defaults to "%(default)s")')
+  #######
+  # Database especific configuration
+  #######
+  Database.create_parser(parser)
 
   args = parser.parse_args()
 
@@ -64,6 +57,8 @@ def main():
   scoresDir          = args.scoresDir
   outputDir          = args.outputDir
   scoreNormalization = args.scoreNormalization
+  verbose            = args.verbose
+  databaseName       = args.which
 
   if not os.path.exists(scoresDir):
     parser.error("scores-dir directory does not exist")
@@ -75,22 +70,14 @@ def main():
   #########
   # Loading some dataset
   #########
-  #Loading Replay attack
-  protocol = args.protocol
-  support  = args.support
-  light    = args.light
-  group    = args.group
+  if(verbose):
+    print("Querying the database ... ")
 
-  db = xbob.db.replay.Database()
+  database = new_database(databaseName,args=args)
 
-  process_train_real = db.objects(protocol=protocol, groups='train', cls='real')
-  process_train_attack = db.objects( protocol=protocol, groups='train', cls='attack')
-
-  process_devel_real = db.objects(protocol=protocol, groups='devel', cls='real')
-  process_devel_attack = db.objects(protocol=protocol, groups='devel', cls='attack')
-
-  process_test_real = db.objects(protocol=protocol, groups='test', cls='real', support=support, light=light)
-  process_test_attack = db.objects(protocol=protocol, groups='test', cls='attack',support=support,light=light)
+  trainReal, trainAttack = database.get_train_data()
+  develReal, develAttack = database.get_devel_data()
+  testReal, testAttack   = database.get_test_data()
 
 
   #### Storing the scores in order to plot their distribution
@@ -107,7 +94,8 @@ def main():
   develTexts        = []
   testTexts        = []
 
-  print("Generating test results ....")
+  if(verbose):
+    print("Generating test results ....")
 
 
   for i in range(len(scoresFolder)):
@@ -116,18 +104,18 @@ def main():
     scoresPlaneDir = os.path.join(scoresDir,scoresFolder[i])
 
     #Getting the scores
-    realScores   = ScoreReader(process_train_real,scoresPlaneDir)
-    attackScores = ScoreReader(process_train_attack,scoresPlaneDir)
+    realScores   = ScoreReader(trainReal,scoresPlaneDir)
+    attackScores = ScoreReader(trainAttack,scoresPlaneDir)
     train_real_scores = realScores.getScores()
     train_attack_scores = attackScores.getScores()
 
-    realScores   = ScoreReader(process_devel_real,scoresPlaneDir)
-    attackScores = ScoreReader(process_devel_attack,scoresPlaneDir)
+    realScores   = ScoreReader(develReal,scoresPlaneDir)
+    attackScores = ScoreReader(develAttack,scoresPlaneDir)
     devel_real_scores = realScores.getScores()
     devel_attack_scores = attackScores.getScores()
 
-    realScores   = ScoreReader(process_test_real,scoresPlaneDir)
-    attackScores = ScoreReader(process_test_attack,scoresPlaneDir)
+    realScores   = ScoreReader(testReal,scoresPlaneDir)
+    attackScores = ScoreReader(testAttack,scoresPlaneDir)
     test_real_scores = realScores.getScores()
     test_attack_scores = attackScores.getScores()
  

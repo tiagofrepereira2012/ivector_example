@@ -9,24 +9,22 @@
 import os, sys
 import argparse
 import bob
-import xbob.db.replay
 import numpy
 
 from .. import spoof
 import antispoofing.utils
 from antispoofing.utils.faceloc import *
+from antispoofing.utils.db import *
+
+from antispoofing.lbptop.helpers import *
 
 def main():
 
-  import math
-  
   basedir = os.path.dirname(os.path.dirname(os.path.realpath(sys.argv[0])))
 
   INPUT_DIR = os.path.join(basedir, 'database')
   OUTPUT_DIR = os.path.join(basedir, 'lbp_features')
 
-  replayAttackProtocols = xbob.db.replay.Database().protocols()
-  replayAttackProtocols = [p.name for p in replayAttackProtocols]
 
   ##########
   # General configuration
@@ -72,22 +70,7 @@ def main():
   #######
   # Database especific configuration
   #######
-  subparsers = parser.add_subparsers(help="Database tests available")
-
-  ##
-  #Sub parsing replay attack database
-  ##
-  parser_replay = subparsers.add_parser('replay', help='Replay attack database')
-  parser_replay.add_argument('--protocol', type=str, dest="replayProtocol", default='grandtest', help='The REPLAY-ATTACK protocol type may be specified instead of the id switch to subselect a smaller number of files to operate on', choices=replayAttackProtocols)
-
-  parser_replay.add_argument('--support', type=str, choices=('fixed', 'hand'), default='', dest='replaySupport', help='One of the valid supported attacks (fixed, hand) (defaults to "%(default)s")')
-
-  parser_replay.add_argument('--light', type=str, choices=('controlled', 'adverse'), default='', dest='replayLight', help='Types of illumination conditions (controlled,adverse) (defaults to "%(default)s")')
-
-  parser_replay.add_argument('--group', type=str, choices=('train', 'devel', 'test'), default='', dest='replayGroup', help='One of the protocolar subgroups of data (train, devel, test) (defaults to "%(default)s")')
-
-  
-  parser_replay.set_defaults(which='replay') #Help to choose which subparser was selected
+  Database.create_parser(parser)
 
   args = parser.parse_args()
 
@@ -119,23 +102,18 @@ def main():
   elbptypeXT = args.elbptypeXT
   elbptypeYT = args.elbptypeYT
 
+  #Loading the database name
+  databaseName = args.which
+
   maxRadius = max(rX,rY,max(rT)) #Getting the max radius to extract the volume for analysis
-  database = args.which
 
-
-  #########
-  # Loading some dataset
-  #########
-
-  #Loading Replay attack
-  if(database == 'replay'):
-    replayProtocol = args.replayProtocol
-    replaySupport  = args.replaySupport
-    replayLight    = args.replayLight
-    replayGroup   = args.replayGroup
-
-    db = xbob.db.replay.Database()
-    process = db.objects(protocol=replayProtocol,groups=replayGroup,support=replaySupport,light=replayLight)
+  ########################
+  #Querying the database
+  ########################
+  database = new_database(databaseName,args=args)
+  realObjects, attackObjects = database.get_all_data()
+  process = realObjects + attackObjects 
+  
 
   # finally, if we are on a grid environment, just find what I have to process.
   if args.grid:
@@ -148,17 +126,15 @@ def main():
   # processing each video
   for index, obj in enumerate(process):
 
-    if(database=="replay"):
-      filename = str(obj.videofile(inputDir))
+    #Loading the file
+    filename = str(obj.videofile(inputDir))
 
     #Loading the video
     input = bob.io.VideoReader(filename)
 
     #Loading the face locations
-    if(database=="replay"):
-      flocfile = obj.facefile(inputDir)
-      locations = preprocess_detections(flocfile,input.number_of_frames,facesize_filter=facesize_filter)
-
+    flocfile = obj.facefile(inputDir)
+    locations = preprocess_detections(flocfile,input.number_of_frames,facesize_filter=facesize_filter)
 
     sys.stdout.write("Processing file %s (%d frames) [%d/%d] " % (filename,
       input.number_of_frames, index+1, len(process)))

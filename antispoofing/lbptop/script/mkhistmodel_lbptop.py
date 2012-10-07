@@ -8,14 +8,11 @@
 import os, sys
 import argparse
 import bob
-import xbob.db.replay
 import numpy
 
-
-from antispoofing.utils.ml import *
-
 from .. import spoof
-from ..spoof import calclbptop
+from antispoofing.utils.db import *
+from antispoofing.lbptop.helpers import *
 
 
 def main():
@@ -24,58 +21,65 @@ def main():
 
   INPUT_DIR = os.path.join(basedir, 'lbp_features')
   OUTPUT_DIR = os.path.join(basedir, 'res')
-
-  protocols = xbob.db.replay.Database().protocols()
-  protocols = [p.name for p in protocols]
   
   parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-  parser.add_argument('-v', '--input-dir', metavar='DIR', type=str, dest='inputDir', default=INPUT_DIR, help='Base directory containing the histogram features of all the videos')
-  parser.add_argument('-d', '--output-dir', metavar='DIR', type=str, dest='outputDir', default=OUTPUT_DIR, help='Base directory that will be used to save the results (models).')
-  parser.add_argument('-p', '--protocol', metavar='PROTOCOL', type=str, dest="protocol", default='grandtest', help='The protocol type may be specified instead of the the id switch to subselect a smaller number of files to operate on', choices=protocols)   
+  parser.add_argument('-i', '--input-dir', metavar='DIR', type=str, dest='inputdir', default=INPUT_DIR, help='Base directory containing the histogram features of all the videos')
+
+  parser.add_argument('-d', '--output-dir', metavar='DIR', type=str, dest='outputdir', default=OUTPUT_DIR, help='Base directory that will be used to save the results (models).')
+
+  parser.add_argument('-v', '--verbose', action='store_true', dest='verbose', default=False, help='Increases this script verbosity')
   
+  #######
+  # Database especific configuration
+  #######
+  Database.create_parser(parser)
   args = parser.parse_args()
 
-  inputDir  = args.inputDir
-  outputDir = args.outputDir
-  protocol  = args.protocol
+  verbose       = args.verbose
+  databaseName  = args.which
 
-
-  if not os.path.exists(args.inputDir):
+  if not os.path.exists(args.inputdir):
     parser.error("input directory does not exist")
   
-  if not os.path.exists(outputDir): # if the output directory doesn't exist, create it
-    bob.db.utils.makedirs_safe(outputDir)
+  if not os.path.exists(args.outputdir): # if the output directory doesn't exist, create it
+    bob.db.utils.makedirs_safe(args.outputdir)
     
-  print "Output directory set to \"%s\"" % outputDir
-  print "Loading input files..."
 
-  # loading the input files
-  db = xbob.db.replay.Database()
+  ###################
+  # Querying the database
+  ###################
+  if(verbose):
+    print "Output directory set to \"%s\"" % args.outputdir
+    print "Loading input files..."
 
-  process_train_real = db.objects(protocol=protocol, groups='train', cls='real')
+
+  database = new_database(databaseName,args=args)
+  trainReal,_ = database.get_train_data()
 
   # create the full datasets from the file data
-  train_real = calclbptop.create_full_dataset(process_train_real,inputDir);
+  train_real = spoof.create_full_dataset(trainReal,args.inputdir);
   
   models = ['model_hist_real_XY','model_hist_real_XT','model_hist_real_YT','model_hist_real_XT_YT','model_hist_real_XY_XT_YT']
-  histmodelsfile = bob.io.HDF5File(os.path.join(outputDir, 'histmodelsfile.hdf5'),'w')
+  histmodelsfile = bob.io.HDF5File(os.path.join(args.outputdir, 'histmodelsfile.hdf5'),'w')
 
-  print "Creating the model for each frame and its combinations..."
+  if(verbose):
+    print "Creating the model for each frame and its combinations..."
 
   for i in range(len(models)):
 
-    print "Creating the model for " + models[i]
+    if(verbose):    
+      print "Creating the model for " + models[i]
 
     train_real_plane =  train_real[i]
 
     model_hist_real_plane = numpy.sum(train_real_plane,axis=0,dtype='float64')
     model_hist_real_plane = numpy.divide(model_hist_real_plane,train_real_plane.shape[0])
 
-    print "Saving the model histogram..."
+    if(verbose):
+      print "Saving the model histogram..."
     histmodelsfile.append(models[i], numpy.array(model_hist_real_plane))
 
   del histmodelsfile
-
 
 
  

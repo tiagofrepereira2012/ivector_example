@@ -149,7 +149,7 @@ def saveCounterMeasureResults(trainRealScores,trainAttackScores,develRealScores,
     devel = [develRealScores[i]	,develAttackScores[i]]
     test  = [testRealScores[i],testAttackScores[i]]
 
-    perf.score_distribution_plot(test, devel, train, bins=60, thres=thresholds[i],scoresRange=scoresRange)
+    perf.score_distribution_plot(test, devel, train, bins=60, thres=thresholds[i],scoresRange=scoresRange,title=" - " + models[i])
     pp.savefig(fig)
   pp.close()
 

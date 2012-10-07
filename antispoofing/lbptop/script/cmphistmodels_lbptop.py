@@ -10,12 +10,14 @@ import os, sys
 import argparse
 import numpy
 import bob
-import xbob.db.replay
-
-from antispoofing.utils.ml import *
 
 from .. import spoof
 from ..spoof import calclbptop
+from ..spoof import chi2
+
+from antispoofing.utils.db import *
+from antispoofing.lbptop.helpers import *
+
 
 def main():
 
@@ -25,61 +27,64 @@ def main():
   INPUT_MODEL_DIR = os.path.join(basedir, 'res')
   OUTPUT_DIR = os.path.join(basedir, 'res')
   
-  protocols = xbob.db.replay.Database().protocols()
-  protocols = [p.name for p in protocols]
 
   parser = argparse.ArgumentParser(description=__doc__,
       formatter_class=argparse.RawDescriptionHelpFormatter)
-  parser.add_argument('-v', '--input-dir', metavar='DIR', type=str, dest='inputDir', default=INPUT_DIR, help='Base directory containing the scores to be loaded')
+  parser.add_argument('-i', '--input-dir', metavar='DIR', type=str, dest='inputdir', default=INPUT_DIR, help='Base directory containing the scores to be loaded')
+
   parser.add_argument('-m', '--input-modeldir', metavar='DIR', type=str, dest='inputmodeldir', default=INPUT_MODEL_DIR, help='Base directory containing the histogram models to be loaded')
-  parser.add_argument('-d', '--output-dir', metavar='DIR', type=str, dest='outputDir', default=OUTPUT_DIR, help='Base directory that will be used to save the results.')
-  parser.add_argument('-p', '--protocol', metavar='PROTOCOL', type=str, dest="protocol", default='grandtest', help='The protocol type may be specified instead of the the id switch to subselect a smaller number of files to operate on', choices=protocols) 
 
-  from ..spoof import chi2
+  parser.add_argument('-o', '--output-dir', metavar='DIR', type=str, dest='outputdir', default=OUTPUT_DIR, help='Base directory that will be used to save the results.')
 
+  parser.add_argument('-v', '--verbose', action='store_true', dest='verbose', default=False, help='Increases this script verbosity')
+
+
+  #######
+  # Database especific configuration
+  #######
+  Database.create_parser(parser)
   args = parser.parse_args()
 
-  protocol      = args.protocol
-  inputDir  = args.inputDir
-  outputDir = args.outputDir
+  verbose       = args.verbose
+  databaseName  = args.which
 
-  if not os.path.exists(inputDir) or not os.path.exists(args.inputmodeldir):
+
+  if not os.path.exists(args.inputdir) or not os.path.exists(args.inputmodeldir):
     parser.error("input directory does not exist")
 
-  if not os.path.exists(outputDir): # if the output directory doesn't exist, create it
-    bob.db.utils.makedirs_safe(outputDir)
+  if not os.path.exists(args.outputdir): # if the output directory doesn't exist, create it
+    bob.db.utils.makedirs_safe(args.outputdir)
     
-  print "Output directory set to \"%s\"" % outputDir
-  print "Loading input files..."
-
-  # loading the input files (all the feature vectors of all the files in different subdatasets)
-  db = xbob.db.replay.Database()
+  if(verbose):
+    print "Output directory set to \"%s\"" % args.outputdir
+    print "Loading input files..."
 
 
-  process_devel_real = db.objects(protocol=protocol, groups='devel', cls='real')
-  process_devel_attack = db.objects(protocol=protocol, groups='devel', cls='attack')
+  ##########################
+  # Loading the input files
+  ##########################
+  database = new_database(databaseName,args=args)
 
-  process_test_real = db.objects(protocol=protocol, groups='test', cls='real')
-  process_test_attack = db.objects(protocol=protocol, groups='test', cls='attack')
-
-
+  develReal, develAttack = database.get_devel_data()
+  testReal, testAttack = database.get_test_data()
 
   # create the full datasets from the file data
-  devel_real   = calclbptop.create_full_dataset(process_devel_real,inputDir) 
-  devel_attack = calclbptop.create_full_dataset(process_devel_attack,inputDir); 
+  devel_real  = calclbptop.create_full_dataset(develReal,args.inputdir) 
+  devel_attack = calclbptop.create_full_dataset(develAttack,args.inputdir)
 
-  test_real   = calclbptop.create_full_dataset(process_test_real,inputDir)
-  test_attack = calclbptop.create_full_dataset(process_test_attack,inputDir)
+  test_real = calclbptop.create_full_dataset(testReal,args.inputdir)
+  test_attack = calclbptop.create_full_dataset(testAttack,args.inputdir)
 
   models = ['model_hist_real_XY','model_hist_real_XT','model_hist_real_YT','model_hist_real_XT_YT','model_hist_real_XY_XT_YT']
   lines  = ['r','b','y','g^','c']
 
   # loading the histogram models
   histmodelsfile = bob.io.HDF5File(os.path.join(args.inputmodeldir, 'histmodelsfile.hdf5'),'r')
-  tf = open(os.path.join(outputDir, 'CHI-2_perf_table.txt'), 'w')
+  tf = open(os.path.join(args.outputdir, 'CHI-2_perf_table.txt'), 'w')
 
   for i in range(len(models)):
-    print "Loading the model " + models[i]
+    if(verbose):
+      print "Loading the model " + models[i]
     
     model_hist_real_plane = histmodelsfile.read(models[i])
     model_hist_real_plane = model_hist_real_plane[0,:]
@@ -91,14 +96,15 @@ def main():
     test_real_plane   = test_real[i]
     test_attack_plane = test_attack[i]
 
-
-    print "Calculating the Chi-2 differences..."
+    if(verbose):
+      print "Calculating the Chi-2 differences..."
     # calculating the comparison scores with chi2 distribution for each protocol subset   
     sc_devel_realmodel_plane = chi2.cmphistbinschimod(model_hist_real_plane, (devel_real_plane, devel_attack_plane))
+
     sc_test_realmodel_plane  = chi2.cmphistbinschimod(model_hist_real_plane, (test_real_plane, test_attack_plane))
 
-
-    print "Saving the results in a file"
+    if(verbose):
+      print "Saving the results in a file"
     # It is expected that the positives always have larger scores. Therefore, it is necessary to "invert" the scores by multiplying them by -1 (the chi-  square test gives smaller scores to the data from the similar distribution)
     sc_devel_realmodel_plane = (sc_devel_realmodel_plane[0] * -1, sc_devel_realmodel_plane[1] * -1)
     sc_test_realmodel_plane  = (sc_test_realmodel_plane[0] * -1, sc_test_realmodel_plane[1] * -1)
@@ -106,14 +112,19 @@ def main():
     perftable_plane, eer_thres_plane, mhter_thres_plane = performance_table(sc_test_realmodel_plane, sc_devel_realmodel_plane, "CHI-2 comparison in " + models[i]+ ", RESULTS")
 
     tf.write(perftable_plane)
-    
+
   tf.close()
   del histmodelsfile
  
 
-#TODO: OLD CODE. REMOVE IT
 def performance_table(test, devel, title):
-  """Returns a string containing the performance table"""
+  """
+  .. deprecated:: 1.1.0
+   
+   Returns a string containing the performance table. 
+   
+   I'm not using this function in the package. Just in this file.
+   """
 
   def pline(group, far, attack_count, frr, real_count):
     fmtstr = " %s: FAR %.2f%% (%d / %d) / FRR %.2f%% (%d / %d) / HTER %.2f%%"
@@ -160,7 +171,6 @@ def performance_table(test, devel, title):
   retval.append("")
 
   return ''.join([k+'\n' for k in retval]), eer_thres, mhter_thres
-
 
 if __name__ == '__main__':
   main()
