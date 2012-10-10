@@ -22,7 +22,7 @@ setup(
     include_package_data = True,
 
     install_requires=[
-        "bob >= 1.0",      # base signal proc./machine learning library
+        "bob >= 1.1.0",      # base signal proc./machine learning library
         "xbob.db.replay",
         "antispoofing.utils",  #Utils Package
     ],
@@ -33,14 +33,13 @@ setup(
 
     entry_points={
       'console_scripts': [
-        'mkhistmodel_lbptop.py = antispoofing.lbptop.script.mkhistmodel_lbptop:main',
-        'cmphistmodels_lbptop.py = antispoofing.lbptop.script.cmphistmodels_lbptop:main',
-        'ldatrain_lbptop.py = antispoofing.lbptop.script.ldatrain_lbptop:main',
-        'svmtrain_lbptop.py = antispoofing.lbptop.script.svmtrain_lbptop:main',
-        'calclbptop_multiple_radius.py = antispoofing.lbptop.script.calclbptop_multiple_radius:main',
-
-        'result_analysis.py = antispoofing.lbptop.script.result_analysis:main',
-        'make_scores.py  = antispoofing.lbptop.script.make_scores:main',
+        'lbptop_calculate_parameters.py = antispoofing.lbptop.script.lbptop_calculate_parameters:main',
+        'lbptop_cmphistmodels.py = antispoofing.lbptop.script.lbptop_cmphistmodels:main',
+        'lbptop_ldatrain.py = antispoofing.lbptop.script.lbptop_ldatrain:main',
+        'lbptop_make_scores.py = antispoofing.lbptop.script.lbptop_make_scores:main',
+        'lbptop_mkhistmodel.py = antispoofing.lbptop.script.lbptop_mkhistmodel:main',
+        'lbptop_result_analysis.py = antispoofing.lbptop.script.lbptop_result_analysis:main',
+        'lbptop_svmtrain.py  = antispoofing.lbptop.script.lbptop_svmtrain:main',
         ],
       },
 
