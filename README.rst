@@ -13,10 +13,10 @@ If you use this package and/or its results, please cite the following publicatio
     @inproceedings{Pereira_LBP_2012,
       author = {Pereira, Tiago de Freitas and Anjos, Andr{\'{e}} and De Martino, Jos{\'{e}} Mario and Marcel, S{\'{e}}bastien},
       keywords = {Attack, Countermeasures, Counter-Spoofing, Face Recognition, Liveness Detection, Replay, Spoofing},
-      month = dec,
-      title = {LBP-TOP based countermeasure against facial spoofing attacks},
-      journal = {ACCV 2012},
+      month = nov,
       year = {2012},
+      title = {LBP-TOP based countermeasure against facial spoofing attacks},
+      journal = {International Workshop on Computer Vision With Local Binary Pattern Variants - ACCV},
     }
 
 
@@ -128,7 +128,7 @@ sub-directory called ``database`` at the root of the package.  You can use a
 link to the location of the database files, if you don't want to have the
 database installed on the root of this package::
 
-  $ ln -s /path/where/you/installed/the/print-attack-database database
+  $ ln -s /path/where/you/installed/the/replay-attack-database database
 
 If you don't want to create a link, use the ``--input-dir`` flag to specify
 the root directory containing the database files. That would be the directory
