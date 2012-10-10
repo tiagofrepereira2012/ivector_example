@@ -48,7 +48,7 @@ def main():
   #######
   # Database especific configuration
   #######
-  Database.create_parser(parser)
+  Database.create_parser(parser, implements_any_of='video')
 
   args = parser.parse_args()
 
@@ -70,7 +70,6 @@ def main():
   normalize     = args.normalize
   pca_reduction = args.pca_reduction
   verbose       = args.verbose
-  databaseName  = args.which
 
   if(verbose):
     print "Loading input files..."
@@ -78,7 +77,7 @@ def main():
   ##########################
   # Loading the input files
   ##########################
-  database = new_database(databaseName,args=args)
+  database = args.cls(args)
   trainReal, trainAttack = database.get_train_data()
 
   # create the full datasets from the file data

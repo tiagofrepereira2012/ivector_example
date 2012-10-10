@@ -43,7 +43,7 @@ def main():
   #######
   # Database especific configuration
   #######
-  Database.create_parser(parser)
+  Database.create_parser(parser, implements_any_of='video')
 
   args = parser.parse_args()
 
@@ -58,7 +58,6 @@ def main():
   outputDir          = args.outputDir
   scoreNormalization = args.scoreNormalization
   verbose            = args.verbose
-  databaseName       = args.which
 
   if not os.path.exists(scoresDir):
     parser.error("scores-dir directory does not exist")
@@ -73,7 +72,7 @@ def main():
   if(verbose):
     print("Querying the database ... ")
 
-  database = new_database(databaseName,args=args)
+  database = args.cls(args)
 
   trainReal, trainAttack = database.get_train_data()
   develReal, develAttack = database.get_devel_data()

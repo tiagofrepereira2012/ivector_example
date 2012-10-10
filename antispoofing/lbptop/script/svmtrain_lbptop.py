@@ -45,7 +45,7 @@ def main():
   #######
   # Database especific configuration
   #######
-  Database.create_parser(parser)
+  Database.create_parser(parser, implements_any_of='video')
 
   # For SGE grid processing @ Idiap
   parser.add_argument('--grid', dest='grid', action='store_true', default=False, help=argparse.SUPPRESS)
@@ -55,7 +55,6 @@ def main():
   outputDir     = args.outputDir
   grid          = args.grid
   verbose       = args.verbose
-  databaseName  = args.which
 
 
   if not os.path.exists(inputDir):
@@ -82,7 +81,7 @@ def main():
   ##########################
   # Loading the input files
   ##########################
-  database = new_database(databaseName,args=args)
+  database = args.cls(args)
   trainReal, trainAttack = database.get_train_data()
 
   # create the full datasets from the file data

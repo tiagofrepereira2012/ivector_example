@@ -42,11 +42,10 @@ def main():
   #######
   # Database especific configuration
   #######
-  Database.create_parser(parser)
+  Database.create_parser(parser, implements_any_of='video')
   args = parser.parse_args()
 
   verbose       = args.verbose
-  databaseName  = args.which
 
 
   if not os.path.exists(args.inputdir) or not os.path.exists(args.inputmodeldir):
@@ -63,8 +62,7 @@ def main():
   ##########################
   # Loading the input files
   ##########################
-  database = new_database(databaseName,args=args)
-
+  database = args.cls(args)
   develReal, develAttack = database.get_devel_data()
   testReal, testAttack = database.get_test_data()
 

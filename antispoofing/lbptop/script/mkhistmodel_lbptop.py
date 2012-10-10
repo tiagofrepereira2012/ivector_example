@@ -32,11 +32,10 @@ def main():
   #######
   # Database especific configuration
   #######
-  Database.create_parser(parser)
+  Database.create_parser(parser, implements_any_of='video')
   args = parser.parse_args()
 
   verbose       = args.verbose
-  databaseName  = args.which
 
   if not os.path.exists(args.inputdir):
     parser.error("input directory does not exist")
@@ -53,7 +52,7 @@ def main():
     print "Loading input files..."
 
 
-  database = new_database(databaseName,args=args)
+  database = args.cls(args)
   trainReal,_ = database.get_train_data()
 
   # create the full datasets from the file data

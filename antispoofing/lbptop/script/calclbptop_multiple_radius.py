@@ -13,10 +13,10 @@ import numpy
 
 from .. import spoof
 import antispoofing.utils
-from antispoofing.utils.faceloc import *
-from antispoofing.utils.db import *
 
+from antispoofing.utils.faceloc import *
 from antispoofing.lbptop.helpers import *
+from antispoofing.utils.db import *
 
 def main():
 
@@ -70,7 +70,8 @@ def main():
   #######
   # Database especific configuration
   #######
-  Database.create_parser(parser)
+  #Database.create_parser(parser)
+  Database.create_parser(parser, implements_any_of='video')
 
   args = parser.parse_args()
 
@@ -102,15 +103,13 @@ def main():
   elbptypeXT = args.elbptypeXT
   elbptypeYT = args.elbptypeYT
 
-  #Loading the database name
-  databaseName = args.which
-
   maxRadius = max(rX,rY,max(rT)) #Getting the max radius to extract the volume for analysis
 
   ########################
   #Querying the database
   ########################
-  database = new_database(databaseName,args=args)
+  #database = new_database(databaseName,args=args)
+  database = args.cls(args)
   realObjects, attackObjects = database.get_all_data()
   process = realObjects + attackObjects 
   

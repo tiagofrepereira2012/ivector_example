@@ -52,14 +52,13 @@ def main():
   #######
   # Database especific configuration
   #######
-  Database.create_parser(parser)
+  Database.create_parser(parser, implements_any_of='video')
 
   args = parser.parse_args()
 
   ## Parsing
 
   #TODO: PLEASE CHECK THE CONSISTENCY OF THE NUMBER OF THE INPUTS
-  database           = args.which
   featuresDir        = args.featuresDir
   machineFile        = args.machineFile
   pcaFile            = args.pcaFile
@@ -68,7 +67,6 @@ def main():
   outputDir          = args.outputDir
   planeName          = args.planeName
   verbose            = args.verbose
-  databaseName       = args.which
 
   ####################
   #Querying the database
@@ -77,7 +75,7 @@ def main():
     sys.stdout.write("Querying the database ... \n")
     sys.stdout.flush()
 
-  database = new_database(databaseName,args=args)
+  database = args.cls(args)
   realObjects, attackObjects = database.get_all_data()
   process = realObjects + attackObjects 
 

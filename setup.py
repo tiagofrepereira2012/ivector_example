@@ -9,7 +9,7 @@ from setuptools import setup, find_packages
 setup(
 
     name='antispoofing.lbptop',
-    version='1.1.0a0',
+    version='1.0.0',
     description='LBP-TOP based countermeasure against facial spoofing attacks',
     url='http://pypi.python.org/pypi/antispoofing.lbptop',
     license='GPLv3',
@@ -19,10 +19,11 @@ setup(
 
     # This line is required for any distutils based packaging.
     packages=find_packages(),
-    include_packages_data = True,
+    include_package_data = True,
 
     install_requires=[
         "bob >= 1.0",      # base signal proc./machine learning library
+        "xbob.db.replay",
         "antispoofing.utils",  #Utils Package
     ],
 
