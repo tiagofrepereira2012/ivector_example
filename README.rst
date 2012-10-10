@@ -141,31 +141,25 @@ Calculate the multiresolution and single resolution LBP-TOP features
 
 The first stage of the process is calculating the feature vectors, which are essentially LBP-TOP histograms (XY, XT and YT directions) for each frame of the video.
 
-The program to be used is `script/calclbptop_multiple_radius.py`.
+The program to be used is `script/lbptop_calculate_parameters.py`.
 
-The resulting histograms will be put in .hdf5 files in the default output directory `./lbp_features`.
+The resulting histograms will be put in .hdf5 files in the default output directory `./lbp_features`::
 
-.. code-block:: shell
-
-  $ ./bin/calclbptop_multiple_radius.py replay
+  $ ./bin/lbptop_calculate_parameters.py replay
 
 
-To gerate LBP-TOP features following the multiresolution strategy in time domain, it is necessary to set different values for Rt. For example, to generate a multiresolution description in time domain for Rt=[1-4] the code is the follows:
+To gerate LBP-TOP features following the multiresolution strategy in time domain, it is necessary to set different values for Rt. For example, to generate a multiresolution description in time domain for Rt=[1-4] the code is the follows::
 
-.. code-block:: shell
-
-  $ ./bin/calclbptop_multiple_radius.py -rT 1 2 3 4 replay
+  $ ./bin/lbptop_calculate_parameters.py -rT 1 2 3 4 replay
 
 
-To gerate a single resolution strategy in time domain, it is necessary to set only one value for Rt. For example, to generate a single resolution description in time domain for Rt=1 the code is the follows:
+To gerate a single resolution strategy in time domain, it is necessary to set only one value for Rt. For example, to generate a single resolution description in time domain for Rt=1 the code is the follows::
 
-.. code-block:: shell
-
-  $ ./bin/calclbptop_multiple_radius.py -rT 1 replay
+  $ ./bin/lbptop_calculate_parameters.py -rT 1 replay
 
 
 
-To see all the options for the scripts `calclbptop_multiple_radius.py` just type
+To see all the options for the scripts `lbptop_calculate_parameters.py` just type
 `--help` at the command line.
 
 
@@ -175,32 +169,28 @@ Classification using Chi-2 Distance
 
 The clasification using Chi-2 distance consists of two steps. The first one is creating the histogram model (average LBP-TOP histogram for each plane and it combinations of all the real access videos in the training set). The second step is comparison of the features of development and test videos to the model histogram and writing the results.
 
-The script to use for creating the histogram model is `script/mkhistmodel_lbptop.py`. It expects that the LBP-TOP features of the videos are stored in a folder `./lbp_features`. The model histogram will be written in the default output folder `./res`. You can change this default features by setting the input arguments. To execute this script, just run:
+The script to use for creating the histogram model is `script/lbptop_mkhistmodel.py`. It expects that the LBP-TOP features of the videos are stored in a folder `./lbp_features`. The model histogram will be written in the default output folder `./res`. You can change this default features by setting the input arguments. To execute this script, just run::
 
-.. code-block:: shell
 
-  $ ./bin/mkhistmodel_lbptop.py
+  $ ./bin/lbptop_mkhistmodel.py
 
-The script for performing Chi-2 histogram comparison is `script/cmphistmodels_lbptop.py`, and it assumes that the model histogram has been already created. It makes use of the utility script `spoof/chi2.py` and `ml/perf.py` for writing the results in a file. The default input directory is `./lbp_features`, while the default input directory for the histogram model as well as default output directory is `./res`. To execute this script, just run: 
+The script for performing Chi-2 histogram comparison is `script/lbptop_cmphistmodels.py`, and it assumes that the model histogram has been already created. It makes use of the utility script `spoof/chi2.py` and `ml/perf.py` for writing the results in a file. The default input directory is `./lbp_features`, while the default input directory for the histogram model as well as default output directory is `./res`. To execute this script, just run::
 
-.. code-block:: shell
 
-  $ ./bin/cmphistmodel_lbptop.py
+  $ ./bin/lbptop_cmphistmodels.py
 
 The performance results will be calculated for each LBP-TOP planes and the combinations XT+YT and XY+XT+YT.
 
-To see all the options for the scripts `mkhistmodel_lbptop.py` and `cmphistmodels_lbptop.py`, just type `--help` at the command line.
+To see all the options for the scripts `lbptop_mkhistmodel.py` and `lbptop_cmphistmodels.py`, just type `--help` at the command line.
 
 
 
 Classification with Linear Discriminant Analysis (LDA)
 ====================================================================
 
-The classification with LDA is performed using the script `script/ldatrain_lbptop.py`. It makes use of the scripts `ml/lda.py`, `ml/pca.py` (if PCA reduction is performed on the data) and `ml/norm.py` (if the data need to be normalized). The default input and output directories are `./lbp_features` and `./res`. To execute the script with the default parameters, call:
+The classification with LDA is performed using the script `script/lbptop_ldatrain.py`. It makes use of the scripts `ml/lda.py`, `ml/pca.py` (if PCA reduction is performed on the data) and `ml/norm.py` (if the data need to be normalized). The default input and output directories are `./lbp_features` and `./res`. To execute the script with the default parameters, call::
 
-.. code-block:: shell
-
-  $ ./bin/ldatrain_lbptop.py
+  $ ./bin/lbptop_ldatrain.py
 
 The performance results will be calculated for each LBP-TOP planes and the combinations XT+YT and XY+XT+YT.
 
@@ -210,11 +200,9 @@ To see all the options for this script, just type `--help` at the command line.
 Classification with Support Vector Machine (SVM)
 ====================================================================
 
-The classification with SVM is performed using the script `script/svmtrain_lbptop.py`. It makes use of the scripts `ml/pca.py` (if PCA reduction is performed on the data) and `ml/norm.py` (if the data need to be normalized). The default input and output directories are `./lbp_features` and `./res`. To execute the script with the default parameters, call:
+The classification with SVM is performed using the script `script/lbptop_svmtrain.py`. It makes use of the scripts `ml/pca.py` (if PCA reduction is performed on the data) and `ml/norm.py` (if the data need to be normalized). The default input and output directories are `./lbp_features` and `./res`. To execute the script with the default parameters, call::
 
-.. code-block:: shell
-
-  $ ./bin/svmtrain_lbptop.py
+  $ ./bin/lbptop_ldatrain.py
 
 The performance results will be calculated for each LBP-TOP planes and the combinations XT+YT and XY+XT+YT.
 
@@ -225,109 +213,113 @@ Generating paper results
 
 The next code blocks are codes to generate the results from lines 4, 5, 6, 7, 8 of Table 1.
 
-- **Line 4:**
-.. code-block:: shell
+- **Line 4**
+
+::
 
   #Extracting the LBP-TOP features
-  $ ./bin/calclbptop_multiple_radius.py --directory lbptop_features/ --input-dir database/ -rX 1 -rY 1 -rT 1 2 3 4 5 6 -cXY -cXT -cYT --lbptypeXY riu2 --lbptypeXT riu2 --lbptypeYT riu2 replay
+  $ ./bin/lbptop_calculate_parameters.py --directory lbptop_features/ --input-dir database/ -rX 1 -rY 1 -rT 1 2 3 4 5 6 -cXY -cXT -cYT --lbptypeXY riu2 --lbptypeXT riu2 --lbptypeYT riu2 replay
 
   #Running the SVM machine
-  $ ./bin/svmtrain_lbptop.py  -n --input-dir lbptop_features/ --output-dir res/ replay
+  $ ./bin/lbptop_svmtrain.py  -n --input-dir lbptop_features/ --output-dir res/ replay
 
   #Extracting the scores for each plane
-  $ ./bin/make_scores.py --features-dir lbptop_features --machine-file svm_machine_XY-plane.txt --normalization-file svm_normalization_XY-plane.txt --machine-type SVM --plane XY --output-dir res/scores/scores_XY replay
-  $ ./bin/make_scores.py --features-dir lbptop_features --machine-file svm_machine_XT-Plane.txt --normalization-file svm_normalization_XT-Plane.txt --machine-type SVM --plane XT --output-dir res/scores/scores_XT replay
-  $ ./bin/make_scores.py --features-dir lbptop_features --machine-file svm_machine_YT-Plane.txt --normalization-file svm_normalization_YT-Plane.txt --machine-type SVM --plane YT --output-dir res/scores/scores_YT replay
-  $ ./bin/make_scores.py --features-dir lbptop_features --machine-file svm_machine_XT-YT-Plane.txt --normalization-file svm_normalization_XT-YT-Plane.txt --machine-type SVM --plane XT-YT --output-dir res/scores/scores_XT-YT replay
-  $ ./bin/make_scores.py --features-dir lbptop_features --machine-file svm_machine_XY-XT-YT-plane.txt --normalization-file svm_normalization_XY-XT-YT-plane.txt --machine-type SVM --plane XY-XT-YT --output-dir res/scores/scores_XY-XT-YT replay
+  $ ./bin/lbptop_make_scores.py --features-dir lbptop_features --machine-file svm_machine_XY-plane.txt --normalization-file svm_normalization_XY-plane.txt --machine-type SVM --plane XY --output-dir res/scores/scores_XY replay
+  $ ./bin/lbptop_make_scores.py --features-dir lbptop_features --machine-file svm_machine_XT-Plane.txt --normalization-file svm_normalization_XT-Plane.txt --machine-type SVM --plane XT --output-dir res/scores/scores_XT replay
+  $ ./bin/lbptop_make_scores.py --features-dir lbptop_features --machine-file svm_machine_YT-Plane.txt --normalization-file svm_normalization_YT-Plane.txt --machine-type SVM --plane YT --output-dir res/scores/scores_YT replay
+  $ ./bin/lbptop_make_scores.py --features-dir lbptop_features --machine-file svm_machine_XT-YT-Plane.txt --normalization-file svm_normalization_XT-YT-Plane.txt --machine-type SVM --plane XT-YT --output-dir res/scores/scores_XT-YT replay
+  $ ./bin/lbptop_make_scores.py --features-dir lbptop_features --machine-file svm_machine_XY-XT-YT-plane.txt --normalization-file svm_normalization_XY-XT-YT-plane.txt --machine-type SVM --plane XY-XT-YT --output-dir res/scores/scores_XY-XT-YT replay
 
   #Result Analysis
-  $./bin/result_analysis.py --scores-dir res/scores/ --output-dir res/results/ replay
+  $./bin/lbptop_result_analysis.py --scores-dir res/scores/ --output-dir res/results/ replay
 
 
 - **Line 5:**
-.. code-block:: shell
+
+::
 
   #Extracting the LBP-TOP features
-  $ ./bin/calclbptop_multiple_radius.py --directory lbptop_features/ --input-dir database/ -rX 1 -rY 1 -rT 1 2 3 4 5 6 -cXY -cXT -cYT -nXT 4 -nYT 4 replay
+  $ ./bin/lbptop_calculate_parameters.py --directory lbptop_features/ --input-dir database/ -rX 1 -rY 1 -rT 1 2 3 4 5 6 -cXY -cXT -cYT -nXT 4 -nYT 4 replay
 
   #Running the SVM machine
-  $ ./bin/svmtrain_lbptop.py  -n --input-dir lbptop_features/ --output-dir res/ replay
+  $ ./bin/lbptop_svmtrain.py  -n --input-dir lbptop_features/ --output-dir res/ replay
 
   #Extracting the scores for each plane
-  $ ./bin/make_scores.py --features-dir lbptop_features --machine-file svm_machine_XY-plane.txt --normalization-file svm_normalization_XY-plane.txt --machine-type SVM --plane XY --output-dir res/scores/scores_XY replay
-  $ ./bin/make_scores.py --features-dir lbptop_features --machine-file svm_machine_XT-Plane.txt --normalization-file svm_normalization_XT-Plane.txt --machine-type SVM --plane XT --output-dir res/scores/scores_XT replay
-  $ ./bin/make_scores.py --features-dir lbptop_features --machine-file svm_machine_YT-Plane.txt --normalization-file svm_normalization_YT-Plane.txt --machine-type SVM --plane YT --output-dir res/scores/scores_YT replay
-  $ ./bin/make_scores.py --features-dir lbptop_features --machine-file svm_machine_XT-YT-Plane.txt --normalization-file svm_normalization_XT-YT-Plane.txt --machine-type SVM --plane XT-YT --output-dir res/scores/scores_XT-YT replay
-  $ ./bin/make_scores.py --features-dir lbptop_features --machine-file svm_machine_XY-XT-YT-plane.txt --normalization-file svm_normalization_XY-XT-YT-plane.txt --machine-type SVM --plane XY-XT-YT --output-dir res/scores/scores_XY-XT-YT replay
+  $ ./bin/lbptop_make_scores.py --features-dir lbptop_features --machine-file svm_machine_XY-plane.txt --normalization-file svm_normalization_XY-plane.txt --machine-type SVM --plane XY --output-dir res/scores/scores_XY replay
+  $ ./bin/lbptop_make_scores.py --features-dir lbptop_features --machine-file svm_machine_XT-Plane.txt --normalization-file svm_normalization_XT-Plane.txt --machine-type SVM --plane XT --output-dir res/scores/scores_XT replay
+  $ ./bin/lbptop_make_scores.py --features-dir lbptop_features --machine-file svm_machine_YT-Plane.txt --normalization-file svm_normalization_YT-Plane.txt --machine-type SVM --plane YT --output-dir res/scores/scores_YT replay
+  $ ./bin/lbptop_make_scores.py --features-dir lbptop_features --machine-file svm_machine_XT-YT-Plane.txt --normalization-file svm_normalization_XT-YT-Plane.txt --machine-type SVM --plane XT-YT --output-dir res/scores/scores_XT-YT replay
+  $ ./bin/lbptop_make_scores.py --features-dir lbptop_features --machine-file svm_machine_XY-XT-YT-plane.txt --normalization-file svm_normalization_XY-XT-YT-plane.txt --machine-type SVM --plane XY-XT-YT --output-dir res/scores/scores_XY-XT-YT replay
 
   #Result Analysis
-  $./bin/result_analysis.py --scores-dir res/scores/ --output-dir res/results/ replay
+  $./bin/lbptop_result_analysis.py --scores-dir res/scores/ --output-dir res/results/ replay
 
 
 
 - **Line 6:**
-.. code-block:: shell
+
+::
 
   #Extracting the LBP-TOP features
-  $ ./bin/calclbptop_multiple_radius.py --directory lbptop_features/ --input-dir database/ -rX 1 -rY 1 -rT 1 2 3 4 -cXY -cXT -cYT replay
+  $ ./bin/lbptop_calculate_parameters.py --directory lbptop_features/ --input-dir database/ -rX 1 -rY 1 -rT 1 2 3 4 -cXY -cXT -cYT replay
 
   #Running the SVM machine
-  $ ./bin/svmtrain_lbptop.py  -n --input-dir lbptop_features/ --output-dir res/ replay
+  $ ./bin/lbptop_svmtrain.py  -n --input-dir lbptop_features/ --output-dir res/ replay
 
   #Extracting the scores for each plane
-  $ ./bin/make_scores.py --features-dir lbptop_features --machine-file svm_machine_XY-plane.txt --normalization-file svm_normalization_XY-plane.txt --machine-type SVM --plane XY --output-dir res/scores/scores_XY replay
-  $ ./bin/make_scores.py --features-dir lbptop_features --machine-file svm_machine_XT-Plane.txt --normalization-file svm_normalization_XT-Plane.txt --machine-type SVM --plane XT --output-dir res/scores/scores_XT replay
-  $ ./bin/make_scores.py --features-dir lbptop_features --machine-file svm_machine_YT-Plane.txt --normalization-file svm_normalization_YT-Plane.txt --machine-type SVM --plane YT --output-dir res/scores/scores_YT replay
-  $ ./bin/make_scores.py --features-dir lbptop_features --machine-file svm_machine_XT-YT-Plane.txt --normalization-file svm_normalization_XT-YT-Plane.txt --machine-type SVM --plane XT-YT --output-dir res/scores/scores_XT-YT replay
-  $ ./bin/make_scores.py --features-dir lbptop_features --machine-file svm_machine_XY-XT-YT-plane.txt --normalization-file svm_normalization_XY-XT-YT-plane.txt --machine-type SVM --plane XY-XT-YT --output-dir res/scores/scores_XY-XT-YT replay
+  $ ./bin/lbptop_make_scores.py --features-dir lbptop_features --machine-file svm_machine_XY-plane.txt --normalization-file svm_normalization_XY-plane.txt --machine-type SVM --plane XY --output-dir res/scores/scores_XY replay
+  $ ./bin/lbptop_make_scores.py --features-dir lbptop_features --machine-file svm_machine_XT-Plane.txt --normalization-file svm_normalization_XT-Plane.txt --machine-type SVM --plane XT --output-dir res/scores/scores_XT replay
+  $ ./bin/lbptop_make_scores.py --features-dir lbptop_features --machine-file svm_machine_YT-Plane.txt --normalization-file svm_normalization_YT-Plane.txt --machine-type SVM --plane YT --output-dir res/scores/scores_YT replay
+  $ ./bin/lbptop_make_scores.py --features-dir lbptop_features --machine-file svm_machine_XT-YT-Plane.txt --normalization-file svm_normalization_XT-YT-Plane.txt --machine-type SVM --plane XT-YT --output-dir res/scores/scores_XT-YT replay
+  $ ./bin/lbptop_make_scores.py --features-dir lbptop_features --machine-file svm_machine_XY-XT-YT-plane.txt --normalization-file svm_normalization_XY-XT-YT-plane.txt --machine-type SVM --plane XY-XT-YT --output-dir res/scores/scores_XY-XT-YT replay
 
   #Result Analysis
-  $./bin/result_analysis.py --scores-dir res/scores/ --output-dir res/results/ replay
+  $./bin/lbptop_result_analysis.py --scores-dir res/scores/ --output-dir res/results/ replay
 
 
 - **Line 7:**
-.. code-block:: shell
+
+::
 
   #Extracting the LBP-TOP features
-  $ ./bin/calclbptop_multiple_radius.py --directory lbptop_features/ --input-dir database/ -rX 1 -rY 1 -rT 1 2 -cXY -cXT -cYT --lbptypeXY regular --lbptypeXT regular --lbptypeYT regular replay
+  $ ./bin/lbptop_calculate_parameters.py --directory lbptop_features/ --input-dir database/ -rX 1 -rY 1 -rT 1 2 -cXY -cXT -cYT --lbptypeXY regular --lbptypeXT regular --lbptypeYT regular replay
 
   #Running the SVM machine
-  $ ./bin/svmtrain_lbptop.py  -n --input-dir lbptop_features/ --output-dir res/ replay
+  $ ./bin/lbptop_svmtrain.py  -n --input-dir lbptop_features/ --output-dir res/ replay
 
   #Extracting the scores for each plane
-  $ ./bin/make_scores.py --features-dir lbptop_features --machine-file svm_machine_XY-plane.txt --normalization-file svm_normalization_XY-plane.txt --machine-type SVM --plane XY --output-dir res/scores/scores_XY replay
-  $ ./bin/make_scores.py --features-dir lbptop_features --machine-file svm_machine_XT-Plane.txt --normalization-file svm_normalization_XT-Plane.txt --machine-type SVM --plane XT --output-dir res/scores/scores_XT replay
-  $ ./bin/make_scores.py --features-dir lbptop_features --machine-file svm_machine_YT-Plane.txt --normalization-file svm_normalization_YT-Plane.txt --machine-type SVM --plane YT --output-dir res/scores/scores_YT replay
-  $ ./bin/make_scores.py --features-dir lbptop_features --machine-file svm_machine_XT-YT-Plane.txt --normalization-file svm_normalization_XT-YT-Plane.txt --machine-type SVM --plane XT-YT --output-dir res/scores/scores_XT-YT replay
-  $ ./bin/make_scores.py --features-dir lbptop_features --machine-file svm_machine_XY-XT-YT-plane.txt --normalization-file svm_normalization_XY-XT-YT-plane.txt --machine-type SVM --plane XY-XT-YT --output-dir res/scores/scores_XY-XT-YT replay
+  $ ./bin/lbptop_make_scores.py --features-dir lbptop_features --machine-file svm_machine_XY-plane.txt --normalization-file svm_normalization_XY-plane.txt --machine-type SVM --plane XY --output-dir res/scores/scores_XY replay
+  $ ./bin/lbptop_make_scores.py --features-dir lbptop_features --machine-file svm_machine_XT-Plane.txt --normalization-file svm_normalization_XT-Plane.txt --machine-type SVM --plane XT --output-dir res/scores/scores_XT replay
+  $ ./bin/lbptop_make_scores.py --features-dir lbptop_features --machine-file svm_machine_YT-Plane.txt --normalization-file svm_normalization_YT-Plane.txt --machine-type SVM --plane YT --output-dir res/scores/scores_YT replay
+  $ ./bin/lbptop_make_scores.py --features-dir lbptop_features --machine-file svm_machine_XT-YT-Plane.txt --normalization-file svm_normalization_XT-YT-Plane.txt --machine-type SVM --plane XT-YT --output-dir res/scores/scores_XT-YT replay
+  $ ./bin/lbptop_make_scores.py --features-dir lbptop_features --machine-file svm_machine_XY-XT-YT-plane.txt --normalization-file svm_normalization_XY-XT-YT-plane.txt --machine-type SVM --plane XY-XT-YT --output-dir res/scores/scores_XY-XT-YT replay
 
   #Result Analysis
-  $./bin/result_analysis.py --scores-dir res/scores/ --output-dir res/results/ replay
+  $./bin/lbptop_result_analysis.py --scores-dir res/scores/ --output-dir res/results/ replay
 
 
 - **Line 8:**
-.. code-block:: shell
+
+::
 
   #Extracting the LBP-TOP features
-  $ ./bin/calclbptop_multiple_radius.py --directory lbptop_features/ --input-dir database/ -rX 1 -rY 1 -rT 1 2 -cXY -cXT -cYT -nXT 16 -nYT 16 replay
+  $ ./bin/lbptop_calculate_parameters.py --directory lbptop_features/ --input-dir database/ -rX 1 -rY 1 -rT 1 2 -cXY -cXT -cYT -nXT 16 -nYT 16 replay
 
   #Running the SVM machine
-  $ ./bin/svmtrain_lbptop.py  -n --input-dir lbptop_features/ --output-dir res/ replay
+  $ ./bin/lbptop_svmtrain.py  -n --input-dir lbptop_features/ --output-dir res/ replay
 
   #Extracting the scores for each plane
-  $ ./bin/make_scores.py --features-dir lbptop_features --machine-file svm_machine_XY-plane.txt --normalization-file svm_normalization_XY-plane.txt --machine-type SVM --plane XY --output-dir res/scores/scores_XY replay
-  $ ./bin/make_scores.py --features-dir lbptop_features --machine-file svm_machine_XT-Plane.txt --normalization-file svm_normalization_XT-Plane.txt --machine-type SVM --plane XT --output-dir res/scores/scores_XT replay
-  $ ./bin/make_scores.py --features-dir lbptop_features --machine-file svm_machine_YT-Plane.txt --normalization-file svm_normalization_YT-Plane.txt --machine-type SVM --plane YT --output-dir res/scores/scores_YT replay
-  $ ./bin/make_scores.py --features-dir lbptop_features --machine-file svm_machine_XT-YT-Plane.txt --normalization-file svm_normalization_XT-YT-Plane.txt --machine-type SVM --plane XT-YT --output-dir res/scores/scores_XT-YT replay
-  $ ./bin/make_scores.py --features-dir lbptop_features --machine-file svm_machine_XY-XT-YT-plane.txt --normalization-file svm_normalization_XY-XT-YT-plane.txt --machine-type SVM --plane XY-XT-YT --output-dir res/scores/scores_XY-XT-YT replay
+  $ ./bin/lbptop_make_scores.py --features-dir lbptop_features --machine-file svm_machine_XY-plane.txt --normalization-file svm_normalization_XY-plane.txt --machine-type SVM --plane XY --output-dir res/scores/scores_XY replay
+  $ ./bin/lbptop_make_scores.py --features-dir lbptop_features --machine-file svm_machine_XT-Plane.txt --normalization-file svm_normalization_XT-Plane.txt --machine-type SVM --plane XT --output-dir res/scores/scores_XT replay
+  $ ./bin/lbptop_make_scores.py --features-dir lbptop_features --machine-file svm_machine_YT-Plane.txt --normalization-file svm_normalization_YT-Plane.txt --machine-type SVM --plane YT --output-dir res/scores/scores_YT replay
+  $ ./bin/lbptop_make_scores.py --features-dir lbptop_features --machine-file svm_machine_XT-YT-Plane.txt --normalization-file svm_normalization_XT-YT-Plane.txt --machine-type SVM --plane XT-YT --output-dir res/scores/scores_XT-YT replay
+  $ ./bin/lbptop_make_scores.py --features-dir lbptop_features --machine-file svm_machine_XY-XT-YT-plane.txt --normalization-file svm_normalization_XY-XT-YT-plane.txt --machine-type SVM --plane XY-XT-YT --output-dir res/scores/scores_XY-XT-YT replay
 
   #Result Analysis
-  $./bin/result_analysis.py --scores-dir res/scores/ --output-dir res/results/ replay
+  $./bin/lbptop_result_analysis.py --scores-dir res/scores/ --output-dir res/results/ replay
 
 
-
-After that, it's recommended to go out for a long coffee.
+After that, it's recommended to go out for a long coffee. This procedure can take a week.
 
 Problems
 --------
