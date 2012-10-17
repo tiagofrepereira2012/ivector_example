@@ -99,8 +99,31 @@ def main():
 
   for i in range(len(scoresFolder)):
 
-    print(models[i])
     scoresPlaneDir = os.path.join(scoresDir,scoresFolder[i])
+
+    #If for some reason the scores directory does not exists, 
+    if not os.path.exists(scoresPlaneDir):
+      models[i] = models[i] + " scores file not found."
+
+      #Storing the scores
+      trainRealScores.append(numpy.zeros(2))
+      trainAttackScores.append(numpy.zeros(2))
+
+      develRealScores.append(numpy.zeros(2))
+      develAttackScores.append(numpy.zeros(2))
+
+      testRealScores.append(numpy.zeros(2))
+      testAttackScores.append(numpy.zeros(2))
+
+      thresholds.append(0)
+      develTexts.append('')
+      testTexts.append('')
+
+      continue
+
+    if(verbose):
+      print(models[i])
+
 
     #Getting the scores
     realScores   = ScoreReader(trainReal,scoresPlaneDir)
