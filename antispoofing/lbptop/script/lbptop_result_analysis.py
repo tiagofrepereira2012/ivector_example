@@ -38,6 +38,8 @@ def main():
 
   parser.add_argument('-n','--score-normalization',type=str, dest='scoreNormalization',default='', choices=('znorm','minmax',''))
 
+  parser.add_argument('-t', '--thresholds', type=float, dest='thresholds', default=[], help='The predifined thresholds', nargs='+')
+
   parser.add_argument('-v', '--verbose', action='store_true', dest='verbose', default=False, help='Increases this script verbosity')
 
   #######
@@ -57,7 +59,12 @@ def main():
   scoresDir          = args.scoresDir
   outputDir          = args.outputDir
   scoreNormalization = args.scoreNormalization
+  thresholds         = args.thresholds
   verbose            = args.verbose
+
+  predefinedThresholds = False
+  if(len(thresholds) > 0):
+    predefinedThresholds = True
 
   if not os.path.exists(scoresDir):
     parser.error("scores-dir directory does not exist")
@@ -89,7 +96,10 @@ def main():
   testRealScores    = []
   testAttackScores  = []
 
-  thresholds        = []
+
+  if(not predefinedThresholds):
+    thresholds        = []
+  
   develTexts        = []
   testTexts        = []
 
@@ -115,7 +125,8 @@ def main():
       testRealScores.append(numpy.zeros(2))
       testAttackScores.append(numpy.zeros(2))
 
-      thresholds.append(0)
+      if(not predefinedThresholds):
+        thresholds.append(0)
       develTexts.append('')
       testTexts.append('')
 
@@ -177,7 +188,11 @@ def main():
 
     
    #### Calculation of the error rates for one plane
-    (test_hter,devel_hter),(test_text,devel_text),thres = perf.perf_hter([test_real_scores,test_attack_scores], [devel_real_scores,devel_attack_scores], bob.measure.eer_threshold)
+    if(predefinedThresholds):
+      (test_hter,devel_hter),(test_text,devel_text) = perf.perf_hter_threshold([test_real_scores,test_attack_scores], [devel_real_scores,devel_attack_scores], thresholds[i])
+    else:
+      (test_hter,devel_hter),(test_text,devel_text),thres = perf.perf_hter([test_real_scores,test_attack_scores], [devel_real_scores,devel_attack_scores], bob.measure.eer_threshold)
+       
 
     #Storing the scores
     trainRealScores.append(train_real_scores)
@@ -190,7 +205,8 @@ def main():
     testAttackScores.append(test_attack_scores)
 
     #Storing the protocol issues for each plane
-    thresholds.append(thres)
+    if(not predefinedThresholds):
+      thresholds.append(thres)
     develTexts.append(devel_text)
     testTexts.append(test_text)
 
