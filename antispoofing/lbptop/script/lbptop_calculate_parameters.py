@@ -52,7 +52,7 @@ def main():
 
   parser.add_argument('-rX', '--radiusX', type=int, default=1, dest='rX', help='Radius of the X axis (defaults to "%(default)s")')
   parser.add_argument('-rY', '--radiusY', type=int, default=1, dest='rY', help='Radius of the Y axis (defaults to "%(default)s")')
-  parser.add_argument('-rT', '--radiusT', type=int, default=1, dest='rT', help='Set of radius of the T axis (defaults to "%(default)s")',choices=xrange(10), nargs='+')
+  parser.add_argument('-rT', '--radiusT', type=int, default=(1,), dest='rT', help='Set of radius of the T axis (defaults to "%(default)s")',choices=xrange(10), nargs='+')
 
   parser.add_argument('-eXY', '--elbptypeXY', metavar='ELBPTYPE', type=str, choices=('regular', 'transitional', 'direction_coded','modified'),default='regular', dest='elbptypeXY', help='Choose the type of extended LBP features to compute in the XY plane (defaults to "%(default)s")')
 
@@ -112,7 +112,6 @@ def main():
   database = args.cls(args)
   realObjects, attackObjects = database.get_all_data()
   process = realObjects + attackObjects 
-  
 
   # finally, if we are on a grid environment, just find what I have to process.
   if args.grid:
@@ -132,7 +131,10 @@ def main():
     input = bob.io.VideoReader(filename)
 
     #Loading the face locations
-    flocfile = obj.facefile(inputDir)
+    if string.find(database.short_description(), "CASIA") != -1:
+      flocfile = obj.facefile()
+    else
+      flocfile = obj.facefile(inputDir)
     locations = preprocess_detections(flocfile,input.number_of_frames,facesize_filter=facesize_filter)
 
     sys.stdout.write("Processing file %s (%d frames) [%d/%d] " % (filename,
