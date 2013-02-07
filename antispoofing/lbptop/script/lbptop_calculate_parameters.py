@@ -13,6 +13,7 @@ import numpy
 
 from .. import spoof
 import antispoofing.utils
+import string
 
 from antispoofing.utils.faceloc import *
 from antispoofing.lbptop.helpers import *
