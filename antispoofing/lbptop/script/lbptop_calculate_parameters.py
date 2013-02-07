@@ -133,7 +133,7 @@ def main():
     #Loading the face locations
     if string.find(database.short_description(), "CASIA") != -1:
       flocfile = obj.facefile()
-    else
+    else:
       flocfile = obj.facefile(inputDir)
     locations = preprocess_detections(flocfile,input.number_of_frames,facesize_filter=facesize_filter)
 
