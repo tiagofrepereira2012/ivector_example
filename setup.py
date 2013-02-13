@@ -9,7 +9,7 @@ from setuptools import setup, find_packages
 setup(
 
     name='antispoofing.lbptop',
-    version='1.0.1',
+    version='1.0.2',
     description='LBP-TOP based countermeasure against facial spoofing attacks',
     url='http://pypi.python.org/pypi/antispoofing.lbptop',
     license='GPLv3',
