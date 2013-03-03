@@ -42,6 +42,10 @@ def main():
 
   parser.add_argument('-v', '--verbose', action='store_true', dest='verbose', default=False, help='Increases this script verbosity')
 
+  parser.add_argument('-a', '--average-scores', action='store_true', dest='average_scores', default=False, help='Use the average of scores')
+
+  parser.add_argument('-i', '--average-size', type=int, dest='average_size', default=100, help='The number of accumulated frames to compute the average')
+
   #######
   # Database especific configuration
   #######
@@ -61,6 +65,9 @@ def main():
   scoreNormalization = args.scoreNormalization
   thresholds         = args.thresholds
   verbose            = args.verbose
+
+  average_scores     = args.average_scores
+  average_size       = args.average_size
 
   predefinedThresholds = False
   if(len(thresholds) > 0):
@@ -139,19 +146,18 @@ def main():
     #Getting the scores
     realScores   = ScoreReader(trainReal,scoresPlaneDir)
     attackScores = ScoreReader(trainAttack,scoresPlaneDir)
-    train_real_scores = realScores.getScores()
-    train_attack_scores = attackScores.getScores()
+    train_real_scores = realScores.getScores(average=average_scores, average_size=average_size)
+    train_attack_scores = attackScores.getScores(average=average_scores, average_size=average_size)
 
     realScores   = ScoreReader(develReal,scoresPlaneDir)
     attackScores = ScoreReader(develAttack,scoresPlaneDir)
-    devel_real_scores = realScores.getScores()
-    devel_attack_scores = attackScores.getScores()
+    devel_real_scores = realScores.getScores(average=average_scores, average_size=average_size)
+    devel_attack_scores = attackScores.getScores(average=average_scores, average_size=average_size)
 
     realScores   = ScoreReader(testReal,scoresPlaneDir)
     attackScores = ScoreReader(testAttack,scoresPlaneDir)
-    test_real_scores = realScores.getScores()
-    test_attack_scores = attackScores.getScores()
- 
+    test_real_scores = realScores.getScores(average=average_scores, average_size=average_size)
+    test_attack_scores = attackScores.getScores(average=average_scores, average_size=average_size)
 
     #Applying the score normaliztion
     if(scoreNormalization=="minmax"):
