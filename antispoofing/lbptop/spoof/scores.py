@@ -8,6 +8,21 @@
 import numpy
 import bob
 
+
+def average_scores(scores,average_size):
+  """
+  Compute the average of scores
+
+
+  scores: Set of scores to normalize
+  average_size: Number of accumulated scores for the average
+  """
+
+  av_scores = scores[(numpy.where(numpy.isnan(scores)==False))]#Removing nan
+  av_scores = numpy.sum(av_scores[0:average_size])
+  return av_scores / float(average_size)
+
+
 """
 " For each LBPTOP plane and it combinations save, in a HDF5 file, the following data:
 "

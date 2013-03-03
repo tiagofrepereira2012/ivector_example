@@ -14,12 +14,14 @@ import argparse
 import bob
 import numpy
 
-from .. import spoof
-from ..spoof import calclbptop
+#from .. import spoof
 from antispoofing.utils.ml import *
 from antispoofing.utils.db import *
+from antispoofing.utils.helpers import *
 
+import antispoofing
 from antispoofing.lbptop.helpers import *
+from antispoofing.lbptop.spoof import *
 
 def main():
 
@@ -68,6 +70,19 @@ def main():
   planeName          = args.planeName
   verbose            = args.verbose
 
+  ###
+  # CODE FOR ICB 2013
+  ###
+  #Indexing the <argparse.Namespace>. This piece of code will work for the casia-fasd database
+  args_keys = vars(args)
+  icb2013 = False
+  if 'icb2013' in args_keys.keys():
+    if(args.icb2013):
+      icb2013 = True
+      icb2013_average_size = args.icb2013_average_size
+      accumulated_scores = []
+
+
   ####################
   #Querying the database
   ####################
@@ -79,7 +94,6 @@ def main():
   realObjects, attackObjects = database.get_all_data()
   process = realObjects + attackObjects 
 
-  
   # finally, if we are on a grid environment, just find what I have to process.
   if args.grid:
     key = int(os.environ['SGE_TASK_ID']) - 1
@@ -123,11 +137,19 @@ def main():
       machine = bob.machine.SupportVector(machineFile)
       scores  = svmCountermeasure.svm_predict(machine, featureVector)
 
+    if(icb2013):
+      score_icb = average_scores(scores,icb2013_average_size)
+      accumulated_scores.append([obj.make_path(),score_icb])
+
     scores = numpy.reshape(scores,(1,len(scores)))
 
     # saves the output
     obj.save(scores,directory=outputDir,extension='.hdf5')  
 
+
+  if(icb2013):
+    write_icb2013_score(accumulated_scores,outputDir)
+  
   if(verbose):
     print("All done !")
 

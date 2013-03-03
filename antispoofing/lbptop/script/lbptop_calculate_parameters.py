@@ -26,7 +26,6 @@ def main():
   INPUT_DIR = os.path.join(basedir, 'database')
   OUTPUT_DIR = os.path.join(basedir, 'lbp_features')
 
-
   ##########
   # General configuration
   ##########
