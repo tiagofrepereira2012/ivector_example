@@ -47,6 +47,8 @@ def main():
 
   parser.add_argument('-v', '--verbose', action='store_true', dest='verbose', default=False, help='Increases this script verbosity')
 
+  parser.add_argument('-s', '--average-size', type=int, dest='average_size', default=100, help='The number of accumulated frames to compute the average.')
+
   # For SGE grid processing @ Idiap
   parser.add_argument('--grid', dest='grid', action='store_true', default=False, help=argparse.SUPPRESS)
 
@@ -70,6 +72,8 @@ def main():
   planeName          = args.planeName
   verbose            = args.verbose
 
+  average_size       = args.average_size
+
   ###
   # CODE FOR ICB 2013
   ###
@@ -79,7 +83,6 @@ def main():
   if 'icb2013' in args_keys.keys():
     if(args.icb2013):
       icb2013 = True
-      icb2013_average_size = args.icb2013_average_size
       accumulated_scores = []
 
 
@@ -138,7 +141,7 @@ def main():
       scores  = svmCountermeasure.svm_predict(machine, featureVector)
 
     if(icb2013):
-      score_icb = average_scores(scores,icb2013_average_size)
+      score_icb = average_scores(scores,average_size)
       accumulated_scores.append([obj.make_path(),score_icb])
 
     scores = numpy.reshape(scores,(1,len(scores)))
