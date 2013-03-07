@@ -82,7 +82,7 @@ def main():
   icb2013 = False
   if 'icb2013' in args_keys.keys():
     if(args.icb2013):
-      icb2013 = True
+      icb2013 = True 
       accumulated_scores = []
 
 
