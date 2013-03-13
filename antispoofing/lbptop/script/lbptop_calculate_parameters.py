@@ -39,6 +39,8 @@ def main():
 
   parser.add_argument('--ff', '--facesize_filter', dest="facesize_filter", default=50, type=int, help="all the frames with faces smaller then this number, will be discarded (defaults to '%(default)s')")
 
+  parser.add_argument('-t', '--tan-triggs', dest='tan_triggs', action='store_true', default=False, help="Apply the Tan & Triggs algorithm before LBP-TOP")
+
   parser.add_argument('-lXY', '--lbptypeXY', metavar='LBPTYPE', type=str, choices=('regular', 'riu2', 'uniform'), default='uniform', dest='lbptypeXY', help='Choose the type of LBP to use in the XY plane (defaults to "%(default)s")')
 
   parser.add_argument('-lXT', '--lbptypeXT', metavar='LBPTYPE', type=str, choices=('regular', 'riu2', 'uniform'), default='uniform', dest='lbptypeXT', help='Choose the type of LBP to use in the XT plane (defaults to "%(default)s")')
@@ -103,6 +105,8 @@ def main():
   elbptypeXT = args.elbptypeXT
   elbptypeYT = args.elbptypeYT
 
+  tan_triggs = args.tan_triggs
+
   maxRadius = max(rX,rY,max(rT)) #Getting the max radius to extract the volume for analysis
 
   ########################
@@ -120,6 +124,11 @@ def main():
       raise RuntimeError, "Grid request for job %d on a setup with %d jobs" % \
           (key, len(process))
     process = [process[key]]
+
+
+  #Instancianting the Tan & Triggs algorithm (The default configurations only)
+  tantriggs = bob.ip.TanTriggs()
+
 
   # processing each video
   for index, obj in enumerate(process):
@@ -149,7 +158,8 @@ def main():
     grayFrames = numpy.zeros(shape=(nFrames,vin.shape[2],vin.shape[3]))
     for i in range(nFrames):
       grayFrames[i] = bob.ip.rgb_to_gray(vin[i,:,:,:])
-
+      if(tan_triggs):
+        grayFrames[i] = tantriggs(grayFrames[i])
 
     ### STARTING the video analysis
     #Analysing each sub-volume in the video
