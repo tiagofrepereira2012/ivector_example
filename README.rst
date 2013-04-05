@@ -202,7 +202,7 @@ Classification with Support Vector Machine (SVM)
 
 The classification with SVM is performed using the script `script/lbptop_svmtrain.py`. It makes use of the scripts `ml/pca.py` (if PCA reduction is performed on the data) and `ml/norm.py` (if the data need to be normalized). The default input and output directories are `./lbp_features` and `./res`. To execute the script with the default parameters, call::
 
-  $ ./bin/lbptop_ldatrain.py
+  $ ./bin/lbptop_svmtrain.py
 
 The performance results will be calculated for each LBP-TOP planes and the combinations XT+YT and XY+XT+YT.
 
