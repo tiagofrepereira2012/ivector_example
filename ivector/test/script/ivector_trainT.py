@@ -91,10 +91,6 @@ def main():
       UBM.acc_statistics(quadros[j],s)
     stats.append(s)
 
-  return 0
-
-
-
   ##########################
   #Training the total variability matrix
   ##########################
