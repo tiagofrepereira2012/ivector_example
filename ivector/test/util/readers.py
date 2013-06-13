@@ -42,18 +42,31 @@ def gmmread(fileUBM, N_MIXTURES, DIMENSION):
 
 
 
-def paramlistread(list_in):
+def paramlistread(list_in, feature_dimension):
   """ 
    Receives a text file with a list of feature files as input. 
    Returns the feature arrays in the form of a list (each element corresponding to an entry of the input file)  
   """
 
+  #Counting the number of frames
+  #list_file = open(list_in, 'r')
+  #linha = list_file.readline().strip() #reads first line (feature file name)
+  #rows = 0
+  #while len(linha) > 0 :
+    #parameters = paramread(linha, feature_dimension) #reads current line's features
+    #rows = rows + parameters.shape[0]
+    #linha = list_file.readline().strip() #reads next line (feature file name)
+  #list_file.close()
+
+
+  #Reading
   list_file = open(list_in, 'r')
   linha = list_file.readline().strip() #reads first line (feature file name)
   list_parameters = []
+  i = 0
   while len(linha) > 0 :
-    parameters = paramread(linha) #reads current line's features
-    list_parameters.append(parameters) #ads features to output list
+    parameters = paramread(linha, feature_dimension) #reads current line's features
+    list_parameters.append(parameters)
     linha = list_file.readline().strip() #reads next line (feature file name)
   list_file.close()
 
@@ -61,7 +74,7 @@ def paramlistread(list_in):
 
 
 
-def paramread(arquivo):
+def paramread(arquivo, feature_dimension):
   """
   Reads a feature file.
   Returns an array with the features.
@@ -74,7 +87,26 @@ def paramread(arquivo):
   parameters = numpy.array(parameters, dtype=numpy.float64)
   file.close()
 
+  parameters = parameters.reshape(len(parameters)/feature_dimension, feature_dimension)
+
   return parameters
 
 
+
+def Tmatrix_write_bob(T_Matrix,Tmatrix_file):
+  """ Writes total variability matrix to file.
+
+    T_Matrix: structure containing the total variability matrix
+    Tmatrix_file: total variability matrix output file name
+    
+  """
+  import struct
+
+  out_file = open(Tmatrix_file,"wb")
+  for j in range(T_Matrix.dim_cd):
+    s = struct.pack('d'*T_Matrix.dim_rt, *T_Matrix.t[j])
+    out_file.write(s)
+  out_file.close()
+
+  return
 

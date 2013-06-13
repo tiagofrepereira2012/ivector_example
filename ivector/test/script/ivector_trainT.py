@@ -44,7 +44,7 @@ def main():
   TRAINING_FILES      = args.training_files
 
   N_MIXTURES          = args.n_mixtures  # Number of gaussian mixtures
-  DIMENSION           = args.feature_dim # Feature vector dimension
+  FEATURE_DIMENSION   = args.feature_dim # Feature vector dimension
   T_MATRIX_DIM        = args.t_dim       # Total variability space dimension 
   T_MATRIX_ITERA      = args.iterations  # Number of iterations to train the total variability matrix
   UPDATE_SIGMA = True  # Update sigma param to train the total variability matrix (T matrix) - True or False
@@ -61,9 +61,9 @@ def main():
   if(VERBOSE):
     print("Reading the UBM ....")
 
-  GMM_read = readers.gmmread(UBM_FILE, N_MIXTURES, DIMENSION)
+  GMM_read = readers.gmmread(UBM_FILE, N_MIXTURES, FEATURE_DIMENSION)
 
-  UBM           = bob.machine.GMMMachine(N_MIXTURES,DIMENSION)  # creates an object to store the UBM
+  UBM           = bob.machine.GMMMachine(N_MIXTURES, FEATURE_DIMENSION)  # creates an object to store the UBM
   UBM.weights   = GMM_read[0]
   UBM.means     = GMM_read[1]
   UBM.variances = GMM_read[2]
@@ -74,10 +74,48 @@ def main():
   ##########################
   if(VERBOSE):
     print("Reading the T-matrix files ....")
+  T_Matrix_files = readers.paramlistread(TRAINING_FILES, FEATURE_DIMENSION)
 
-  T_Matrix_files = readers.paramlistread(TRAINING_FILES)
+
+  ##########################
+  # Computes Baum-Welch statistics for all T-matrix training files
+  ##########################
+  if(VERBOSE):
+    print("Compute statistics for T Matrix training files ....")
+
+  stats = []
+  for i in range(len(T_Matrix_files)):
+    quadros = T_Matrix_files[i]
+    s = bob.machine.GMMStats(N_MIXTURES,FEATURE_DIMENSION)
+    for j in range(len(quadros)):
+      UBM.acc_statistics(quadros[j],s)
+    stats.append(s)
 
   return 0
+
+
+
+  ##########################
+  #Training the total variability matrix
+  ##########################
+  # Training steps...
+  if(VERBOSE):
+    print("Training T-MAtrix ...")
+
+
+  for i in range(T_MATRIX_ITERA):
+    if(VERBOSE):
+      print "  Executing iteration %d ..." % (i+1)
+
+    T_Matrix = bob.machine.IVectorMachine(UBM,T_MATRIX_DIM)
+    trainer = bob.trainer.IVectorTrainer(UPDATE_SIGMA, 0.0, i+1, 0)  # ( update_sigma, convergence_threshold, max_iterations, compute_likelihood)
+    trainer.train(T_Matrix,stats)
+  # saves the total variability matrix
+    output_file_Tmatrix = '{0}/matriz_T_M{1}_L{2}_T{3}_it{4}.T'.format(T_Matrix_out_dir,N_MIXTURES,DIMENSION,T_MATRIX_DIM,i+1)
+
+    output_file_Tmatrix = os.path.join(OUTPUT_DIR,output_file_Tmatrix)
+    Tmatrix_write_bob(T_Matrix,output_file_Tmatrix)
+
 
 if __name__ == "__main__":
   main()
