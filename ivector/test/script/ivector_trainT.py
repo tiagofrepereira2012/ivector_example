@@ -20,6 +20,8 @@ def main():
 
   parser.add_argument('-b', '--ubm_file', metavar='DIR', type=str, dest='ubm_file', default='./data/M256_MOBIO_ICB_2013_full.gmm', help='UBM directory (defaults to "%(default)s")')
 
+  parser.add_argument('-l', '--training_files', metavar='DIR', type=str, dest='training_files', default='./data/MOBIO_ICB_2013_train_full_M256_Tmatrix.list', help='UBM directory (defaults to "%(default)s")')
+
   parser.add_argument('-m', '--n_mixtures', metavar='HIP', type=int, dest='n_mixtures', default=256, help='Number of gaussians (defaults to "%(default)s")')
 
   parser.add_argument('-f', '--feature_dim', metavar='HIP', type=int, dest='feature_dim', default=40, help='Features dimension (defaults to "%(default)s")')
