@@ -31,7 +31,7 @@ setup(
 
     entry_points={
       'console_scripts': [
-        'ivector_trainT.py = ivector.test.trainT:main',
+        'ivector_trainT.py = ivector.test.script.ivector_trainT:main'
         ],
       },
 
