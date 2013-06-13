@@ -39,8 +39,9 @@ def main():
   ########################
   # Loading Hiperparameters
   #########################
-  OUTPUT_DIR          =  args.output_dir # file containing UBM
-  UBM_FILE            =  args.ubm_file   # file containing UBM
+  OUTPUT_DIR          = args.output_dir # file containing UBM
+  UBM_FILE            = args.ubm_file   # file containing UBM
+  TRAINING_FILES      = args.training_files
 
   N_MIXTURES          = args.n_mixtures  # Number of gaussian mixtures
   DIMENSION           = args.feature_dim # Feature vector dimension
@@ -74,8 +75,7 @@ def main():
   if(VERBOSE):
     print("Reading the T-matrix files ....")
 
-  T_Matrix_files = paramlistread(T_Matrix_list)
-
+  T_Matrix_files = readers.paramlistread(TRAINING_FILES)
 
   return 0
 
