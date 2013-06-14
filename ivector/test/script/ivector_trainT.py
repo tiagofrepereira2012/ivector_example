@@ -99,8 +99,34 @@ def main():
       UBM.acc_statistics(quadros[j],s)
     stats.append(s)
 
+
   ##########################
-  #Training the total variability matrix
+  #This code does not work properly.
+  # The "t" and the "sigma" provided to the iVectorMachine is ignored by the implementation. The initialization is always "random".
+  ##########################
+  """
+  # Training steps...
+  print("Training T-Matrix ...")
+  T_Matrix = bob.machine.IVectorMachine(UBM,T_MATRIX_DIM)
+  T_Matrix.variance_threshold = 1e-5
+  for i in range(T_MATRIX_ITERA):
+    print "  Executing iteration %d ..." % (i+1)
+    if i > 0:
+      T_Matrix.t = t_temp
+      T_Matrix.sigma = sigma_temp
+    trainer = bob.trainer.IVectorTrainer(UPDATE_SIGMA, 0.0, 1, 0)  # ( update_sigma, convergence_threshold, max_iterations, compute_likelihood)
+    trainer.train(T_Matrix,stats)
+    # saves the total variability matrix
+    t_temp = T_Matrix.t
+    sigma_temp = T_Matrix.sigma    
+    output_file_Tmatrix = 'matriz_T_M{0}_L{1}_T{2}_it{3}.T'.format(N_MIXTURES,FEATURE_DIMENSION,T_MATRIX_DIM,i+1)
+    output_file_Tmatrix = os.path.join(OUTPUT_DIR, output_file_Tmatrix)
+    readers.Tmatrix_write_bob(T_Matrix,output_file_Tmatrix)
+  """
+
+  ##########################
+  # THIS CODE WORKS
+  #Training the total variability matrix.
   ##########################
   # Training steps...
   if(VERBOSE):
@@ -119,6 +145,10 @@ def main():
     output_file_Tmatrix = 'matriz_T_M{0}_L{1}_T{2}_it{3}.T'.format(N_MIXTURES,FEATURE_DIMENSION,T_MATRIX_DIM,i+1)
     output_file_Tmatrix = os.path.join(OUTPUT_DIR, output_file_Tmatrix)
     readers.Tmatrix_write_bob(T_Matrix,output_file_Tmatrix)
+
+
+
+
 
 
 if __name__ == "__main__":
