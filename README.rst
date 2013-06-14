@@ -22,14 +22,14 @@ If you use this package and/or its results, please cite the following publicatio
 Installation
 ------------
 
-First, clone the package from the github:
+First, clone the package from the github::
 $ git clone https://github.com/tiagofrepereira2012/ivector_example/
 
-This code uses the bob 1.2.0 using the mr.developer recipe; please edit the file `buildout.cfg` and set the `prefixes` variable to the correct path to your Bob installation.
+This code uses the bob 1.2.0 using the mr.developer recipe; please edit the file `buildout.cfg` and set the `prefixes` variable to the correct path to your Bob installation::
 
 $ prefixes = <bob path>
 
-Finally, follow the recipe bellow:
+Finally, follow the recipe bellow::
 
 $ python bootstrap.py
 $ ./bin/buildout
@@ -40,7 +40,7 @@ User guide
 
 Until now it is developed only the training of the Total Variability Matrix.
 
-To gerenate the total variability matrix for each iteratin:
+To gerenate the total variability matrix for each iteration::
 
 $ ./bin/ivector_trainT.py --help
 
