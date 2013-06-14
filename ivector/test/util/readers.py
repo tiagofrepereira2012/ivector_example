@@ -101,7 +101,9 @@ def Tmatrix_write_bob(T_Matrix,Tmatrix_file):
     
   """
   import struct
+  import bob
 
+  bob.db.utils.makedirs_safe(os.path.dirname(Tmatrix_file))
   out_file = open(Tmatrix_file,"wb")
   for j in range(T_Matrix.dim_cd):
     s = struct.pack('d'*T_Matrix.dim_rt, *T_Matrix.t[j])

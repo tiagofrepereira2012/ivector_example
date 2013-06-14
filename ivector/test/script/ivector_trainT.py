@@ -16,7 +16,7 @@ def main():
 
   parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
 
-  parser.add_argument('-o', '--output-dir', metavar='DIR', type=str, dest='output_dir', default='.', help='Output directory (defaults to "%(default)s")')
+  parser.add_argument('-o', '--output-dir', metavar='DIR', type=str, dest='output_dir', default='./EXPERIMENTS/T/', help='Output directory (defaults to "%(default)s")')
 
   parser.add_argument('-b', '--ubm_file', metavar='DIR', type=str, dest='ubm_file', default='./data/M256_MOBIO_ICB_2013_full.gmm', help='UBM directory (defaults to "%(default)s")')
 
@@ -30,9 +30,11 @@ def main():
 
   parser.add_argument('-i', '--iterations', metavar='HIP', type=int, dest='iterations', default=10, help='Number of iterations to train the total variability matrix (defaults to "%(default)s")')
 
-  parser.add_argument('-u', '--update_sigma', metavar='HIP', type=bool, dest='update_sigma', default=True, help='Update sigma param to train the total variability matrix (T matrix) (defaults to "%(default)s")')
+  parser.add_argument('-u', '--update_sigma', action='store_true', dest='update_sigma', default=True, help='Update sigma param to train the total variability matrix (T matrix) (defaults to "%(default)s")')
 
-  parser.add_argument('-v', '--verbose', dest='verbose', action='store_true', default=True, help="Increase some verbosity")
+  parser.add_argument('-a', '--fake_data', action='store_true', dest='fake_data', default=False, help='Use fake data? (defaults to "%(default)s")')
+
+  parser.add_argument('-v', '--verbose', dest='verbose', action='store_true', default=False, help="Increase some verbosity")
 
   args = parser.parse_args()
 
@@ -47,13 +49,11 @@ def main():
   FEATURE_DIMENSION   = args.feature_dim # Feature vector dimension
   T_MATRIX_DIM        = args.t_dim       # Total variability space dimension 
   T_MATRIX_ITERA      = args.iterations  # Number of iterations to train the total variability matrix
-  UPDATE_SIGMA = True  # Update sigma param to train the total variability matrix (T matrix) - True or False
+  UPDATE_SIGMA        = args.update_sigma  # Update sigma param to train the total variability matrix (T matrix) - True or False
+  FAKE_DATA           = args.fake_data
+  TOTAL_FAKE_DATA     = 100
 
   VERBOSE = args.verbose
-
-  #T_Matrix_list       = "/home/muliani0712a/test_ivector/MOBIO_ICB_2013_train_full_M256_Tmatrix.list"
-  #T_Matrix_out_dir    = "/home/muliani0712a/test_ivector/Matriz_T/MOBIO_ICB_2013_16kHz_20MFCC_D_CMS_VAD_FW_bob/M256_MOBIO_ICB_2013_full/com_UpdateSigma" # dir with the total variability matrix
-
 
   ##########################
   # Reading the UBM
@@ -72,10 +72,18 @@ def main():
   ##########################
   # Reads list of feature files used to train the total variability matrix
   ##########################
-  if(VERBOSE):
-    print("Reading the T-matrix files ....")
-  T_Matrix_files = readers.paramlistread(TRAINING_FILES, FEATURE_DIMENSION)
+  if(not FAKE_DATA):
+    if(VERBOSE):
+      print("Reading the T-matrix files ....")
+    T_Matrix_files = readers.paramlistread(TRAINING_FILES, FEATURE_DIMENSION)
+  else:
 
+    if(FAKE_DATA):
+      print("Loading fake data ....")
+
+    T_Matrix_files = []    
+    for i in range(TOTAL_FAKE_DATA):
+      T_Matrix_files.append( numpy.random.rand(TOTAL_FAKE_DATA,FEATURE_DIMENSION))
 
   ##########################
   # Computes Baum-Welch statistics for all T-matrix training files
@@ -96,7 +104,7 @@ def main():
   ##########################
   # Training steps...
   if(VERBOSE):
-    print("Training T-MAtrix ...")
+    print "Training T-Matrix with %d iterations ..." % T_MATRIX_ITERA
 
 
   for i in range(T_MATRIX_ITERA):
@@ -106,11 +114,11 @@ def main():
     T_Matrix = bob.machine.IVectorMachine(UBM,T_MATRIX_DIM)
     trainer = bob.trainer.IVectorTrainer(UPDATE_SIGMA, 0.0, i+1, 0)  # ( update_sigma, convergence_threshold, max_iterations, compute_likelihood)
     trainer.train(T_Matrix,stats)
-  # saves the total variability matrix
-    output_file_Tmatrix = '{0}/matriz_T_M{1}_L{2}_T{3}_it{4}.T'.format(T_Matrix_out_dir,N_MIXTURES,DIMENSION,T_MATRIX_DIM,i+1)
 
-    output_file_Tmatrix = os.path.join(OUTPUT_DIR,output_file_Tmatrix)
-    Tmatrix_write_bob(T_Matrix,output_file_Tmatrix)
+    #saves the total variability matrix
+    output_file_Tmatrix = 'matriz_T_M{0}_L{1}_T{2}_it{3}.T'.format(N_MIXTURES,FEATURE_DIMENSION,T_MATRIX_DIM,i+1)
+    output_file_Tmatrix = os.path.join(OUTPUT_DIR, output_file_Tmatrix)
+    readers.Tmatrix_write_bob(T_Matrix,output_file_Tmatrix)
 
 
 if __name__ == "__main__":
