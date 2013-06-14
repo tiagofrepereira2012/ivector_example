@@ -32,7 +32,7 @@ $ prefixes = <bob path>
 
 Finally, follow the recipe bellow::
 
-$ <bob path>/python bootstrap.py
+$ <bob path>/bin/python bootstrap.py
 $ ./bin/buildout
 
 
