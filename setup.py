@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #Tiago de Freitas Pereira <tiagofrepereira@gmail.com>
-#Sun Jul  8 20:35:55 CEST 2012
+#Thu Jun 13 09:00:55 BRT 2013
 
 from setuptools import setup, find_packages
 
