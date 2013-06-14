@@ -23,6 +23,7 @@ Installation
 ------------
 
 First, clone the package from the github::
+
 $ git clone https://github.com/tiagofrepereira2012/ivector_example/
 
 This code uses the bob 1.2.0 using the mr.developer recipe; please edit the file `buildout.cfg` and set the `prefixes` variable to the correct path to your Bob installation::
